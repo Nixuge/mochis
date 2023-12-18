@@ -1,0 +1,24 @@
+{
+  "name": "mochi",
+  "module": "index.ts",
+  "type": "module",
+  "devDependencies": {
+    "@mochiapp/cli": "^0.0.8",
+    "@mochiapp/runner": "^0.0.2",
+    "bun-types": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@mochiapp/js": "^0.0.2",
+    "cheerio": "^1.0.0-rc.12",
+    "vitest": "^1.0.4"
+  }, 
+  "scripts": {
+    "check": "mochi-cli check",
+    "bundle": "mochi-cli bundle --site",
+    "serve": "mochi-cli serve",
+    "test": "mocha -r ts-node/register test/**/*.spec.ts"
+  }
+}
