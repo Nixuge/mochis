@@ -18,9 +18,14 @@ const source = runner(Source)
 // })
 
 // test("gets the episode count", async() => {
-//   console.log(JSON.stringify(await source.playlistEpisodes("/watch/how-not-to-summon-a-demon-lord-w.oz6y/ep-1")))
+//   console.log(JSON.stringify(await source.playlistEpisodes("how-not-to-summon-a-demon-lord-w.oz6y/ep-1")))
 // })
 
-test("gets the episode sources", async() => {
-  console.log(JSON.stringify(await source.playlistEpisodeSources({playlistId: "/watch/how-not-to-summon-a-demon-lord-w.oz6y/ep-1", episodeId: ""})))
+// test("gets the episode sources", async() => {
+//   console.log(JSON.stringify(await source.playlistEpisodeSources({playlistId: "how-not-to-summon-a-demon-lord-w.oz6y/ep-1", episodeId: "HTmfCcgl,HTSZA8sl,HTqXDM4m"})))
+// })
+
+
+test("gets an episode server", async() => {
+  console.log(JSON.stringify(await source.playlistEpisodeServer({playlistId: "how-not-to-summon-a-demon-lord-w.oz6y/ep-1", episodeId: "HTmfCcgl,HTSZA8sl,HTqXDM4m", sourceId:"servers", serverId:"HzuaDc8unw=="})))
 })

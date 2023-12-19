@@ -19,10 +19,12 @@ import type {
   SearchFilter,
   SearchQuery,
   PlaylistEpisodeServer,
+  MochiResponse,
 } from '@mochiapp/js/dist';
 import {
+  PlaylistEpisodeServerFormatType,
 //   PlaylistEpisodeServerFormatType,
-//   PlaylistEpisodeServerQualityType,
+  PlaylistEpisodeServerQualityType,
 //   PlaylistEpisodeServerRequest,
 //   PlaylistEpisodeServerResponse,
 //   PlaylistEpisodeSource,
@@ -30,7 +32,6 @@ import {
 //   PlaylistID,
 //   PlaylistItemsOptions,
 //   PlaylistItemsResponse,
-  PlaylistGroup,
   PlaylistStatus,
   PlaylistType,
   SourceModule,
@@ -38,17 +39,30 @@ import {
 } from '@mochiapp/js/dist';
 import { load } from 'cheerio';
 import { getVrf, decodeVideoSkipData } from './utils/urlGrabber';
+import { getVideo } from './extractors';
+import { parseSkipData } from './utils/skipData';
 const BASENAME = 'https://aniwave.to'
-// const AJAX_BASENAME = 'https://ajax.gogo-load.com/ajax/'
+const AJAX_BASENAME = 'https://aniwave.to/ajax'
 
 export default class Source extends SourceModule implements VideoContent {
-    // todo: see if use stores (pinia?)
-    data_id!: string
-    constructor() {
-        super()
-    }
-  discoverListings(request?: DiscoverListingsRequest | undefined): Promise<DiscoverListing[]> {
-      throw new Error('Method not implemented.');
+  metadata = {
+    id: 'AniwaveSource',
+    name: 'Aniwave Source',
+    version: '0.0.9',
+  }
+
+  async discoverListings(request?: DiscoverListingsRequest | undefined): Promise<DiscoverListing[]> {
+    // REALLY DIRTY WORKAROUND
+    // to just use search for this before i get to implementing it correctly
+    // Edit: this doesn't even seem to be working lol
+      return [{
+        id: "0",
+        title: "Hello there",
+        type: DiscoverListingType.default,
+        orientation: DiscoverListingOrientationType.portrait,
+        paging: await this.search({query:"", page:"1", filters:[]})
+      }]
+
   }
   async playlistDetails(id: string): Promise<PlaylistDetails> {
     return {
@@ -63,12 +77,16 @@ export default class Source extends SourceModule implements VideoContent {
   }
   async playlistEpisodes(playlistId: string, options?: PlaylistItemsOptions | undefined): Promise<PlaylistItemsResponse> {
     console.log(playlistId);
-    const html = await request.get(`https://aniwave.to/${playlistId}`)
-    // const html = await request.get(`https://aniwave.to/filter?keyword=${searchQuery.query}&page=${currentPageInt}`)
+    let html;
+    try {
+    html = await request.get(`${BASENAME}/watch/${playlistId}`)
+    } catch(e) {
+      console.log(e);
+    }
     const $ = load(html.text());
     const data_id = $("div#watch-main").attr("data-id");
     // @ts-ignore
-    const episodesHtml = (await request.get(`https://aniwave.to/ajax/episode/list/${data_id}?vrf=${getVrf(parseInt(data_id))}`)).json()["result"] 
+    const episodesHtml = (await request.get(`${AJAX_BASENAME}/episode/list/${data_id}?vrf=${getVrf(parseInt(data_id))}`)).json()["result"] 
     const $$ = load(episodesHtml);
     // Note: THIS CURRENTLY DOES NOT HANDLE THINGS PROPERLY, ONLY IF THERES A SINGLE EPISODE ON A SINGLE SOURCE LIKE IN THE TEST
     // THIS IS MORE OF A WIP THAN ANYTING AS OF NOW
@@ -112,7 +130,7 @@ export default class Source extends SourceModule implements VideoContent {
   async playlistEpisodeSources(req: PlaylistEpisodeSourcesRequest): Promise<PlaylistEpisodeSource[]> {
     // for now will return every server, dub or sub.
     // @ts-ignore
-    const html = (await request.get(`https://aniwave.to/ajax/server/list/${req.episodeId}?vrf=${getVrf(req.episodeId)}`)).json()["result"];
+    const html = (await request.get(`${AJAX_BASENAME}/server/list/${req.episodeId}?vrf=${getVrf(req.episodeId)}`)).json()["result"];
     const $ = load(html);
     
     const servers: PlaylistEpisodeServer[] = $(".type").map((i, serverCategory) => {
@@ -136,14 +154,28 @@ export default class Source extends SourceModule implements VideoContent {
       displayName: "Servers"
     }];
   }
-  playlistEpisodeServer(req: PlaylistEpisodeServerRequest): Promise<PlaylistEpisodeServerResponse> {
-      throw new Error('Method not implemented.');
-  }
 
-  metadata = {
-    id: 'AniwaveSource',
-    name: 'Aniwave Source',
-    version: '0.0.1',
+
+
+  async playlistEpisodeServer(req: PlaylistEpisodeServerRequest): Promise<PlaylistEpisodeServerResponse> {
+    // @ts-ignore
+    const result: string = (await request.get(`${AJAX_BASENAME}/server/${req.serverId}?vrf=${getVrf(req.serverId)}`)).json()["result"];
+    const url = decodeVideoSkipData(result["url"])
+    let skipData = parseSkipData(decodeVideoSkipData(result["skip_data"]))
+    
+    const videos = await getVideo(url);
+
+    return {
+      links: videos.map((video) => ({
+        url: video.url,
+        // @ts-ignore
+        quality: PlaylistEpisodeServerQualityType[video.quality] ?? PlaylistEpisodeServerQualityType.auto,
+        format: video.isM3U8 ? PlaylistEpisodeServerFormatType.hsl : PlaylistEpisodeServerFormatType.dash
+      })).sort((a, b) => b.quality - a.quality),
+      skipTimes: skipData,
+      headers: videos[0]?.headers ?? {},
+      subtitles: [],
+    }
   }
 
   async searchFilters(): Promise<SearchFilter[]>  {
@@ -152,7 +184,15 @@ export default class Source extends SourceModule implements VideoContent {
 
   async search(searchQuery: SearchQuery): Promise<Paging<Playlist>> {
     const currentPageInt = (searchQuery.page == undefined) ? 1 : parseInt(searchQuery.page)
-    const html = await request.get(`https://aniwave.to/filter?keyword=${searchQuery.query}&page=1`)
+    // NOTE: THIS IS A DIRTY WORKAROUND FOIR THE DISCOVERLISTINGS.
+    // WHEN IT'S PRESENT, JUST SORT AS TRENDING.
+    // THIS WILL NEED TO GO AWAY.
+    let html: MochiResponse;
+    if (searchQuery.filters)
+      html = await request.get(`${BASENAME}/filter?keyword=${searchQuery.query}&page=1`)
+    else
+      html = await request.get(`${BASENAME}/filter?keyword=${searchQuery.query}&page=1&sort=trending`)
+    
     // const html = await request.get(`https://aniwave.to/filter?keyword=${searchQuery.query}&page=${currentPageInt}`)
     const $ = load(html.text());
 
@@ -198,85 +238,4 @@ export default class Source extends SourceModule implements VideoContent {
       title: "Test scraper",
     };
   }
-
-
-//   async playlistEpisodeServer(req: PlaylistEpisodeServerRequest): Promise<PlaylistEpisodeServerResponse> {
-//     const sources = await getServerSources(`${BASENAME}/${req.episodeId}`, req.sourceId);
-//     return {
-//       links: sources.map((source) => ({
-//         url: source.url,
-//         // @ts-ignore
-//         quality: PlaylistEpisodeServerQualityType[source.quality] ?? PlaylistEpisodeServerQualityType.auto,
-//         format: PlaylistEpisodeServerFormatType.dash
-//       })).sort((a, b) => b.quality - a.quality),
-//       skipTimes: [],
-//       headers: {},
-//       subtitles: [],
-//     }
-//   }
-
-//   async playlistEpisodeSources(req: PlaylistEpisodeSourcesRequest): Promise<PlaylistEpisodeSource[]> {
-//     const html = await request.get(`${BASENAME}/${req.episodeId}`).then(t => t.text())
-//     const $ = load(html)
-//     const servers = $('div.anime_muti_link > ul > li').map((i, el) => {
-//       const nodes = $(el).find('a').get(0)?.childNodes ?? [];
-//       const displayName = nodes.length > 2 ? nodes[nodes.length - 2] : undefined;
-//       return {
-//         id: $(el).attr('class') ?? `${BASENAME}/${req.episodeId}-${i}`,
-//         displayName: displayName && displayName.nodeType === 3 ? displayName.data : $(el).attr('class') ?? 'NOT_FOUND',
-//       } satisfies PlaylistEpisodeServer
-//     }).get();
-
-//     return [{
-//       id: 'servers',
-//       // Filter only working ones
-//       servers: servers.filter(s => s.id === 'anime' || s.id === 'vidcdn'),
-//       displayName: "Servers",
-//     }]
-//   }
-
-//   async playlistEpisodes(playlistId: PlaylistID, options?: PlaylistItemsOptions): Promise<PlaylistItemsResponse> {
-//     const variantGroups = playlistId.endsWith('-dub') ? [playlistId, playlistId.replace('-dub', '')] : [playlistId, `${playlistId}-dub`]
-//     let variants = await Promise.all(variantGroups.map(async id => {
-//       const variantId = id.endsWith("-dub") ? "DUB" : "SUB";
-//       const html = await request.get(`${BASENAME}/category/${id}`);
-//       const $ = load(html.text());
-//       const pages = $('#episode_page > li').map((_, page) => {
-//         const a = $(page).find('a')
-//         return ({
-//           episodeStart: a.attr('ep_start'),
-//           episodeEnd: a.attr('ep_end'),
-//         })
-//       }).get()
-//       const movieId = $('#movie_id').attr('value')
-//       const pagings = await Promise.all(pages.map(async (page) => {
-//         const episodes = load(await request.get(`${AJAX_BASENAME}/load-list-episode?ep_start=${page.episodeStart}&ep_end=${page.episodeEnd}&id=${movieId}&default_ep=${0}&alias=${id}`).then(t => t.text()))
-//         const video = episodes('#episode_related > li').map((i, episode) => {
-//           const link = episodes(episode).find('a').attr('href')?.slice(2) ?? id
-//           const title = $(episode).find('.name').text();
-//           return {
-//             id: link,
-//             title,
-//             number: parseInt(title.split(" ")[1], 10),
-//             tags: [],
-//           } satisfies PlaylistItem
-//         }).get().reverse()
-//         return {
-//           id: `${movieId}-${page.episodeStart}-${page.episodeEnd}`,
-//           title: `${page.episodeStart}-${page.episodeEnd}`,
-//           items: video
-//         }
-//       }))
-//       return {
-//         id: `${movieId}-${variantId}`,
-//         title: variantId,
-//         pagings,
-//       }
-//     }))
-//     return [{
-//       id: 'gogo-playlist',
-//       number: 1,
-//       variants,
-//     }]
-//   }
 }

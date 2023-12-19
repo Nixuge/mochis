@@ -128,10 +128,7 @@ function b64decode(t: string) {
 export function decodeVideoSkipData(encoded_url: string) {
     encoded_url = b64decode("".concat(encoded_url).replace(/_/g, "/").replace(/-/g, "+"));
     const decoded_url = decodeURIComponent(rc4Cypher("hlPeNwkncH0fq9so", encoded_url));
-    console.log(decoded_url);
     return (decoded_url);
 }
 // clearer name
 export function getVrf(input: string) { return caesarRot13(input) };
-
-console.log("Injected additional.js");
