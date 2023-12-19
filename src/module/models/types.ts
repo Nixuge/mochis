@@ -1,3 +1,5 @@
+import { PlaylistEpisodeServerSubtitle } from "@mochiapp/js/dist";
+
 export interface IVideo {
     /**
      * The **MAIN URL** of the video provider that should take you to the video
@@ -19,10 +21,6 @@ export interface IVideo {
      * size of the video in **bytes**
      */
     size?: number;
-    /**
-     * headers needed to get the url
-     */
-    headers?: {[header: string]: string};
     [x: string]: unknown; // other fields
 }
 
@@ -44,7 +42,7 @@ export interface ISubtitle {
 
 export interface ISource {
     headers?: { [k: string]: string };
-    subtitles?: ISubtitle[];
+    subtitles?: PlaylistEpisodeServerSubtitle[];
     sources: IVideo[];
     download?: string;
     embedURL?: string;

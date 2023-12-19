@@ -1,5 +1,5 @@
 import { VideoExtractor } from '../models/Iextractor';
-import { IVideo } from '../models/types';
+import { ISource, IVideo } from '../models/types';
 
 // filemoon's extract function
 function packed(p,a,c,k){while(c--)if(k[c])p=p.replace(new RegExp('\\b'+c.toString(a)+'\\b','g'),k[c]);return p}
@@ -23,7 +23,7 @@ export class FilemoonE extends VideoExtractor {
     return [part1, part2, part3, part4];
   }
 
-  override extract = async (): Promise<IVideo[]> => {
+  override extract = async (): Promise<ISource> => {
     const html = this.htmlContent;
     const match = html.match(/return p}\('(.*?\))\)\)/)?.[1]!;
 
@@ -32,10 +32,12 @@ export class FilemoonE extends VideoExtractor {
 
     const m3u8Url = playerData.match(/{sources:\[{file:"(.*?)"}/)[1];
 
-    return [{
-      url: m3u8Url,
-      quality: "auto", // Note: not sure how we're supposed to handle quality selectors (the quality is inside the m3u8), for now just keeping it auto.
-      isM3U8: true,
-    } satisfies IVideo]
+    return {
+      sources: [{
+        url: m3u8Url,
+        quality: "auto", // Note: not sure how we're supposed to handle quality selectors (the quality is inside the m3u8), for now just keeping it auto.
+        isM3U8: true,
+      } satisfies IVideo]
+    } satisfies ISource
   };
 }

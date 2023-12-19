@@ -48,7 +48,7 @@ export default class Source extends SourceModule implements VideoContent {
   metadata = {
     id: 'AniwaveSource',
     name: 'Aniwave Source',
-    version: '0.0.9',
+    version: '0.1.0',
   }
 
   async discoverListings(request?: DiscoverListingsRequest | undefined): Promise<DiscoverListing[]> {
@@ -149,12 +149,11 @@ export default class Source extends SourceModule implements VideoContent {
     
     return [{
       id: "servers",
-      description: "hello, test",
-      servers: servers.filter(s => s.displayName.includes("Mp4upload") || s.displayName.includes("Filemoon")),
-      displayName: "Servers"
+      description: "Aniwave servers",
+      servers: servers,
+      displayName: "Aniwave"
     }];
   }
-
 
 
   async playlistEpisodeServer(req: PlaylistEpisodeServerRequest): Promise<PlaylistEpisodeServerResponse> {
@@ -163,19 +162,20 @@ export default class Source extends SourceModule implements VideoContent {
     const url = decodeVideoSkipData(result["url"])
     let skipData = parseSkipData(decodeVideoSkipData(result["skip_data"]))
     
-    const videos = await getVideo(url);
+    const sourceData = await getVideo(url);
+    const videos = sourceData.sources;
 
     return {
-      links: videos.map((video) => ({
-        url: video.url,
-        // @ts-ignore
-        quality: PlaylistEpisodeServerQualityType[video.quality] ?? PlaylistEpisodeServerQualityType.auto,
-        format: video.isM3U8 ? PlaylistEpisodeServerFormatType.hsl : PlaylistEpisodeServerFormatType.dash
-      })).sort((a, b) => b.quality - a.quality),
-      skipTimes: skipData,
-      headers: videos[0]?.headers ?? {},
-      subtitles: [],
-    }
+        links: videos.map((video) => ({
+          url: video.url,
+          // @ts-ignore
+          quality: PlaylistEpisodeServerQualityType[video.quality] ?? PlaylistEpisodeServerQualityType.auto,
+          format: video.isM3U8 ? PlaylistEpisodeServerFormatType.hsl : PlaylistEpisodeServerFormatType.dash
+        })).sort((a, b) => b.quality - a.quality),
+        skipTimes: skipData,
+        headers: sourceData.headers ?? {},
+        subtitles: sourceData.subtitles ?? [],
+      }
   }
 
   async searchFilters(): Promise<SearchFilter[]>  {
