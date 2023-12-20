@@ -37,7 +37,8 @@ export class FilemoonE extends VideoExtractor {
         url: m3u8Url,
         quality: "auto", // Note: not sure how we're supposed to handle quality selectors (the quality is inside the m3u8), for now just keeping it auto.
         isM3U8: true,
-      } satisfies IVideo]
+      } satisfies IVideo],
+      headers: {"User-Agent": "Chrome trust not a phone I promise"} // "Android" and "iPhone" are flagging lol
     } satisfies ISource
   };
 }
