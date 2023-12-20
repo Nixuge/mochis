@@ -20,12 +20,6 @@ import type {
 import {
   PlaylistEpisodeServerFormatType,
   PlaylistEpisodeServerQualityType,
-//   PlaylistEpisodeServerResponse,
-//   PlaylistEpisodeSource,
-//   PlaylistEpisodeSourcesRequest,
-//   PlaylistID,
-//   PlaylistItemsOptions,
-//   PlaylistItemsResponse,
   PlaylistStatus,
   PlaylistType,
   SourceModule,
@@ -35,92 +29,20 @@ import { load } from 'cheerio';
 import { getVrf, decodeVideoSkipData } from './utils/urlGrabber';
 import { getVideo } from './extractors';
 import { parseSkipData } from './utils/skipData';
-const BASENAME = 'https://aniwave.to'
-const AJAX_BASENAME = 'https://aniwave.to/ajax'
+import { getHomeScraper } from './scraper/homeScraper';
+import { BASENAME, AJAX_BASENAME } from './utils/variables';
+
 
 export default class Source extends SourceModule implements VideoContent {
   metadata = {
     id: 'AniwaveSource',
     name: 'Aniwave Source',
-    version: '0.1.28',
+    version: '0.2.0',
   }
 
   async discoverListings(listingRequest?: DiscoverListingsRequest | undefined): Promise<DiscoverListing[]> {
-    const html = await request.get(`${BASENAME}/home`)
-
-    console.log(listingRequest?.listingId);
-    console.log(listingRequest?.page);
-    
-    
-    const $ = load(html.text());
-    const swiper = $(".swiper-wrapper .swiper-slide.item");
-    
-    const hotestItems = swiper.map((i, anime) => {
-      const animeRef = $(anime)
-      const title = animeRef.find("h2.title.d-title").text()
-      const image = animeRef.find("div.image > div").attr("style")?.replace("background-image: url('", "").replace("');", "")
-      const url = animeRef.find(".info .actions > a").attr("href")!;
-      return {
-        id: url,
-        title: title,
-        posterImage: image,
-        url: url,
-        status: PlaylistStatus.unknown,
-        type: PlaylistType.video
-      } satisfies Playlist
-    }).get()
-    
-    const hotestListing = {
-      title: "Hotest",
-      id: "hotest",
-      type: DiscoverListingType.featured,
-      orientation: DiscoverListingOrientationType.landscape,
-      paging: {
-        id: "hotest",
-        title: "Hotest",
-        items: hotestItems
-        // Note: might do nextPage, since i think it's just the /trending? (kinda)
-        // edit: to see, seeems like it's partially using ajax, check f12 when clicking on "all" "sub" "dub" etc on "Recently Updates"
-      } satisfies Paging<Playlist>
-    } satisfies DiscoverListing
-
-    const recentUpdatesSec = $("#recent-update .body .ani.items .item");
-    // TODO: MOVE THIS TO SCRAPER/ANIMEITEMS & USE IN SEARCH()
-    const recentlyUpdatedItems = recentUpdatesSec.map((i, anime) => {
-      const animeRef = $(anime);
-      const titleElem = animeRef.find("a.name.d-title");
-      const title = titleElem.text();
-      const url = titleElem.attr("href")!;
-      const image = animeRef.find("div.ani.poster > a > img").attr("src");      
-      return {
-        id: url,
-        title: title,
-        posterImage: image,
-        url: url,
-        status: PlaylistStatus.unknown,
-        type: PlaylistType.video
-      } satisfies Playlist
-    }).get()
-
-    // Note: as of now those aren't working for some reason?
-    const previousRecentlyUpdatedPage = (listingRequest == undefined || listingRequest.page == "1") ? undefined : (parseInt(listingRequest.page) - 1).toString();
-    const nextRecentlyUpdatedPage = (listingRequest == undefined) ? "2" : (parseInt(listingRequest.page) + 1).toString();
-        
-    const recentlyUpdatedListing = {
-      title: "Recently Updated",
-      id: "recently-updated",
-      type: DiscoverListingType.default,
-      orientation: DiscoverListingOrientationType.portrait,
-      paging: {
-        id: "recently-updated",
-        title: "Recently Updated",
-        items: recentlyUpdatedItems,
-        previousPage: previousRecentlyUpdatedPage,
-        nextPage: nextRecentlyUpdatedPage
-      } satisfies Paging<Playlist>
-    } satisfies DiscoverListing
-
-    return [hotestListing, recentlyUpdatedListing]
+    const homeScraper = getHomeScraper(listingRequest);
+    return (await homeScraper).scrape()
   }
 
   async playlistDetails(id: string): Promise<PlaylistDetails> {   
@@ -172,6 +94,9 @@ export default class Source extends SourceModule implements VideoContent {
     const episodesHtml = (await request.get(`${AJAX_BASENAME}/episode/list/${data_id}?vrf=${getVrf(parseInt(data_id))}`)).json()["result"] 
     const $$ = load(episodesHtml);
     
+    // Note:
+    // This *technically* isn't always correct, eg if a sub has 12 eps and a dub only 2, it'll always show 1-12 even for the dub variant.
+    // However, the amount of logic required to avoid this thing is way greater than any benefit, for now it's staying as is
     const episodeCounts = $$(".dropdown.filter.range .dropdown-menu .dropdown-item");
     const firstEpisode = parseInt(episodeCounts.first().text().split("-")[0]);
     const lastEpisode = parseInt(episodeCounts.last().text().split("-")[1]);
@@ -307,11 +232,10 @@ export default class Source extends SourceModule implements VideoContent {
   }
 
   async search(searchQuery: SearchQuery): Promise<Paging<Playlist>> {
+    // todo: handle multi page search
     const currentPageInt = (searchQuery.page == undefined) ? 1 : parseInt(searchQuery.page)
     const html = await request.get(`${BASENAME}/filter?keyword=${encodeURIComponent(searchQuery.query)}&page=1`)
 
-    
-    // const html = await request.get(`https://aniwave.to/filter?keyword=${searchQuery.query}&page=${currentPageInt}`)
     const $ = load(html.text());
 
     const pages = $('ul.pagination > li.page-item');    
