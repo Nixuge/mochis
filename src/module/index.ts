@@ -1,10 +1,8 @@
 import { DiscoverListingOrientationType, DiscoverListingType, } from '@mochiapp/js/src/interfaces/source/types';
 
 import type {
-    DiscoverListing,
-    DiscoverListingsRequest,
-//   DiscoverListing,
-//   DiscoverListingsRequest,
+  DiscoverListing,
+  DiscoverListingsRequest,
   Paging,
   Playlist,
   PlaylistDetails,
@@ -14,18 +12,14 @@ import type {
   PlaylistEpisodeSourcesRequest,
   PlaylistItemsOptions,
   PlaylistItemsResponse,
-//   PlaylistDetails,
   PlaylistItem,
   SearchFilter,
   SearchQuery,
   PlaylistEpisodeServer,
-  MochiResponse,
 } from '@mochiapp/js/dist';
 import {
   PlaylistEpisodeServerFormatType,
-//   PlaylistEpisodeServerFormatType,
   PlaylistEpisodeServerQualityType,
-//   PlaylistEpisodeServerRequest,
 //   PlaylistEpisodeServerResponse,
 //   PlaylistEpisodeSource,
 //   PlaylistEpisodeSourcesRequest,
@@ -48,46 +42,136 @@ export default class Source extends SourceModule implements VideoContent {
   metadata = {
     id: 'AniwaveSource',
     name: 'Aniwave Source',
-    version: '0.1.0',
+    version: '0.1.24',
   }
 
-  async discoverListings(request?: DiscoverListingsRequest | undefined): Promise<DiscoverListing[]> {
-    // REALLY DIRTY WORKAROUND
-    // to just use search for this before i get to implementing it correctly
-    // Edit: this doesn't even seem to be working lol
-      return [{
-        id: "0",
-        title: "Hello there",
-        type: DiscoverListingType.default,
-        orientation: DiscoverListingOrientationType.portrait,
-        paging: await this.search({query:"", page:"1", filters:[]})
-      }]
+  async discoverListings(listingRequest?: DiscoverListingsRequest | undefined): Promise<DiscoverListing[]> {
+    const html = await request.get(`${BASENAME}/home`)
 
+    console.log(listingRequest?.listingId);
+    console.log(listingRequest?.page);
+    
+    
+    const $ = load(html.text());
+    const swiper = $(".swiper-wrapper .swiper-slide.item");
+    
+    const hotestItems = swiper.map((i, anime) => {
+      const animeRef = $(anime)
+      const title = animeRef.find("h2.title.d-title").text()
+      const image = animeRef.find("div.image > div").attr("style")?.replace("background-image: url('", "").replace("');", "")
+      const url = animeRef.find(".info .actions > a").attr("href")!;
+      return {
+        id: url,
+        title: title,
+        posterImage: image,
+        url: url,
+        status: PlaylistStatus.unknown,
+        type: PlaylistType.video
+      } satisfies Playlist
+    }).get()
+    
+    const hotestListing = {
+      title: "Hotest",
+      id: "hotest",
+      type: DiscoverListingType.featured,
+      orientation: DiscoverListingOrientationType.landscape,
+      paging: {
+        id: "hotest",
+        title: "Hotest",
+        items: hotestItems
+        // Note: might do nextPage, since i think it's just the /trending? (kinda)
+        // edit: to see, seeems like it's partially using ajax, check f12 when clicking on "all" "sub" "dub" etc on "Recently Updates"
+      } satisfies Paging<Playlist>
+    } satisfies DiscoverListing
+
+    const recentUpdatesSec = $("#recent-update .body .ani.items .item");
+    // TODO: MOVE THIS TO SCRAPER/ANIMEITEMS & USE IN SEARCH()
+    const recentlyUpdatedItems = recentUpdatesSec.map((i, anime) => {
+      const animeRef = $(anime);
+      const titleElem = animeRef.find("a.name.d-title");
+      const title = titleElem.text();
+      const url = titleElem.attr("href")!;
+      const image = animeRef.find("div.ani.poster > a > img").attr("src");      
+      return {
+        id: url,
+        title: title,
+        posterImage: image,
+        url: url,
+        status: PlaylistStatus.unknown,
+        type: PlaylistType.video
+      } satisfies Playlist
+    }).get()
+
+    // Note: as of now those aren't working for some reason?
+    const previousRecentlyUpdatedPage = (listingRequest == undefined || listingRequest.page == "1") ? undefined : (parseInt(listingRequest.page) - 1).toString();
+    const nextRecentlyUpdatedPage = (listingRequest == undefined) ? "2" : (parseInt(listingRequest.page) + 1).toString();
+        
+    const recentlyUpdatedListing = {
+      title: "Recently Updated",
+      id: "recently-updated",
+      type: DiscoverListingType.default,
+      orientation: DiscoverListingOrientationType.portrait,
+      paging: {
+        id: "recently-updated",
+        title: "Recently Updated",
+        items: recentlyUpdatedItems,
+        previousPage: previousRecentlyUpdatedPage,
+        nextPage: nextRecentlyUpdatedPage
+      } satisfies Paging<Playlist>
+    } satisfies DiscoverListing
+
+    return [hotestListing, recentlyUpdatedListing]
   }
   async playlistDetails(id: string): Promise<PlaylistDetails> {
-    return {
-      synopsis: "Not yet implemented",
-      genres: [],
-      yearReleased: 1969,
-      previews: [],
-      altBanners: [],
-      altPosters: [],
-      altTitles: [],
-    } satisfies PlaylistDetails
+    const watch = id.startsWith("/watch/") ? "" : "/watch/";
+    const fullUrl = `${BASENAME}${watch}${id}`;
+    const html = await request.get(fullUrl);
+
+    const $ = load(html.text());
+
+    const synopsis = $(".info .synopsis .shorting .content").text();
+
+    const mainTitle = $(".info h1.title.d-title").text(); // have to get that to remove it from altTitles
+    const altTitles = $(".info .names.font-italic").text().split("; ").filter((altTitle) => altTitle != mainTitle);
+
+    let altPoster: string | string[] | undefined = $("div#player").attr("style")?.replace("background-image:url('", "").replace("')", "");
+    altPoster = (altPoster == undefined) ? [] : [altPoster];
+
+    const playlistDetails: PlaylistDetails = { 
+      synopsis: synopsis, genres: [], previews: [],
+      altBanners: [], altPosters: altPoster, altTitles: altTitles
+    }
+    $(".info .bmeta .meta > div").filter((i, meta) => {
+      const metaRef = $(meta);
+      const metaType = metaRef.contents().first().text().trim().replace(":", "").toLowerCase(); // get non deep text
+      
+      switch (metaType) {
+        case "genres":
+          playlistDetails.genres = metaRef.text().trim().replace("Genres:  ", "").split(", ");
+          break;
+        case "date aired":
+          playlistDetails.yearReleased = parseInt(metaRef.text().match(/, ([0-9]{4}) to /)![1]);
+          break;
+        default:
+          break;
+      }
+      return metaType == "Genres:";
+    })
+    
+    
+    return playlistDetails;
   }
   async playlistEpisodes(playlistId: string, options?: PlaylistItemsOptions | undefined): Promise<PlaylistItemsResponse> {
-    console.log(playlistId);
-    let html;
-    try {
-    html = await request.get(`${BASENAME}/watch/${playlistId}`)
-    } catch(e) {
-      console.log(e);
-    }
+    const watch = playlistId.startsWith("/watch/") ? "" : "/watch/"
+    const fullUrl = `${BASENAME}${watch}${playlistId}`
+    
+    const html = await request.get(fullUrl)
     const $ = load(html.text());
     const data_id = $("div#watch-main").attr("data-id");
     // @ts-ignore
     const episodesHtml = (await request.get(`${AJAX_BASENAME}/episode/list/${data_id}?vrf=${getVrf(parseInt(data_id))}`)).json()["result"] 
     const $$ = load(episodesHtml);
+
     // Note: THIS CURRENTLY DOES NOT HANDLE THINGS PROPERLY, ONLY IF THERES A SINGLE EPISODE ON A SINGLE SOURCE LIKE IN THE TEST
     // THIS IS MORE OF A WIP THAN ANYTING AS OF NOW
     // See Gogo module for a proper implementation
@@ -125,7 +209,6 @@ export default class Source extends SourceModule implements VideoContent {
         }]
       }
     ]
-    
   }
   async playlistEpisodeSources(req: PlaylistEpisodeSourcesRequest): Promise<PlaylistEpisodeSource[]> {
     // for now will return every server, dub or sub.
@@ -184,14 +267,8 @@ export default class Source extends SourceModule implements VideoContent {
 
   async search(searchQuery: SearchQuery): Promise<Paging<Playlist>> {
     const currentPageInt = (searchQuery.page == undefined) ? 1 : parseInt(searchQuery.page)
-    // NOTE: THIS IS A DIRTY WORKAROUND FOIR THE DISCOVERLISTINGS.
-    // WHEN IT'S PRESENT, JUST SORT AS TRENDING.
-    // THIS WILL NEED TO GO AWAY.
-    let html: MochiResponse;
-    if (searchQuery.filters)
-      html = await request.get(`${BASENAME}/filter?keyword=${searchQuery.query}&page=1`)
-    else
-      html = await request.get(`${BASENAME}/filter?keyword=${searchQuery.query}&page=1&sort=trending`)
+    const html = await request.get(`${BASENAME}/filter?keyword=${encodeURIComponent(searchQuery.query)}&page=1`)
+
     
     // const html = await request.get(`https://aniwave.to/filter?keyword=${searchQuery.query}&page=${currentPageInt}`)
     const $ = load(html.text());
@@ -204,10 +281,6 @@ export default class Source extends SourceModule implements VideoContent {
     }).last().text())
 
     const hasNextPage = (lastPageSelector != Number.NaN) && (lastPageSelector > currentPageInt)
-    // console.log(html.text());
-    
-    // console.log($("#list-items"));
-    
 
     const items: Playlist[] = $('#list-items > div.item').map((i, anime) => {
       const animeRef = $(anime);
