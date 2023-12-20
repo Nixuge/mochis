@@ -35,7 +35,7 @@ import { BASENAME, AJAX_BASENAME } from './utils/variables';
 
 export default class Source extends SourceModule implements VideoContent {
   metadata = {
-    id: 'AniwaveSource',
+    id: 'aniwave',
     name: 'Aniwave Source',
     version: '0.2.0',
   }
