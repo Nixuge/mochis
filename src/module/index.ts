@@ -1,4 +1,4 @@
-import { DiscoverListingOrientationType, DiscoverListingType, } from '@mochiapp/js/src/interfaces/source/types';
+import { DiscoverListingOrientationType, DiscoverListingType, PlaylistGroup, PlaylistGroupVariant, } from '@mochiapp/js/src/interfaces/source/types';
 
 import type {
   DiscoverListing,
@@ -42,7 +42,7 @@ export default class Source extends SourceModule implements VideoContent {
   metadata = {
     id: 'AniwaveSource',
     name: 'Aniwave Source',
-    version: '0.1.24',
+    version: '0.1.28',
   }
 
   async discoverListings(listingRequest?: DiscoverListingsRequest | undefined): Promise<DiscoverListing[]> {
@@ -122,7 +122,8 @@ export default class Source extends SourceModule implements VideoContent {
 
     return [hotestListing, recentlyUpdatedListing]
   }
-  async playlistDetails(id: string): Promise<PlaylistDetails> {
+
+  async playlistDetails(id: string): Promise<PlaylistDetails> {   
     const watch = id.startsWith("/watch/") ? "" : "/watch/";
     const fullUrl = `${BASENAME}${watch}${id}`;
     const html = await request.get(fullUrl);
@@ -141,7 +142,7 @@ export default class Source extends SourceModule implements VideoContent {
       synopsis: synopsis, genres: [], previews: [],
       altBanners: [], altPosters: altPoster, altTitles: altTitles
     }
-    $(".info .bmeta .meta > div").filter((i, meta) => {
+    $(".info .bmeta .meta > div").map((i, meta) => {
       const metaRef = $(meta);
       const metaType = metaRef.contents().first().text().trim().replace(":", "").toLowerCase(); // get non deep text
       
@@ -155,12 +156,11 @@ export default class Source extends SourceModule implements VideoContent {
         default:
           break;
       }
-      return metaType == "Genres:";
     })
-    
     
     return playlistDetails;
   }
+
   async playlistEpisodes(playlistId: string, options?: PlaylistItemsOptions | undefined): Promise<PlaylistItemsResponse> {
     const watch = playlistId.startsWith("/watch/") ? "" : "/watch/"
     const fullUrl = `${BASENAME}${watch}${playlistId}`
@@ -171,61 +171,102 @@ export default class Source extends SourceModule implements VideoContent {
     // @ts-ignore
     const episodesHtml = (await request.get(`${AJAX_BASENAME}/episode/list/${data_id}?vrf=${getVrf(parseInt(data_id))}`)).json()["result"] 
     const $$ = load(episodesHtml);
+    
+    const episodeCounts = $$(".dropdown.filter.range .dropdown-menu .dropdown-item");
+    const firstEpisode = parseInt(episodeCounts.first().text().split("-")[0]);
+    const lastEpisode = parseInt(episodeCounts.last().text().split("-")[1]);
+    const allEpisodes = `${firstEpisode}-${lastEpisode}`;
+    
+    const answer: PlaylistGroup = {
+      id: playlistId,
+      number: 1, // not much way to reliably grab this
+      variants: []
+    }
 
-    // Note: THIS CURRENTLY DOES NOT HANDLE THINGS PROPERLY, ONLY IF THERES A SINGLE EPISODE ON A SINGLE SOURCE LIKE IN THE TEST
-    // THIS IS MORE OF A WIP THAN ANYTING AS OF NOW
-    // See Gogo module for a proper implementation
-    // Note after:
-    // HOW TO PARSE THIS:
-    // Bad news: we can't differentiate between softsub and hardsub.
-    // Good news: we can differentiate between sub and dub, thanks to aniwave providing a selector to choose the episode based on your preference:
-    // "sub & dub", "only sub" or "dub only"
-    // This should be implemented & made so that if "sub only" is selected, it also shows the softsub options.
-    const allEpisodesRawNoOrganization =  $$("a").map((i, li) => {
+    function makeDummyVariantObject(type: string) {
+      return {
+        id: type.toLowerCase(),
+        title: type,
+        pagings: [
+          {
+            id: allEpisodes,
+            title: allEpisodes,
+            items: []
+          }
+        ]
+
+      } satisfies PlaylistGroupVariant
+    }
+
+    $$("li").map((i, li) => {
         const inScraper = $$(li);
-        const data_ids = inScraper.attr("data-ids")!;
-        const num = parseInt(inScraper.text());
-        return {
-            id: data_ids,
-            number: num, // episode number
+        // data ids needed for next step
+        const dataIds = inScraper.find("a").attr("data-ids")!;                
+        // episode number
+        const episodeNum = parseInt(inScraper.find("a").attr("data-num")!);
+        // episode title
+        const titleDiv = inScraper.find("a").find("span.d-title");
+        const episodeTitle = (titleDiv.text()) ? titleDiv.text() : undefined;
+
+        // the "title" attribute on the lis has all the properties to grab sub/dub/softsub
+        let episodeReleaseDate: string | undefined = undefined;
+        let variantReleaseDates: string | IterableIterator<RegExpMatchArray> | undefined = inScraper.attr("title");
+        variantReleaseDates = variantReleaseDates?.matchAll(/- ([a-zA-Z]*?): ([0-9]{4}\/[0-9]{2}\/[0-9]{2} [0-9]{2}:[0-9]{2} .*?) /g)!;
+
+        
+        for (let match of variantReleaseDates) {
+          const variantType = match[1];
+          if (variantType == "Release") {
+            episodeReleaseDate = match[2]; // SHOULD work (should)
+            continue;
+          }
+          // Never happens, but makes the compiler happy
+          if (answer.variants == undefined)
+            answer.variants = [];
+          
+          // get playlist group for variantType
+          let playlistGroup: PlaylistGroupVariant | undefined = undefined;
+          const playlistGroups = answer.variants.filter(variant => variant.title == variantType);
+          if (playlistGroups.length == 0) {
+            playlistGroup = makeDummyVariantObject(variantType);
+            answer.variants.push(playlistGroup)
+          } else {
+            playlistGroup = playlistGroups[0];
+          }
+          playlistGroup.pagings?.[0].items?.push({
+            id: dataIds + " | " + variantType.toLowerCase(), // kinda dirty but idk how else to pass data through to the next step
+            title: episodeTitle,
+            number: episodeNum,
+            timestamp: episodeReleaseDate as unknown as Date,
             tags: []
-        } satisfies PlaylistItem
-    }).get()
-    // this is the good structure, except hardcoded for a quick & ez try at setup
-    return [
-      {
-        id: playlistId,
-        number: 1,
-        variants: [{
-          id: "subtemp",
-          title: "sub",
-          pagings: [
-            {
-              id: "1-1things",
-              title: "1-1",
-              items: allEpisodesRawNoOrganization
-            }
-          ]
-        }]
-      }
-    ]
+          } satisfies PlaylistItem)
+        }
+    })
+    return [answer];
   }
   async playlistEpisodeSources(req: PlaylistEpisodeSourcesRequest): Promise<PlaylistEpisodeSource[]> {
-    // for now will return every server, dub or sub.
+    const [episodeId, variantType] = req.episodeId.split(" | ");
+    
+    
     // @ts-ignore
-    const html = (await request.get(`${AJAX_BASENAME}/server/list/${req.episodeId}?vrf=${getVrf(req.episodeId)}`)).json()["result"];
+    const html = (await request.get(`${AJAX_BASENAME}/server/list/${episodeId}?vrf=${getVrf(episodeId)}`)).json()["result"];
+    
     const $ = load(html);
     
     const servers: PlaylistEpisodeServer[] = $(".type").map((i, serverCategory) => {
       const categoryRef = $(serverCategory);
-      const sourceType = categoryRef.find("label").text().trim()
-      return categoryRef.find("ul").find("li").map((i, server) => {
+      // const sourceType = categoryRef.find("label").text().trim()
+      const sourceType = categoryRef.attr("data-type");
+      if (sourceType != variantType)
+        return undefined;
+      
+      return categoryRef.find("ul").find("li").map((i, server) => {        
         const serverRef = $(server);
         const serverName = serverRef.text();
         const linkId = serverRef.attr("data-link-id")!;
         return {
           id: linkId,
-          displayName: `[${sourceType}] ${serverName}`
+          displayName: `${serverName}`
         } satisfies PlaylistEpisodeServer
       }).get()
     }).get();
