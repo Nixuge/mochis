@@ -37,7 +37,7 @@ export default class Source extends SourceModule implements VideoContent {
   metadata = {
     id: 'aniwave',
     name: 'Aniwave Source',
-    version: '0.2.0',
+    version: '0.2.1',
   }
 
   async discoverListings(listingRequest?: DiscoverListingsRequest | undefined): Promise<DiscoverListing[]> {
@@ -219,7 +219,7 @@ export default class Source extends SourceModule implements VideoContent {
           url: video.url,
           // @ts-ignore
           quality: PlaylistEpisodeServerQualityType[video.quality] ?? PlaylistEpisodeServerQualityType.auto,
-          format: video.isM3U8 ? PlaylistEpisodeServerFormatType.hsl : PlaylistEpisodeServerFormatType.dash
+          format: video.isDASH ? PlaylistEpisodeServerFormatType.dash : PlaylistEpisodeServerFormatType.hsl
         })).sort((a, b) => b.quality - a.quality),
         skipTimes: skipData,
         headers: sourceData.headers ?? {},

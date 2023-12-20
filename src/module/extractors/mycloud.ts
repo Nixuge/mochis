@@ -1,6 +1,7 @@
 import { PlaylistEpisodeServerSubtitle, PlaylistEpisodeServerSubtitleFormat } from '@mochiapp/js/dist';
 import { VideoExtractor } from '../models/Iextractor';
 import { ISource, IVideo } from '../models/types';
+import { getM3u8Qualities } from '../utils/m3u8';
 
 interface IMediaInfo {
   status: number,
@@ -37,9 +38,9 @@ export class MyCloudE extends VideoExtractor {
     ).then(req => req.text())
 
     const mediaInfo: IMediaInfo = await request.get(mediaInfoUrl, {headers: {"Referer": "https://aniwave.to/"}}).then(req => req.json())
-    // Note: not sure if i should req this url to get the indiviual qualities, or just keep the auto
-    const sources = mediaInfo.result.sources;
-    console.log(sources);
+
+    const sourcesJson = mediaInfo.result.sources;
+    const sources = await getM3u8Qualities(sourcesJson[0]["file"])
     
     const subtitles: PlaylistEpisodeServerSubtitle[] = []
     for (const track of mediaInfo.result.tracks) {
@@ -55,11 +56,7 @@ export class MyCloudE extends VideoExtractor {
     }
 
     return {
-      sources: [{
-        url: sources[0]["file"],
-        quality: "auto",
-        isDASH: true, // honestly not sure, it's just a mp4 lol
-      } satisfies IVideo],
+      sources: sources,
       subtitles: subtitles
     } satisfies ISource
   };

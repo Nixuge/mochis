@@ -9,12 +9,11 @@ export class Mp4uploadE extends VideoExtractor {
     const html = this.htmlContent;
     const url = html.match(/rplayer\.src.|\n*?src: "(.*?)"/)?.[1]!;
 
-
     return {
       sources: [{
         url: url,
         quality: "auto",
-        isDASH: true // honestly not sure, it's just a mp4 lol
+        isDASH: true
       } satisfies IVideo],
       headers: {"Referer": "https://mp4upload.com/"}
     } satisfies ISource
