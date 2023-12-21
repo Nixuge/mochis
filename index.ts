@@ -1,10 +1,10 @@
 import { RepoMetadata } from '@mochiapp/js/dist';
 
-export * from './src/module'
+export * from './src/aniwave'
 
 export default {
-  name: "Aniwave",
+  name: "Nixuge's Repo",
   description: "Aniwave module for Mochi - @Nixuge",
   author: "Nixuge",
-  icon: "https://s2.bunnycdn.ru/assets/sites/aniwave/logo3.png",
+  icon: "https://nixuge.me/favicon.ico",
 } satisfies RepoMetadata
