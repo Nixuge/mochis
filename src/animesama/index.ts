@@ -16,6 +16,7 @@ import type {
   SearchFilter,
   SearchQuery,
   PlaylistEpisodeServer,
+  SearchQueryFilter,
 } from '@mochiapp/js/dist';
 import {
   PlaylistEpisodeServerFormatType,
@@ -27,19 +28,19 @@ import {
 } from '@mochiapp/js/dist';
 import { load } from 'cheerio';
 import { Anime } from './models/types';
-import { everyAnime, loadEveryAnime } from './searcher';
+import { everyAnime, everyFilter, loadEveryAnime } from './searcher';
   
 export default class Source extends SourceModule implements VideoContent {
   metadata = {
     id: 'animesama',
     name: 'Anime-Sama',
-    version: '0.0.2',
+    version: '0.0.6',
     icon: "https://cdn.statically.io/gh/Anime-Sama/IMG/img/autres/AS_border.png"
   }
 
   async discoverListings(listingRequest?: DiscoverListingsRequest | undefined): Promise<DiscoverListing[]> {
+    loadEveryAnime();
     return []
-    // throw new Error("Not implemented");
   }
 
   async playlistDetails(id: string): Promise<PlaylistDetails> {   
@@ -59,26 +60,37 @@ export default class Source extends SourceModule implements VideoContent {
   }
 
   async searchFilters(): Promise<SearchFilter[]>  {
-    return [];
+    console.log("getting every filter");
+    
+    return everyFilter;
   }
 
-
-
-
   async search(searchQuery: SearchQuery): Promise<Paging<Playlist>> {
-    if (everyAnime.length == 0)
-        await loadEveryAnime();
-    
     const search = searchQuery.query.toLowerCase();
 
+    
+    const usedFilters: [SearchQueryFilter, SearchFilter][] = []
+    searchQuery.filters.forEach(searchQueryFilter => {
+      const filterObj = everyFilter.find(filter => filter.id === searchQueryFilter.id);
+      if (filterObj == undefined) {
+        console.error(searchQueryFilter);        
+        throw Error("Filter didn't match !");
+      }
+      usedFilters.push([searchQueryFilter, filterObj])
+    })    
+
     const items: Playlist[] = [];
+
     searchLoop:
     for (const anime of everyAnime) {
-        if (searchQuery.filters.length > 0) {
-            for (const filter of searchQuery.filters) {
-                if (!anime.filters.includes(filter.id))
-                continue searchLoop;
-            }
+        for (const [searchQueryFilter, searchFilter] of usedFilters) {
+          const enabledFilterOptions = searchQueryFilter.optionIds;
+          const filterId = searchFilter.id;
+          console.log(filterId);
+          
+          const match = enabledFilterOptions.every(enabledOption => anime.filters[filterId].includes(enabledOption));
+          if (!match)
+            continue searchLoop;
         }
         
         if (anime.title.includes(search) || anime.altTitle?.includes(search)) {
@@ -92,8 +104,6 @@ export default class Source extends SourceModule implements VideoContent {
             } satisfies Playlist)
         }
     }
-    // console.log(items[363]);
-    
 
     // Dirty workaround when the runner is broken for post requests
     // const url = "https://anime-sama.fr/catalogue/searchbar.php";
@@ -107,8 +117,6 @@ export default class Source extends SourceModule implements VideoContent {
     //     result = await request.post(url, { body: query }).then(resp => resp.text());
     // }
 
-    
-    
     return {
         id: "search",
         title: "Searching for " + searchQuery.query,

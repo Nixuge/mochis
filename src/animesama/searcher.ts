@@ -1,5 +1,6 @@
 import { load } from "cheerio";
 import { Anime } from "./models/types";
+import { SearchFilter, SearchFilterOption } from "@mochiapp/js/dist";
 
 // Absolutely AMAZED at how this website is made:
 // 3 endpoints:
@@ -41,10 +42,13 @@ const REPLACEMENTS = {
     "School Life": "School-life",
 };
 
-export let everyFilter: Set<String> = new Set();
+export let everyFilter: SearchFilter[] = [];
 export let everyAnime: Anime[] = [];
 
 export async function loadEveryAnime() {
+    const tempThemes: Set<string> = new Set();
+    const tempVideoTypes: Set<string> = new Set();
+
     const url = "https://anime-sama.fr/catalogue/listing_all.php";
     const result = await request.post(url).then(resp => resp.text());
     const $ = load(result)
@@ -62,11 +66,14 @@ export async function loadEveryAnime() {
         if (!(type.includes("Anime") || type.includes("Autres") || type.includes("Animes")))
             return;
 
-        const filters = (meta[1]) ? meta[1].split(", ") : []
-        filters.forEach(filter => {
-            everyFilter.add(filter)
+        const themes = (meta[1]) ? meta[1].split(", ") : [];
+        themes.forEach(filter => {
+            tempThemes.add(filter)
         });
-        const videoTypes = meta[3] ? meta[3].split(", ") : [] //vostfr, vf, ...
+        const videoTypes = meta[3] ? meta[3].split(", ") : [];
+        videoTypes.forEach(videoType => {
+            tempVideoTypes.add(videoType)
+        });
 
         const title = animeRef.find("div.cardListAnime div a div h1").text().toLowerCase()
         const altTitle = animeRef.find("div.cardListAnime div a div p").text().toLowerCase()
@@ -77,9 +84,35 @@ export async function loadEveryAnime() {
             altTitle: altTitle,
             posterImage: encodeURI(img),
             url: encodeURI(url),
-            filters: filters,
-            videoTypes: videoTypes
+            filters: {
+                "theme": themes,
+                "type": videoTypes
+            }
         } satisfies Anime
         everyAnime?.push(playlist)
     })
-  }
+
+    const themesFilter = {
+        id: "theme",
+        displayName: "Thèmes",
+        multiselect: true,
+        required: false,
+        options: [...tempThemes].map((theme) => {return {
+                id: theme,
+                displayName: theme
+        } satisfies SearchFilterOption})
+    } satisfies SearchFilter
+    everyFilter.push(themesFilter)
+
+    const typeFilter = {
+        id: "type",
+        displayName: "Type de la vidéo",
+        multiselect: true,
+        required: false,
+        options: [...tempVideoTypes].map((theme) => {return {
+                id: theme,
+                displayName: theme
+        } satisfies SearchFilterOption})
+    } satisfies SearchFilter
+    everyFilter.push(typeFilter)    
+}

@@ -1,8 +1,9 @@
+import { SearchFilterOption } from "@mochiapp/js/dist";
+
 export type Anime = {
     title: string;
     altTitle?: string;
     posterImage?: string;
     url: string;
-    filters: string[];
-    videoTypes: string[];
+    filters: {[id: string]: string[]}
 }
