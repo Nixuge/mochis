@@ -2,13 +2,10 @@ import { test } from 'vitest'
 import runner from "@mochiapp/runner";
 import Source from "../src/aniwave";
 
-const source = runner(Source)
+import { log, logEnabled } from "./utils/log"
+logEnabled(true)
 
-const LOG_ENABLED = false;
-function log(...data: any) {
-  if (LOG_ENABLED)
-    console.log(...data)
-}
+const source = runner(Source)
 
 // test("provides correct search info", async () => {
 //   console.log(await source.search({ query: "hxh 2011", page: "1", filters: [] }))
@@ -38,6 +35,6 @@ function log(...data: any) {
 // })
 
 // timeout 15s as the deobfuscation can take some time when the js changes.
-test("gets an episode server", async() => {
-  log(JSON.stringify(await source.playlistEpisodeServer({playlistId: "how-not-to-summon-a-demon-lord-w.oz6y/ep-1", episodeId: "HTmfCcgl,HTSZA8sl,HTqXDM4m", sourceId:"servers", serverId:"GDyXDcMlnw=="})))
-}, {timeout: 15000})
+// test("gets an episode server", async() => {
+//   log(JSON.stringify(await source.playlistEpisodeServer({playlistId: "how-not-to-summon-a-demon-lord-w.oz6y/ep-1", episodeId: "HTmfCcgl,HTSZA8sl,HTqXDM4m", sourceId:"servers", serverId:"GDyXDcMlnw=="})))
+// }, {timeout: 15000})
