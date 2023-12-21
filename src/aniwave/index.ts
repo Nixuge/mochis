@@ -36,8 +36,9 @@ import { BASENAME, AJAX_BASENAME } from './utils/variables';
 export default class Source extends SourceModule implements VideoContent {
   metadata = {
     id: 'aniwave',
-    name: 'Aniwave Source',
+    name: 'Aniwave',
     version: '0.2.1',
+    icon: "https://s2.bunnycdn.ru/assets/sites/aniwave/favicon1.png"
   }
 
   async discoverListings(listingRequest?: DiscoverListingsRequest | undefined): Promise<DiscoverListing[]> {
