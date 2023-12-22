@@ -2,6 +2,7 @@ import { VkE } from "./vk"
 import { SibnetE } from "./sibnet";
 import { SendVidE } from "./sendvid";
 import { ISource } from "../../shared/models/types";
+import { isTesting } from "../../shared/utils/isTesting";
 
 // Why is this used?
 // Basically, the .text() function works on most responses, but it seems like
@@ -17,14 +18,14 @@ function arrayBufferToString(buffer: ArrayBuffer) {
     return str;
 }
 
-export async function getVideo(url: string): Promise<ISource> {
-    console.log(url);
-    
+export async function getVideo(url: string): Promise<ISource> {    
     if (url.includes(".anime-sama.fr/videos/")) {
         return { videos: [{ url: url, isDASH: true }] }
     }
 
-    const html = await request.get(url).then(resp => arrayBufferToString(resp.data()));
+    const html = await request.get(url).then(resp => {
+        return isTesting() ? resp.text() : arrayBufferToString(resp.data())
+    });
 
     if (url.startsWith("https://video.sibnet.ru/shell.php?")) {
         return new SibnetE(url, html).extract();

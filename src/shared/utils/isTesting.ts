@@ -1,13 +1,13 @@
 let testing: boolean;
-export function isTesting() {
+export function isTesting() {    
     if (testing)
         return testing;
 
     try {
-        URL
+        new URL("https://nixuge.me");
         testing = true;
     } catch {
-        testing = false
-    }
+        testing = false;
+    }    
     return testing;
 }
