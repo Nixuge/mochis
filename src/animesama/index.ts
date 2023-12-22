@@ -1,5 +1,3 @@
-import { DiscoverListingOrientationType, DiscoverListingType, PlaylistGroup, PlaylistGroupVariant, } from '@mochiapp/js/src/interfaces/source/types';
-
 import type {
   DiscoverListing,
   DiscoverListingsRequest,
@@ -40,7 +38,7 @@ export default class Source extends SourceModule implements VideoContent {
   metadata = {
     id: 'animesama',
     name: 'Anime-Sama',
-    version: '0.1.0',
+    version: '0.1.5',
     icon: "https://cdn.statically.io/gh/Anime-Sama/IMG/img/autres/AS_border.png"
   }
 
@@ -76,9 +74,9 @@ export default class Source extends SourceModule implements VideoContent {
       domain = domain.splice(domain.length-2, 2).join(".")
       return {
         id: source,
-        displayName: sourceNames[domain]
+        displayName: sourceNames[domain] ?? domain
       };
-    })    
+    }).filter(server => server.displayName != "MyVI") // This website is down
     
     return [{
       id: "anime-sama",
@@ -88,7 +86,7 @@ export default class Source extends SourceModule implements VideoContent {
   }
 
 
-  async playlistEpisodeServer(req: PlaylistEpisodeServerRequest): Promise<PlaylistEpisodeServerResponse> {    
+  async playlistEpisodeServer(req: PlaylistEpisodeServerRequest): Promise<PlaylistEpisodeServerResponse> {
     const videos = await getVideo(req.serverId);
 
     return {
@@ -104,25 +102,27 @@ export default class Source extends SourceModule implements VideoContent {
       }
   }
 
-  async searchFilters(): Promise<SearchFilter[]>  {
-    console.log("getting every filter");
-    
+  async searchFilters(): Promise<SearchFilter[]>  {    
     return everyFilter;
   }
 
   async search(searchQuery: SearchQuery): Promise<Paging<Playlist>> {
+    // ! NEEDS TO BE CALLED AFTER discoverListings() 
+    while (everyAnime.length == 0) {
+      await sleep(10);
+    }
+    
     const search = searchQuery.query.toLowerCase();
-
     
     const usedFilters: [SearchQueryFilter, SearchFilter][] = []
     searchQuery.filters.forEach(searchQueryFilter => {
       const filterObj = everyFilter.find(filter => filter.id === searchQueryFilter.id);
       if (filterObj == undefined) {
-        console.error(searchQueryFilter);        
+        console.error(searchQueryFilter);
         throw Error("Filter didn't match !");
       }
       usedFilters.push([searchQueryFilter, filterObj])
-    })    
+    })
 
     const items: Playlist[] = [];
 
@@ -138,7 +138,7 @@ export default class Source extends SourceModule implements VideoContent {
             continue searchLoop;
         }
         
-        if (anime.title.includes(search) || anime.altTitle?.includes(search)) {          
+        if (anime.title.includes(search) || anime.altTitle?.includes(search)) {
             items.push({
                 id: index.toString(),
                 title: anime.title,

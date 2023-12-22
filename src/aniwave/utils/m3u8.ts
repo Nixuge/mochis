@@ -1,5 +1,4 @@
-import { IVideo } from "../models/types";
-
+import { IVideo } from '../../shared/models/types';
 // Note: this regex gets the vertical resolution only, only thing we need for the quality enum.
 const M3U8_PATTERN = /#EXT-X-STREAM-INF:[^\n]*RESOLUTION=\d+x(\d+)[^\n]*\n([^\n]+)/g; 
 

@@ -1,4 +1,4 @@
-import { ISource, IVideo } from "../models/types";
+import { ISource } from '../../shared/models/types';
 import { FilemoonE } from "./filemoon"
 import { Mp4uploadE } from "./mp4upload";
 import { MyCloudE } from "./mycloud";

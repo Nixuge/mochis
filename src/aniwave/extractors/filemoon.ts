@@ -1,5 +1,5 @@
-import { VideoExtractor } from '../models/Iextractor';
-import { ISource, IVideo } from '../models/types';
+import { VideoExtractor } from '../../shared/models/Iextractor';
+import { ISource, IVideo } from '../../shared/models/types';
 import { getM3u8Qualities } from '../utils/m3u8';
 
 // filemoon's extract function

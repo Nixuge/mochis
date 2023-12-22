@@ -1,5 +1,5 @@
-import { VideoExtractor } from '../models/Iextractor';
-import { IVideo } from '../models/types';
+import { VideoExtractor } from '../../shared/models/Iextractor';
+import { IVideo } from '../../shared/models/types';
 
 export class SendVidE extends VideoExtractor {
   protected override serverName = 'sendvid';

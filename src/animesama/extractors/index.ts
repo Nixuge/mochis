@@ -1,7 +1,7 @@
-import { IVideo } from "../models/types";
 import { VkE } from "./vk"
 import { SibnetE } from "./sibnet";
 import { SendVidE } from "./sendvid";
+import { IVideo } from "../../shared/models/types";
 
 export async function getVideo(url: string): Promise<IVideo[]> {
     console.log(url);

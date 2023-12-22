@@ -25,9 +25,8 @@ export class PlaylistEpisodesScraper {
     }
 
     private async grabSeasons(): Promise<IterableIterator<RegExpMatchArray>> {
-        // This is grabbed twice (playlistDetails + here) but meh
-        const mainPage = await request.get(this.mainUrl).then(resp => resp.text());
-        // const mainPage = "";
+        const mainPage = await request.get(this.mainUrl).then(resp => resp.text());        
+
         const $ = load(mainPage);
         const saisonsRef = $("h2.text-white.text-xl.font-bold.uppercase.border-b-2.mt-5.border-slate-500").map((i, elem) => {
           const elemRef = $(elem);
@@ -49,7 +48,6 @@ export class PlaylistEpisodesScraper {
           const promises: Map<string, Promise<MochiResponse>> = new Map();
           this.anime.filters["type"].forEach((type) => {
             promises.set(type, request.get(this.mainUrl + id + "/" + type.toLocaleLowerCase() + "/episodes.js?"))
-            promises.set("vf", request.get(this.mainUrl + id + "/" + "vf" + "/episodes.json?")) // TEST, TO REMOVE
           })
     
           requestingPlaylistGroups.push({
