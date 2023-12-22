@@ -38,7 +38,7 @@ export default class Source extends SourceModule implements VideoContent {
   metadata = {
     id: 'animesama',
     name: 'Anime-Sama',
-    version: '0.1.5',
+    version: '0.1.41',
     icon: "https://cdn.statically.io/gh/Anime-Sama/IMG/img/autres/AS_border.png"
   }
 
@@ -87,17 +87,17 @@ export default class Source extends SourceModule implements VideoContent {
 
 
   async playlistEpisodeServer(req: PlaylistEpisodeServerRequest): Promise<PlaylistEpisodeServerResponse> {
-    const videos = await getVideo(req.serverId);
+    const source = await getVideo(req.serverId);
 
     return {
-        links: videos.map((video) => ({
+        links: source.videos.map((video) => ({
           url: video.url,
           // @ts-ignore
           quality: PlaylistEpisodeServerQualityType[video.quality] ?? PlaylistEpisodeServerQualityType.auto,
           format: video.isDASH ? PlaylistEpisodeServerFormatType.dash : PlaylistEpisodeServerFormatType.hsl
         })).sort((a, b) => b.quality - a.quality),
         skipTimes: [],
-        headers: {},
+        headers: source.headers ?? {},
         subtitles: [],
       }
   }
@@ -131,7 +131,6 @@ export default class Source extends SourceModule implements VideoContent {
         for (const [searchQueryFilter, searchFilter] of usedFilters) {
           const enabledFilterOptions = searchQueryFilter.optionIds;
           const filterId = searchFilter.id;
-          console.log(filterId);
           
           const match = enabledFilterOptions.every(enabledOption => anime.filters[filterId].includes(enabledOption));
           if (!match)
