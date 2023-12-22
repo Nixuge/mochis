@@ -33,10 +33,10 @@ export class FilemoonE extends VideoExtractor {
 
     const m3u8Url = playerData.match(/{sources:\[{file:"(.*?)"}/)[1];
 
-    const sources = await getM3u8Qualities(m3u8Url);
+    const videos = await getM3u8Qualities(m3u8Url);
 
     return {
-      sources: sources,
+      videos: videos,
       headers: {"User-Agent": "Chrome trust not a phone I promise"} // "Android" and "iPhone" are flagging lol
     } satisfies ISource
   };

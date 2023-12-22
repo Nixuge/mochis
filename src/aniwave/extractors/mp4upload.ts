@@ -10,7 +10,7 @@ export class Mp4uploadE extends VideoExtractor {
     const url = html.match(/rplayer\.src.|\n*?src: "(.*?)"/)?.[1]!;
 
     return {
-      sources: [{
+      videos: [{
         url: url,
         quality: "auto",
         isDASH: true

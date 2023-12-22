@@ -43,7 +43,7 @@ export interface ISubtitle {
 export interface ISource {
     headers?: { [k: string]: string };
     subtitles?: PlaylistEpisodeServerSubtitle[];
-    sources: IVideo[];
+    videos: IVideo[];
     download?: string;
     embedURL?: string;
 }

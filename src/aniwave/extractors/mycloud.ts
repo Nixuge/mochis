@@ -40,7 +40,7 @@ export class MyCloudE extends VideoExtractor {
     const mediaInfo: IMediaInfo = await request.get(mediaInfoUrl, {headers: {"Referer": "https://aniwave.to/"}}).then(req => req.json())
 
     const sourcesJson = mediaInfo.result.sources;
-    const sources = await getM3u8Qualities(sourcesJson[0]["file"])
+    const videos = await getM3u8Qualities(sourcesJson[0]["file"])
     
     const subtitles: PlaylistEpisodeServerSubtitle[] = []
     for (const track of mediaInfo.result.tracks) {
@@ -56,7 +56,7 @@ export class MyCloudE extends VideoExtractor {
     }
 
     return {
-      sources: sources,
+      videos: videos,
       subtitles: subtitles
     } satisfies ISource
   };

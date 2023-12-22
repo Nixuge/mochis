@@ -36,7 +36,7 @@ export abstract class VideoExtractor {
   public async getSource(...args: any): Promise<ISource> {
     return {
       // @ts-ignore
-      sources: await this.extract(...args)
+      videos: await this.extract(...args)
     }
   }
 }

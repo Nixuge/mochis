@@ -213,7 +213,7 @@ export default class Source extends SourceModule implements VideoContent {
     let skipData = parseSkipData(decodeVideoSkipData(result["skip_data"]))
     
     const sourceData = await getVideo(url);
-    const videos = sourceData.sources;
+    const videos = sourceData.videos;
 
     return {
         links: videos.map((video) => ({

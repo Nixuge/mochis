@@ -7,7 +7,7 @@ export async function getVideo(url: string): Promise<ISource> {
     console.log(url);
     
     if (url.includes(".anime-sama.fr/videos/")) {
-        return { sources: [{ url: url, isDASH: true }] }
+        return { videos: [{ url: url, isDASH: true }] }
     }
 
     const html = (await request.get(url)).text();
