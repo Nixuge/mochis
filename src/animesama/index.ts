@@ -34,12 +34,13 @@ import { sleep } from './utils/sleep';
 import { PlaylistEpisodesScraper } from './scraper/playlistepisodes';
 import { sourceNames } from './utils/sourcenames';
 import { PlaylistDetailsScraper } from './scraper/playlistdetails';
+import { getVideo } from './extractors';
 
 export default class Source extends SourceModule implements VideoContent {
   metadata = {
     id: 'animesama',
     name: 'Anime-Sama',
-    version: '0.0.13',
+    version: '0.1.0',
     icon: "https://cdn.statically.io/gh/Anime-Sama/IMG/img/autres/AS_border.png"
   }
 
@@ -77,18 +78,30 @@ export default class Source extends SourceModule implements VideoContent {
         id: source,
         displayName: sourceNames[domain]
       };
-    })
+    })    
     
     return [{
       id: "anime-sama",
       displayName: "Anime Sama",
-      servers: servers
+      servers
     }]
   }
 
 
-  async playlistEpisodeServer(req: PlaylistEpisodeServerRequest): Promise<PlaylistEpisodeServerResponse> {
-    throw new Error("Not implemented");
+  async playlistEpisodeServer(req: PlaylistEpisodeServerRequest): Promise<PlaylistEpisodeServerResponse> {    
+    const videos = await getVideo(req.serverId);
+
+    return {
+        links: videos.map((video) => ({
+          url: video.url,
+          // @ts-ignore
+          quality: PlaylistEpisodeServerQualityType[video.quality] ?? PlaylistEpisodeServerQualityType.auto,
+          format: video.isDASH ? PlaylistEpisodeServerFormatType.dash : PlaylistEpisodeServerFormatType.hsl
+        })).sort((a, b) => b.quality - a.quality),
+        skipTimes: [],
+        headers: {},
+        subtitles: [],
+      }
   }
 
   async searchFilters(): Promise<SearchFilter[]>  {
