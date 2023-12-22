@@ -24,4 +24,19 @@ export abstract class VideoExtractor {
    * returns video sources (video links) available
    */
   protected abstract extract(videoUrl: string, ...args: any): Promise<IVideo[] | ISource>;
+
+  /**
+   * takes same argument as extract
+   *
+   * returns ISource object with extract()'s result as video.
+   * Made so that extract() can return anything we want, and not have to make compromises.
+   * 
+   * NOT TO BE USED IF extract() ALREADY RETURNS AN ISource
+   */
+  public async getSource(...args: any): Promise<ISource> {
+    return {
+      // @ts-ignore
+      sources: await this.extract(...args)
+    }
+  }
 }
