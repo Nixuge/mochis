@@ -1,7 +1,7 @@
 import { PlaylistEpisodeServerSubtitle, PlaylistEpisodeServerSubtitleFormat } from '@mochiapp/js/dist';
 import { VideoExtractor } from '../../shared/models/Iextractor';
 import { ISource, IVideo } from '../../shared/models/types';
-import { getM3u8Qualities } from '../utils/m3u8';
+import { getM3u8Qualities } from '../../shared/utils/m3u8';
 
 interface IMediaInfo {
   status: number,

@@ -1,8 +1,10 @@
-import { IVideo } from '../../shared/models/types';
+import { IVideo } from '../models/types';
 // Note: this regex gets the vertical resolution only, only thing we need for the quality enum.
 const M3U8_PATTERN = /#EXT-X-STREAM-INF:[^\n]*RESOLUTION=\d+x(\d+)[^\n]*\n([^\n]+)/g; 
 
-export async function getM3u8Qualities(mainFileUrl: string, keepAuto: boolean = true): Promise<IVideo[]> {
+export async function getM3u8Qualities(mainFileUrl: string, keepAuto: boolean = true, customPattern?: RegExp): Promise<IVideo[]> {
+    const usedPattern = customPattern ? customPattern : M3U8_PATTERN;
+
     const urlSplit = mainFileUrl.split("/")
     const baseDomain = urlSplit.slice(0, 3).join("/") + "/"
     urlSplit.pop()
@@ -17,7 +19,7 @@ export async function getM3u8Qualities(mainFileUrl: string, keepAuto: boolean = 
           } satisfies IVideo)
     
     const m3u8Data = await request.get(mainFileUrl).then(resp => resp.text());
-    const m3u8Sources = m3u8Data.matchAll(M3U8_PATTERN);
+    const m3u8Sources = m3u8Data.matchAll(usedPattern);
     for (const m3u8Source of m3u8Sources) {
         const quality = m3u8Source[1];
         let url = m3u8Source[2];
