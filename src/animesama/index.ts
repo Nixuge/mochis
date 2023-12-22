@@ -17,6 +17,7 @@ import type {
   SearchQuery,
   PlaylistEpisodeServer,
   SearchQueryFilter,
+  MochiResponse,
 } from '@mochiapp/js/dist';
 import {
   PlaylistEpisodeServerFormatType,
@@ -26,15 +27,19 @@ import {
   SourceModule,
   VideoContent
 } from '@mochiapp/js/dist';
-import { load } from 'cheerio';
-import { Anime } from './models/types';
+import { Cheerio, CheerioAPI, Element, load } from 'cheerio';
+import { Anime, RequestingPlaylistGroup } from './models/types';
 import { everyAnime, everyFilter, loadEveryAnime } from './searcher';
-  
+import { sleep } from './utils/sleep';
+import { PlaylistEpisodesScraper } from './scraper/playlistepisodes';
+import { sourceNames } from './utils/sourcenames';
+import { PlaylistDetailsScraper } from './scraper/playlistdetails';
+
 export default class Source extends SourceModule implements VideoContent {
   metadata = {
     id: 'animesama',
     name: 'Anime-Sama',
-    version: '0.0.6',
+    version: '0.0.13',
     icon: "https://cdn.statically.io/gh/Anime-Sama/IMG/img/autres/AS_border.png"
   }
 
@@ -43,15 +48,42 @@ export default class Source extends SourceModule implements VideoContent {
     return []
   }
 
-  async playlistDetails(id: string): Promise<PlaylistDetails> {   
-    throw new Error("Not implemented");
+  async playlistDetails(id: string): Promise<PlaylistDetails> {
+    // ! NEEDS TO BE CALLED AFTER discoverListings() 
+    while (everyAnime.length == 0) {
+      await sleep(10);
+    }
+    const anime = everyAnime[parseInt(id)];
+    return await new PlaylistDetailsScraper(anime).scrape()
   }
 
   async playlistEpisodes(playlistId: string, options?: PlaylistItemsOptions | undefined): Promise<PlaylistItemsResponse> {
-    throw new Error("Not implemented");
+    // ! NEEDS TO BE CALLED AFTER discoverListings() 
+    while (everyAnime.length == 0) {
+      await sleep(10);
+    }
+        
+    const anime = everyAnime[parseInt(playlistId)];
+
+    return await new PlaylistEpisodesScraper(anime).scrape()
   }
+  
   async playlistEpisodeSources(req: PlaylistEpisodeSourcesRequest): Promise<PlaylistEpisodeSource[]> {
-    throw new Error("Not implemented");
+    const sources: string[] = JSON.parse(req.episodeId);
+    const servers = sources.map((source) => {
+      let domain: string | string[] = source.split("/")[2].split(".");
+      domain = domain.splice(domain.length-2, 2).join(".")
+      return {
+        id: source,
+        displayName: sourceNames[domain]
+      };
+    })
+    
+    return [{
+      id: "anime-sama",
+      displayName: "Anime Sama",
+      servers: servers
+    }]
   }
 
 
@@ -82,7 +114,7 @@ export default class Source extends SourceModule implements VideoContent {
     const items: Playlist[] = [];
 
     searchLoop:
-    for (const anime of everyAnime) {
+    for (const [index, anime] of everyAnime.entries()) {
         for (const [searchQueryFilter, searchFilter] of usedFilters) {
           const enabledFilterOptions = searchQueryFilter.optionIds;
           const filterId = searchFilter.id;
@@ -93,9 +125,9 @@ export default class Source extends SourceModule implements VideoContent {
             continue searchLoop;
         }
         
-        if (anime.title.includes(search) || anime.altTitle?.includes(search)) {
+        if (anime.title.includes(search) || anime.altTitle?.includes(search)) {          
             items.push({
-                id: anime.title,
+                id: index.toString(),
                 title: anime.title,
                 posterImage: anime.posterImage,
                 url: anime.url,
@@ -104,18 +136,6 @@ export default class Source extends SourceModule implements VideoContent {
             } satisfies Playlist)
         }
     }
-
-    // Dirty workaround when the runner is broken for post requests
-    // const url = "https://anime-sama.fr/catalogue/searchbar.php";
-    // const query = `query=${encodeURIComponent(searchQuery.query)}`
-    // let result: string;
-    // try {
-    //     URL
-    //     const axios = (await import('axios')).default;
-    //     result = (await axios.post(url, query)).data        
-    // } catch {
-    //     result = await request.post(url, { body: query }).then(resp => resp.text());
-    // }
 
     return {
         id: "search",

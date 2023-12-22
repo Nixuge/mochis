@@ -1,4 +1,4 @@
-import { SearchFilterOption } from "@mochiapp/js/dist";
+import { MochiResponse, PlaylistGroup } from "@mochiapp/js/dist";
 
 export type Anime = {
     title: string;
@@ -6,4 +6,9 @@ export type Anime = {
     posterImage?: string;
     url: string;
     filters: {[id: string]: string[]}
+}
+
+export type RequestingPlaylistGroup = {
+    playlistGroup: PlaylistGroup;
+    promises: Map<string, Promise<MochiResponse>>;
 }
