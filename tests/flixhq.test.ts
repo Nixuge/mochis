@@ -7,9 +7,9 @@ logEnabled(true)
 
 const source = runner(Source)
 
-test("provides discover listings", async () => {
-  log((await source.discoverListings()))
-})
+// test("provides discover listings", async () => {
+//   log((await source.discoverListings()))
+// })
 
 
 // test("provides correct search info", async () => {
@@ -17,9 +17,9 @@ test("provides discover listings", async () => {
 // })
 
 
-// test("provides playlist details", async () => {
-//   console.log(await source.playlistDetails("3958/9c94444a-37ce-87a1-bc5d-100094414436"))
-// })
+test("provides playlist details", async () => {
+  console.log(await source.playlistDetails("/movie/watch-stash-house-252"))
+})
 
 let episodeId: string = ""
 
