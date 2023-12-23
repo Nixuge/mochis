@@ -21,6 +21,6 @@ def update_version_in_file(file_path):
             file.write(line)
 
 # Hardcoded to use the module you're working on lol
-update_version_in_file("src/animesama/index.ts")
+update_version_in_file("src/flixhq/index.ts")
 
 os.system("bun run bundle")

@@ -48,6 +48,7 @@ export default class Source extends SourceModule implements VideoContent {
 
   async search(searchQuery: SearchQuery): Promise<Paging<Playlist>> {
     try {
+      // TODO: HANDLE MULTI PAGES SEARCH
       const data: PaheRelease = await request.get(`${baseUrl}/api?m=search&q=${encodeURIComponent(searchQuery.query)}`).then(resp => resp.json());
 
       const res: Playlist[] = data.data.map((item: any) => ({
