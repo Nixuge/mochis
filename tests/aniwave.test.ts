@@ -11,10 +11,13 @@ const source = runner(Source)
 //   console.log(await source.search({ query: "hxh 2011", page: "1", filters: [] }))
 // })
 
-// test("provides discover listings", async () => {
-//   log((await source.discoverListings()))
-// })
+test("provides discover listings", async () => {
+  log((await source.discoverListings()))
+})
 
+// test("load filters", async () => {
+//   log(await source.searchFilters())
+// })
 
 // test("provides playlist details", async () => {
 //   console.log(await source.playlistDetails("hunter-x-hunter-2011.295"))

@@ -7,24 +7,26 @@ logEnabled(true)
 
 const source = runner(Source)
 
-// test("provides correct search info", async () => {
-//   log(await source.search({ query: "h", page: "1", filters: [] }))
+// test("provides discover listings", async () => {
+//   log((await source.discoverListings()))
 // })
 
 
-test("provides discover listings", async () => {
-  log((await source.discoverListings()))
-})
+// test("provides correct search info", async () => {
+//   log(await source.search({ query: "hxh", page: "1", filters: [] }))
+// })
 
 
-test("provides playlist details", async () => {
-  console.log(await source.playlistDetails("0"))
-})
+
+
+// test("provides playlist details", async () => {
+//   console.log(await source.playlistDetails("360"))
+// })
 
 let episodeId: string = ""
 
 // test("gets the episode count", async() => {
-//   const data = await source.playlistEpisodes("0");
+//   const data = await source.playlistEpisodes("360");
 //   log(JSON.stringify(data))
 //   episodeId = data[0].variants?.[0].pagings?.[0].items?.[0].id!
 // })
@@ -33,7 +35,6 @@ let episodeId: string = ""
 //   log(JSON.stringify(await source.playlistEpisodeSources({playlistId: "0", episodeId: episodeId})))
 // })
 
-// timeout 15s as the deobfuscation can take some time when the js changes.
-// test("gets an episode server", async() => {
-//   log(JSON.stringify(await source.playlistEpisodeServer({playlistId: "how-not-to-summon-a-demon-lord-w.oz6y/ep-1", episodeId: "HTmfCcgl,HTSZA8sl,HTqXDM4m", sourceId:"servers", serverId:"GDyXDcMlnw=="})))
-// }, {timeout: 15000})
+test("gets an episode server", async() => {
+  log(JSON.stringify(await source.playlistEpisodeServer({playlistId: "a", episodeId: "b", sourceId:"c", serverId:"https://vk.com/video_ext.php?oid=755747641&id=456240187&hd=3"})))
+}, {timeout: 15000})
