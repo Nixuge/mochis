@@ -28,17 +28,18 @@ import {
 import { Cheerio, CheerioAPI, Element, load } from 'cheerio';
 import { Anime, RequestingPlaylistGroup } from './models/types';
 import { everyAnime, everyFilter, loadEveryAnime } from './searcher';
-import { sleep } from './utils/sleep';
+import { sleep } from '../shared/utils/sleep';
 import { PlaylistEpisodesScraper } from './scraper/playlistepisodes';
 import { sourceNames } from './utils/sourcenames';
 import { PlaylistDetailsScraper } from './scraper/playlistdetails';
 import { getVideo } from './extractors';
+import { isTesting } from '../shared/utils/isTesting';
 
 export default class Source extends SourceModule implements VideoContent {
   metadata = {
     id: 'animesama',
     name: 'Anime-Sama',
-    version: '0.2.0',
+    version: '0.2.2',
     icon: "https://cdn.statically.io/gh/Anime-Sama/IMG/img/autres/AS_border.png"
   }
 
@@ -49,7 +50,7 @@ export default class Source extends SourceModule implements VideoContent {
 
   async playlistDetails(id: string): Promise<PlaylistDetails> {
     // ! NEEDS TO BE CALLED AFTER discoverListings() 
-    while (everyAnime.length == 0) {
+    while (isTesting() && everyAnime.length == 0) {
       await sleep(10);
     }
     const anime = everyAnime[parseInt(id)];
@@ -58,7 +59,7 @@ export default class Source extends SourceModule implements VideoContent {
 
   async playlistEpisodes(playlistId: string, options?: PlaylistItemsOptions | undefined): Promise<PlaylistItemsResponse> {
     // ! NEEDS TO BE CALLED AFTER discoverListings() 
-    while (everyAnime.length == 0) {
+    while (isTesting() && everyAnime.length == 0) {
       await sleep(10);
     }
         
@@ -108,7 +109,7 @@ export default class Source extends SourceModule implements VideoContent {
 
   async search(searchQuery: SearchQuery): Promise<Paging<Playlist>> {
     // ! NEEDS TO BE CALLED AFTER discoverListings() 
-    while (everyAnime.length == 0) {
+    while (isTesting() && everyAnime.length == 0) {
       await sleep(10);
     }
     
