@@ -144,7 +144,7 @@ export class HomeScraper {
         const title = itemRef.find("div.info div.name.d-title").text()
 
         return {
-          id: title,
+          id: url,
           title: title,
           posterImage: posterImage,
           url: url,

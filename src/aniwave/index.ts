@@ -31,22 +31,26 @@ import { getVideo } from './extractors';
 import { parseSkipData } from './utils/skipData';
 import { getHomeScraper } from './scraper/homeScraper';
 import { BASENAME, AJAX_BASENAME } from './utils/variables';
+import { filters, scrapeFilters } from './scraper/filters';
+import { isTesting } from '../shared/utils/isTesting';
+import { sleep } from '../shared/utils/sleep';
 
 
 export default class Source extends SourceModule implements VideoContent {
   metadata = {
     id: 'aniwave',
     name: 'Aniwave',
-    version: '0.2.1',
+    version: '0.2.2',
     icon: "https://s2.bunnycdn.ru/assets/sites/aniwave/favicon1.png"
   }
 
   async discoverListings(listingRequest?: DiscoverListingsRequest | undefined): Promise<DiscoverListing[]> {
+    scrapeFilters()
     const homeScraper = getHomeScraper(listingRequest);
     return (await homeScraper).scrape()
   }
 
-  async playlistDetails(id: string): Promise<PlaylistDetails> {   
+  async playlistDetails(id: string): Promise<PlaylistDetails> {
     const watch = id.startsWith("/watch/") ? "" : "/watch/";
     const fullUrl = `${BASENAME}${watch}${id}`;
     const html = await request.get(fullUrl);
@@ -205,7 +209,6 @@ export default class Source extends SourceModule implements VideoContent {
     }];
   }
 
-
   async playlistEpisodeServer(req: PlaylistEpisodeServerRequest): Promise<PlaylistEpisodeServerResponse> {
     // @ts-ignore
     const result: string = (await request.get(`${AJAX_BASENAME}/server/${req.serverId}?vrf=${getVrf(req.serverId)}`)).json()["result"];
@@ -228,14 +231,24 @@ export default class Source extends SourceModule implements VideoContent {
       }
   }
 
-  async searchFilters(): Promise<SearchFilter[]>  {
-    return [];
+  async searchFilters(): Promise<SearchFilter[]> {
+    while (isTesting() && filters.length == 0) {
+      await sleep(10);
+    }
+    return filters;
   }
 
   async search(searchQuery: SearchQuery): Promise<Paging<Playlist>> {
     // todo: handle multi page search
     const currentPageInt = (searchQuery.page == undefined) ? 1 : parseInt(searchQuery.page)
-    const html = await request.get(`${BASENAME}/filter?keyword=${encodeURIComponent(searchQuery.query)}&page=1`)
+    let filterString = "";
+    for (const filter of searchQuery.filters) {
+      for (const filterOption of filter.optionIds) {
+        filterString += `&${filter.id}=${filterOption}`
+      }
+    }
+
+    const html = await request.get(`${BASENAME}/filter?keyword=${encodeURIComponent(searchQuery.query)}&page=${currentPageInt}${filterString}`)
 
     const $ = load(html.text());
 
@@ -255,7 +268,7 @@ export default class Source extends SourceModule implements VideoContent {
       const url = metaRef.attr('href')?.split('/').pop() ?? '';
       
       const name = metaRef.text();
-      const img = animeRef.find('div > a > img').attr('src') ?? '';
+      const img = animeRef.find('div > a > img').attr('src') ?? '';      
       return {
         id: url,
         url: `${BASENAME}/category/${url}`,
