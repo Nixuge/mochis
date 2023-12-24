@@ -2,6 +2,57 @@
 </div>
 </body>
 
+<script defer>
+    let href = window.location.href;
+    if (href[href.length-1] == "#")
+        href = href.slice(0, href.length-1)
+
+    let repoURL = encodeURIComponent(href);
+    document.getElementById("add-repo").href = "mochi://add-repo?url=" + repoURL;
+
+    function addModule() {
+        navigator.clipboard.writeText(href)
+        alert("Mochi still hasn't implemented URL schemes. The repo URL has been copied to your clipboard. Add it manually to the app.")
+        return false;
+    }
+    const timeouts = []
+
+    function searchModule() {
+        // Declare variables
+        var input, filter, ul, li, a, i, txtValue;
+        input = document.getElementById('module-search-input');
+        filter = input.value.toUpperCase();
+        ul = document.getElementById("modules-list");
+        li = ul.getElementsByTagName('li');
+
+        for(const timeout of timeouts) {
+            clearTimeout(timeout);
+        }
+        timeouts.length = 0;
+
+        // Loop through all list items, and hide those who don't match the search query
+        for (i = 0; i < li.length; i++) {
+            const elem = li[i]
+            a = elem.getElementsByTagName("h2")[0];
+            txtValue = a.textContent || a.innerText;
+            
+            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                elem.classList.add("fade-in");
+                elem.classList.remove("fade-out");
+                elem.style.display = ""; // Reset display to default
+            } else {
+                const elem = li[i]
+                elem.classList.add("fade-out");
+                elem.classList.remove("fade-in");
+                // Note: if you type too fast this causes issues but i dO NOT care rn
+                timeouts.push(setTimeout(() => {
+                    elem.style.display = "none";
+                }, 200))
+            }
+        }
+    } 
+</script>
+
 <style transitions>
 .fade-in {
     animation: fadeInAnimation 0.2s;
@@ -99,7 +150,8 @@ a {
     color: white;
     text-decoration: none;
 }
-
+/* TODO: searchbar is a bit too thin vertically it seems like, or random impossible to remove padding/margin. */
+/* Thank you Safari. */
 .search-container {
     margin-top: 10px;
     width: calc(100% - 2px);
