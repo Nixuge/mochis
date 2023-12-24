@@ -18,10 +18,10 @@ for (const module of repo.modules) {
         <div class="module-meta">
             <h2 class="module-title">${module.name}</h2>
             <span class="module-version">v${module.version}</span>
-            <div class="install-module-wrap">
-                <a class="install-module-button" onclick="addModule('${module.file}')">Add</a>
-            </div>
         </div>
+        <div class="install-module-wrap">
+        <a class="install-module-button" onclick="addModule('${module.file}')">Add</a>
+    </div>
     </div>
     <hr>
 </li>`

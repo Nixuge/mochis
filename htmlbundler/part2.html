@@ -58,6 +58,8 @@ body {
     font-size: 32px;
     position: relative;
     margin: 0;
+    white-space: nowrap;
+    max-width: calc(100% - 120px); /* Adjust the 100px based on the size of the add-repo button and desired padding */
 }
 
 .title:after {
@@ -70,6 +72,12 @@ body {
     background: linear-gradient(90deg, rgba(0,179,255,1) 0%, rgba(255,0,239,1) 100%);;
     border-radius: 5px;
 }
+.title-content {
+    white-space: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 5px; /* Adjust if necessary to avoid clipping the scrollbar */
+}
 
 #add-repo {
     margin-top: 12px;
@@ -80,6 +88,7 @@ body {
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    white-space: nowrap;
 }
 #add-repo:hover {
     box-shadow: 0 0 8px 1px #7f5cf5;
@@ -93,10 +102,10 @@ a {
 
 .search-container {
     margin-top: 10px;
-    width: 99.5%;
+    width: calc(100% - 2px);
     text-align: center;
     background: linear-gradient(90deg, rgba(0,179,255,1) 0%, rgba(255,0,239,1) 100%);
-    padding: .25%;
+    padding: 1px;
     border-radius: 6px;
 }
 
@@ -135,6 +144,8 @@ a {
     flex-grow: 1;
     display: flex;
     align-items: center;
+    white-space: nowrap;
+    overflow: auto;
 }
 
 .module-title {
