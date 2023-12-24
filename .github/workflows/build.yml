@@ -24,7 +24,10 @@ jobs:
         run: pnpm install --no-frozen-lockfile
 
       - name: Build Repository
-        run: pnpm bundle --site
+        run: pnpm bundle
+      
+      - name: Build HTML
+        run: node ./htmlbundler/builder.js
 
       - name: Fix permissions
         run: |
