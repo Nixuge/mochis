@@ -1,23 +1,15 @@
-import { PlaylistEpisodeServerSubtitle, PlaylistEpisodeServerSubtitleFormat } from '@mochiapp/js/dist';
+import { PlaylistEpisodeServerSubtitleFormat } from '@mochiapp/js/dist';
 import { VideoExtractor } from '../../shared/models/Iextractor';
 import { ISource, IVideo } from '../../shared/models/types';
 import { getM3u8Qualities } from '../../shared/utils/m3u8';
+import { IRawTrackMedia, parseSubtitles } from '../../shared/utils/subtitles';
 
 interface IMediaInfo {
   status: number,
   result: {
     sources: Object[],
-    tracks: Object[] | IRawSubtitleMeta[]
+    tracks: IRawTrackMedia[]
   }
-}
-interface IRawSubtitleMeta {
-  file: string,
-  label: string,
-  kind: string,
-  default?: boolean
-}
-function isSubtitle(object: any): object is IRawSubtitleMeta {
-  return "kind" in object && object["kind"] == "captions";
 }
 
 // Note: this is named mycloud but works for both mycloud & vidplay
@@ -42,18 +34,7 @@ export class MyCloudE extends VideoExtractor {
     const sourcesJson = mediaInfo.result.sources;
     const videos = await getM3u8Qualities(sourcesJson[0]["file"])
     
-    const subtitles: PlaylistEpisodeServerSubtitle[] = []
-    for (const track of mediaInfo.result.tracks) {
-      if (!isSubtitle(track))
-        continue;
-      subtitles.push({
-        url: track.file,
-        name: track.label,
-        format: PlaylistEpisodeServerSubtitleFormat.vtt,
-        default: track.default ?? false,
-        autoselect: track.default ?? false
-      } satisfies PlaylistEpisodeServerSubtitle)
-    }
+    const subtitles = parseSubtitles(mediaInfo.result.tracks)
 
     return {
       videos: videos,

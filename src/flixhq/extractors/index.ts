@@ -8,7 +8,7 @@ export async function getVideo(url: string, provider: string): Promise<ISource> 
         throw Error("Mixdrop is down")
 
     if (provider == "upcloud" || provider == "vidcloud")
-        return await new VidCloudE(url, "").getSource()
+        return await new VidCloudE(url, "").extract()
     
     throw Error("No extractor for url " + url + "(provider: " + provider + ")");
 }

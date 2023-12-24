@@ -76,8 +76,6 @@ export default class Source extends SourceModule implements VideoContent {
   }
 
   async playlistEpisodeSources(req: PlaylistEpisodeSourcesRequest): Promise<PlaylistEpisodeSource[]> {
-    console.log(`${baseUrl}${req.episodeId}`);
-    
     const html = await request.get(`${baseUrl}${req.episodeId}`).then(resp => resp.text())
     const $ = load(html);
     const servers: PlaylistEpisodeServer[] = $("div.server-select ul.nav li.nav-item").map((i, item) => {
@@ -109,13 +107,8 @@ export default class Source extends SourceModule implements VideoContent {
     const serverJson = JSON.parse(req.serverId);
     const url = `${baseUrl}/ajax/episode/sources/${serverJson.id}`
     const data: any = await request.get(url).then(resp => resp.json())
-    // TODO: PARSE SUBTITLES (TRACKS) HERE !
-    // SHOULD BE IN DATA !!
-    console.log('a');
-    console.log(data);
-    console.log(req.serverId);
-    
-    const source = await getVideo(data["link"], serverJson["provider"])
+
+    const source = await getVideo(data["link"], serverJson["provider"])    
     
     return {
       links: source.videos.map((video) => ({
@@ -126,7 +119,7 @@ export default class Source extends SourceModule implements VideoContent {
       })).sort((a, b) => b.quality - a.quality),
       skipTimes: [], // Don't think there's any?
       headers: {},
-      subtitles: [], // TODO!!!
+      subtitles: source.subtitles ?? [],
     }
   }
 }

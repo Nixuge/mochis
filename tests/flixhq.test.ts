@@ -13,7 +13,7 @@ const source = runner(Source)
 
 
 // test("provides correct search info", async () => {
-//   log(await source.search({ query: "h", filters: [] }))
+//   log(await source.search({ query: "hunter x hunter", filters: [] }))
 // })
 
 
@@ -29,25 +29,25 @@ let episodeId: string = ""
 //   // episodeId = data[0].variants?.[0].pagings?.[0].items?.[0].id!
 // })
 // test("gets the seasons", async() => {
-//   const data = await source.playlistEpisodes("/tv/watch-south-park-39503");
+//   const data = await source.playlistEpisodes("/tv/watch-hunter-x-hunter-39509");
 //   log(JSON.stringify(data))
 //   // episodeId = data[0].variants?.[0].pagings?.[0].items?.[0].id!
 // })
 // test("gets the episodes for season 7", async() => {
-//   const data = await source.playlistEpisodes("/tv/watch-south-park-39503", {type: 'group', groupId: "418"});
+//   const data = await source.playlistEpisodes("/tv/watch-hunter-x-hunter-39509", {type: 'group', groupId: "358"});
 //   log(JSON.stringify(data))
 //   // episodeId = data[0].variants?.[0].pagings?.[0].items?.[0].id!
 // })
 
 
 // test("gets the episode sources", async() => {
-//   log(JSON.stringify(await source.playlistEpisodeSources({playlistId: "", episodeId: "/ajax/episode/servers/7423"})))
+//   log(JSON.stringify(await source.playlistEpisodeSources({playlistId: "", episodeId: "/ajax/episode/servers/6366"})))
 // })
 
 test("gets an episode server", async() => {
   log(JSON.stringify(await source.playlistEpisodeServer({
-    playlistId: "/tv/watch-what-if-71031", 
+    playlistId: "/tv/watch-hunter-x-hunter-39509", 
     episodeId: "", 
     sourceId:"", 
-    serverId:"{\"id\":\"4859866\",\"provider\":\"UpCloud\"}"})))
+    serverId:"{\"id\":\"4857184\",\"provider\":\"UpCloud\"}"})))
 })

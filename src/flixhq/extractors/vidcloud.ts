@@ -1,21 +1,22 @@
 import CryptoJS from 'crypto-js';
 import { VideoExtractor } from '../../shared/models/Iextractor';
-import { IVideo } from '../../shared/models/types';
+import { ISource, IVideo } from '../../shared/models/types';
 import { getM3u8Qualities } from '../../shared/utils/m3u8';
+import { IRawTrackMedia, parseSubtitles } from '../../shared/utils/subtitles';
 
 // Mostly from consumet,
 // thanks to them & theonlymo
 
 type ResponseType = {
     sources: string,
-    tracks: Object[]
+    tracks: IRawTrackMedia[]
 }
 
 export class VidCloudE extends VideoExtractor {
     protected override serverName = 'VidCloud';
     protected override sources: IVideo[] = [];
 
-    override extract = async (): Promise<IVideo[]> => {
+    override extract = async (): Promise<ISource> => {
         const hostname = this.referer.split("/").slice(0, 3).join("/");
         const id = this.referer.split('/').pop()?.split('?')[0];
 
@@ -25,9 +26,9 @@ export class VidCloudE extends VideoExtractor {
         }};
 
         const data: ResponseType = await request.get(`${hostname}/ajax/embed-4/getSources?id=${id}`, options).then(resp => resp.json())
-        console.log(`${hostname}/ajax/embed-4/getSources?id=${id}`);
+        // console.log(`${hostname}/ajax/embed-4/getSources?id=${id}`);
         
-        console.log(data);
+        // console.log(data);
         
 
         const key: any = await request.get('https://raw.githubusercontent.com/theonlymo/keys/e4/key').then(resp => resp.json());
@@ -53,6 +54,9 @@ export class VidCloudE extends VideoExtractor {
         const url: string = decryptedVal[0].file;
         const videos = await getM3u8Qualities(url);
         
-        return videos;
+        return {
+            videos,
+            subtitles: parseSubtitles(data.tracks)
+        };
     };
 }
