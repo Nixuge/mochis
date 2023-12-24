@@ -1,5 +1,6 @@
 import { VideoExtractor } from '../../shared/models/Iextractor';
 import { IVideo } from '../../shared/models/types';
+import { dynamicEval } from '../../shared/utils/eval';
 import { baseUrl } from '../utils/constants';
 
 export class KwikE extends VideoExtractor {
@@ -9,9 +10,6 @@ export class KwikE extends VideoExtractor {
   override extract = async (): Promise<IVideo[]> => {
     const data = await request.get(this.referer, {headers: {"Referer": baseUrl}}).then(resp => resp.text())
     
-    // Avoid getting a warning from the compiler for using eval
-    const dynamicEval = Function('return this')()['eval'];
-
     const source = dynamicEval(/(eval)(\(f.*?)(\n<\/script>)/s.exec(data)![2].replace('eval', '')).match(
       /https.*?m3u8/
     )[0];

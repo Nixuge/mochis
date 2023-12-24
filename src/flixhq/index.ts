@@ -15,28 +15,25 @@ import type {
   PlaylistEpisodeServer,
 } from '@mochiapp/js/dist';
 import {
-  DiscoverListingOrientationType,
-  DiscoverListingType,
   PlaylistEpisodeServerFormatType,
   PlaylistEpisodeServerQualityType,
-  PlaylistStatus,
-  PlaylistType,
   SourceModule,
   VideoContent
 } from '@mochiapp/js/dist';
 
 import { load } from 'cheerio';
-import { bannerRes, baseUrl, posterRes } from './utils/constants';
+import { baseUrl } from './utils/constants';
 import { HomeScraper } from './scraper/homeScraper';
 import { scrapeItemsBlock } from './scraper/item';
 import { EpisodesScraper } from './scraper/episodes';
 import { genericPlaylistDetails } from './scraper/details';
+import { getVideo } from './extractors';
 
 export default class Source extends SourceModule implements VideoContent {
   metadata = {
     id: 'flixhq',
     name: 'FlixHQ',
-    version: '0.0.21',
+    version: '0.0.35',
     icon: "https://img.flixhq.to/xxrz/100x100/100/bc/3c/bc3c462f0fb1b1c71288170b3bd55aeb/bc3c462f0fb1b1c71288170b3bd55aeb.png"
   }
 
@@ -78,10 +75,57 @@ export default class Source extends SourceModule implements VideoContent {
   }
 
   async playlistEpisodeSources(req: PlaylistEpisodeSourcesRequest): Promise<PlaylistEpisodeSource[]> {
-    return []
+    console.log(`${baseUrl}${req.episodeId}`);
+    
+    const html = await request.get(`${baseUrl}${req.episodeId}`).then(resp => resp.text())
+    const $ = load(html);
+    const servers: PlaylistEpisodeServer[] = $("div.server-select ul.nav li.nav-item").map((i, item) => {
+      const itemRef = $(item);
+      const displayName = itemRef.find("span").text();
+      const navLink = itemRef.find("a.nav-link");
+
+      let sourceId = navLink.attr("data-id");
+      if (!sourceId)
+        sourceId = navLink.attr("data-linkid");
+
+      const description = navLink.attr("title"); // Kinda useless but oh well
+      
+      return { 
+        id: JSON.stringify({id: sourceId, provider: displayName}), // Quite dirty, but easier for comparaisons after. 
+        displayName, 
+        description 
+      } 
+    }).get()    
+    
+    return [{
+      id: "FlixHQ",
+      displayName: "FlixHQ",
+      servers
+    }]
   };
 
   async playlistEpisodeServer(req: PlaylistEpisodeServerRequest): Promise<PlaylistEpisodeServerResponse> {
-    return undefined as unknown as PlaylistEpisodeServerResponse
+    const serverJson = JSON.parse(req.serverId);
+    const url = `${baseUrl}/ajax/episode/sources/${serverJson.id}`
+    const data: any = await request.get(url).then(resp => resp.json())
+    // TODO: PARSE SUBTITLES (TRACKS) HERE !
+    // SHOULD BE IN DATA !!
+    console.log('a');
+    console.log(data);
+    console.log(req.serverId);
+    
+    const source = await getVideo(data["link"], serverJson["provider"])
+    
+    return {
+      links: source.videos.map((video) => ({
+        url: video.url,
+        // @ts-ignore
+        quality: PlaylistEpisodeServerQualityType[video.quality] ?? PlaylistEpisodeServerQualityType.auto,
+        format: video.isDASH ? PlaylistEpisodeServerFormatType.dash : PlaylistEpisodeServerFormatType.hsl
+      })).sort((a, b) => b.quality - a.quality),
+      skipTimes: [], // Don't think there's any?
+      headers: {},
+      subtitles: [], // TODO!!!
+    }
   }
 }

@@ -12,9 +12,11 @@
   },
   "dependencies": {
     "@mochiapp/js": "^0.0.2",
+    "@types/crypto-js": "^4.2.1",
     "cheerio": "^1.0.0-rc.12",
+    "crypto-js": "^4.2.0",
     "vitest": "^1.0.4"
-  }, 
+  },
   "scripts": {
     "check": "mochi-cli check",
     "bundle": "mochi-cli bundle --site",

@@ -86,7 +86,7 @@ export class EpisodesScraper {
     const id = this.options!.groupId;
     return [ {
         id,
-        number: 0,
+        number: 0, // https://discord.com/channels/1066496628757901472/1180253163698270268/1188241417789771786
         variants: [{
             id,
             title: "", // https://discord.com/channels/1066496628757901472/1180253163698270268/1188241417789771786
