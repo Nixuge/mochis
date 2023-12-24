@@ -1,6 +1,6 @@
 import { Playlist, PlaylistStatus, PlaylistType } from "@mochiapp/js/dist";
 import { Cheerio, Element } from "cheerio";
-import { posterRes } from "../utils/constants";
+import { baseUrl, posterRes } from "../utils/constants";
 
 export function scrapeItemsBlock(ref: Cheerio<Element>): Playlist[] {
     const items: Playlist[] = ref.find("div.flw-item").map((i, elem) => {
@@ -13,7 +13,7 @@ export function scrapeItemsBlock(ref: Cheerio<Element>): Playlist[] {
         id: id,
         title: title,
         posterImage: poster,
-        url: id,
+        url: encodeURI(`${baseUrl}${id}`),
         status: PlaylistStatus.unknown,
         type: PlaylistType.video,
       } satisfies Playlist

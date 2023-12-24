@@ -33,7 +33,7 @@ export default class Source extends SourceModule implements VideoContent {
   metadata = {
     id: 'flixhq',
     name: 'FlixHQ',
-    version: '0.0.35',
+    version: '0.1.0',
     icon: "https://img.flixhq.to/xxrz/100x100/100/bc/3c/bc3c462f0fb1b1c71288170b3bd55aeb/bc3c462f0fb1b1c71288170b3bd55aeb.png"
   }
 
@@ -48,7 +48,8 @@ export default class Source extends SourceModule implements VideoContent {
 
   async search(searchQuery: SearchQuery): Promise<Paging<Playlist>> {
     // TODO: HANDLE PAGES!!
-    const html = await request.get(`${baseUrl}/search/${searchQuery.query.replaceAll(" ", "-")}`).then(resp => resp.text());
+    const url = `${baseUrl}/search/${searchQuery.query.replaceAll(" ", "-")}`    
+    const html = await request.get(url).then(resp => resp.text());
     const $ = load(html);
     
     const items: Playlist[] = scrapeItemsBlock($("div#main-wrapper"))
