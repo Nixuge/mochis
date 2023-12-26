@@ -40,7 +40,7 @@ export default class Source extends SourceModule implements VideoContent {
   metadata = {
     id: 'aniwave',
     name: 'Aniwave',
-    version: '0.2.2',
+    version: '0.2.4',
     icon: "https://s2.bunnycdn.ru/assets/sites/aniwave/favicon1.png"
   }
 
@@ -238,8 +238,7 @@ export default class Source extends SourceModule implements VideoContent {
     return filters;
   }
 
-  async search(searchQuery: SearchQuery): Promise<Paging<Playlist>> {
-    // todo: handle multi page search
+  async search(searchQuery: SearchQuery): Promise<Paging<Playlist>> {    
     const currentPageInt = (searchQuery.page == undefined) ? 1 : parseInt(searchQuery.page)
     let filterString = "";
     for (const filter of searchQuery.filters) {
@@ -284,10 +283,10 @@ export default class Source extends SourceModule implements VideoContent {
 
     return {
       id: `${BASENAME}/search.html?keyword=${searchQuery.query}&page=${searchQuery.page ?? 1}`,
-      nextPage: hasNextPage ? `${BASENAME}/search.html?keyword=${searchQuery.query}&page=${currentPageInt+1}` : undefined,
+      previousPage: currentPageInt == 1 ? undefined : (currentPageInt+1).toString(),
+      nextPage: hasNextPage ? (currentPageInt+1).toString() : undefined,
       items: items,
-      previousPage: `${BASENAME}/search.html?keyword=${searchQuery.query}&page=${Math.max(1, currentPageInt)}`,
-      title: "Test scraper",
+      title: "Search",
     };
   }
 }
