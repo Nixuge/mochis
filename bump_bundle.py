@@ -1,4 +1,22 @@
 import os
+import re
+import sys
+
+if len(sys.argv) != 2:
+    print("Invalid arg count")
+    exit(1)
+
+matches = re.search(r"(src\/.*?\/)", sys.argv[1])
+if not matches:
+    print("Invalid file to bump")
+    exit(2)
+
+# Not sure if I should only use current file & check if is index (to make sure it doesn't overwrite anything)
+# or keep it like this (=get current project & bump index.ts)
+file_to_bump = matches.groups()[0] + "index.ts"
+if not os.path.isfile(file_to_bump):
+    print("Index does not exist")
+    exit(3)
 
 def increment_version(version_str):
     major, minor, patch = map(int, version_str.split('.'))
@@ -21,6 +39,6 @@ def update_version_in_file(file_path):
             file.write(line)
 
 # Hardcoded to use the module you're working on lol
-update_version_in_file("src/flixhq/index.ts")
+update_version_in_file(file_to_bump)
 
 os.system("bun run bundle")
