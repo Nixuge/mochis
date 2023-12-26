@@ -38,7 +38,7 @@ export default class Source extends SourceModule implements VideoContent {
   metadata = {
     id: 'animepahe',
     name: 'AnimePahe',
-    version: '0.1.4',
+    version: '0.1.15',
     icon: "https://animepahe.com/pikacon.ico"
   }
 
@@ -54,7 +54,7 @@ export default class Source extends SourceModule implements VideoContent {
     const json: PaheAiringRequest = await request.get(url).then(resp => resp.json());
     if (!json.data)
       return [];
-    const items = json.data.map((anime) => {
+    const items: Playlist[] = json.data.map((anime) => {
       return {
         id: anime.anime_session,
         title: anime.anime_title,
@@ -87,7 +87,7 @@ export default class Source extends SourceModule implements VideoContent {
       const data: PaheRelease = await request.get(`${baseUrl}/api?m=search&q=${encodeURIComponent(searchQuery.query)}`).then(resp => resp.json());
 
       const res: Playlist[] = data.data.map((item: any) => ({
-        id: `${item.id}/${item.session}`,
+        id: item.session,
         title: item.title,
         posterImage: item.poster,
         url: `${item.id}/${item.session}`,
@@ -117,13 +117,21 @@ export default class Source extends SourceModule implements VideoContent {
 
     try {
       const res = await request.get(
-        `${baseUrl}/anime/${id.split('/')[1]}?anime_id=${id.split('/')[0]}`
+        `${baseUrl}/anime/${id}`
       );
+      
       const $ = load(res.text());
 
+      // const altPosters = $('div.anime-poster a').attr('href');
+      // const altTitles = $('div.title-wrapper > h1 > span').first().text();
+      // const altBanners = `https:${$('div.anime-cover').attr('data-src')}`
+      // animeInfo.altTitles = (altTitles && altTitles != "") ? [altTitles] : [];
+      // animeInfo.altPosters = altPosters ? [altPosters] : [];
+      // animeInfo.altBanners = altBanners ? [altBanners] : [];
       animeInfo.altTitles = [$('div.title-wrapper > h1 > span').first().text()];
       animeInfo.altPosters = [$('div.anime-poster a').attr('href')!];
       animeInfo.altBanners = [`https:${$('div.anime-cover').attr('data-src')}`]; // not sure about that one
+
       animeInfo.synopsis = $('div.anime-summary').text();
       animeInfo.genres = $('div.anime-genre ul li')
         .map((i, el) => $(el).find('a').attr('title'))
@@ -139,16 +147,16 @@ export default class Source extends SourceModule implements VideoContent {
     // TODO: FIX THAT TO USE PAGE
     // EXPLANATION: on pahe, if page is -1 (def) scrape everything, otherwise scrape page selected
     // here (simpler): scrape everything (lol)
-    const id = playlistId.split('/')[1];
+    
 
-    const data = await fetchScrapeEpisodes(id, 1)
+    const data = await fetchScrapeEpisodes(playlistId, 1)
     const lastPage = data.last_page;
     const episodes = [...data.data];
     if (lastPage > 1) {
       // Run all requests in parralel
       const tasks: Promise<PaheRelease>[] = []
       for (let i = 2; i <= lastPage; i++) {
-        tasks.push(fetchScrapeEpisodes(id, i))
+        tasks.push(fetchScrapeEpisodes(playlistId, i))
       }
       for (const task of tasks) {
         episodes.push(...((await task).data))
@@ -171,10 +179,8 @@ export default class Source extends SourceModule implements VideoContent {
   }
 
   async playlistEpisodeSources(req: PlaylistEpisodeSourcesRequest): Promise<PlaylistEpisodeSource[]> {
-    const playlistId = req.playlistId.split('/')[1];
-
     try {
-      const html = await request.get(`${baseUrl}/play/${playlistId}/${req.episodeId}`, {
+      const html = await request.get(`${baseUrl}/play/${req.playlistId}/${req.episodeId}`, {
         headers: {
           Referer: `${baseUrl}`,
         },
