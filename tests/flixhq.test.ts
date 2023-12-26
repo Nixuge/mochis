@@ -11,6 +11,11 @@ const source = runner(Source)
 //   log((await source.discoverListings()))
 // })
 
+test("gets filters", async () => {
+  log((await source.searchFilters()))
+})
+
+
 
 // test("provides correct search info", async () => {
 //   log(await source.search({ query: "hunter x hunter", filters: [] }))
@@ -44,10 +49,10 @@ let episodeId: string = ""
 //   log(JSON.stringify(await source.playlistEpisodeSources({playlistId: "", episodeId: "/ajax/episode/servers/6366"})))
 // })
 
-test("gets an episode server", async() => {
-  log(JSON.stringify(await source.playlistEpisodeServer({
-    playlistId: "/tv/watch-hunter-x-hunter-39509", 
-    episodeId: "", 
-    sourceId:"", 
-    serverId:"{\"id\":\"4857184\",\"provider\":\"UpCloud\"}"})))
-})
+// test("gets an episode server", async() => {
+//   log(JSON.stringify(await source.playlistEpisodeServer({
+//     playlistId: "/tv/watch-hunter-x-hunter-39509", 
+//     episodeId: "", 
+//     sourceId:"", 
+//     serverId:"{\"id\":\"4857184\",\"provider\":\"UpCloud\"}"})))
+// })

@@ -28,27 +28,39 @@ import { scrapeItemsBlock } from './scraper/item';
 import { EpisodesScraper } from './scraper/episodes';
 import { genericPlaylistDetails } from './scraper/details';
 import { getVideo } from './extractors';
+import { filters, loadFilters } from './utils/filters';
 
 export default class Source extends SourceModule implements VideoContent {
   metadata = {
     id: 'flixhq',
     name: 'FlixHQ',
-    version: '0.1.0',
+    version: '0.1.2',
     icon: "https://img.flixhq.to/xxrz/100x100/100/bc/3c/bc3c462f0fb1b1c71288170b3bd55aeb/bc3c462f0fb1b1c71288170b3bd55aeb.png"
   }
 
   async searchFilters(): Promise<SearchFilter[]> {
-    return [];
+    return filters;
   }
   async discoverListings(discoverRequest?: DiscoverListingsRequest | undefined): Promise<DiscoverListing[]> {
+    loadFilters()
     const html = await request.get(`${baseUrl}/home`).then(resp => resp.text());
-    
     return new HomeScraper(html).scrape()
   }
 
   async search(searchQuery: SearchQuery): Promise<Paging<Playlist>> {
     // TODO: HANDLE PAGES!!
-    const url = `${baseUrl}/search/${searchQuery.query.replaceAll(" ", "-")}`    
+    let url;
+    if (searchQuery.filters.length == 0)
+      url = `${baseUrl}/search/${searchQuery.query.replaceAll(" ", "-")}`
+    else {
+      url = "https://flixhq.to/filter?";
+      for (const filter of searchQuery.filters) {
+        url += `&${filter.id}=`
+        filter.optionIds.forEach(option => { url += option + "-" });
+        url = url.slice(0, -1);
+      }
+    }    
+
     const html = await request.get(url).then(resp => resp.text());
     const $ = load(html);
     
