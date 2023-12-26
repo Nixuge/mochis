@@ -34,7 +34,7 @@ export default class Source extends SourceModule implements VideoContent {
   metadata = {
     id: 'flixhq',
     name: 'FlixHQ',
-    version: '0.1.2',
+    version: '0.1.7',
     icon: "https://img.flixhq.to/xxrz/100x100/100/bc/3c/bc3c462f0fb1b1c71288170b3bd55aeb/bc3c462f0fb1b1c71288170b3bd55aeb.png"
   }
 
@@ -47,9 +47,9 @@ export default class Source extends SourceModule implements VideoContent {
     return new HomeScraper(html).scrape()
   }
 
-  async search(searchQuery: SearchQuery): Promise<Paging<Playlist>> {
-    // TODO: HANDLE PAGES!!
-    let url;
+  async search(searchQuery: SearchQuery): Promise<Paging<Playlist>> {    
+    // Handle tags or search based query
+    let url: string;
     if (searchQuery.filters.length == 0)
       url = `${baseUrl}/search/${searchQuery.query.replaceAll(" ", "-")}`
     else {
@@ -59,16 +59,33 @@ export default class Source extends SourceModule implements VideoContent {
         filter.optionIds.forEach(option => { url += option + "-" });
         url = url.slice(0, -1);
       }
+    }
+    if (searchQuery.page) {
+      url += (url.includes("?")) ? "&" : "?";
+      url += "page=" + searchQuery.page;
     }    
 
     const html = await request.get(url).then(resp => resp.text());
     const $ = load(html);
-    
-    const items: Playlist[] = scrapeItemsBlock($("div#main-wrapper"))
 
+    // Load items
+    const items: Playlist[] = scrapeItemsBlock($("div#main-wrapper"));
+    
+    // Handle pages
+    let currentPage = parseInt($("ul.pagination li.page-item.active a.page-link").first().text());
+    let hasPages = !isNaN(currentPage);
+
+    // If on last page, lastPage will be equal to currentPage. Otherwise, it'll be a », which is NaN
+    let isLastPage = !isNaN(parseInt($("ul.pagination li.page-item a.page-link").last().text()))
+    
+    let nextPage = (!isLastPage && hasPages) ? currentPage+1 : undefined;
+    let previousPage = (currentPage==1 || !hasPages) ? undefined : currentPage-1;
+    
     return {
       id: "0",
-      items
+      items,
+      nextPage: nextPage?.toString(),
+      previousPage: previousPage?.toString()
     }
   };
 

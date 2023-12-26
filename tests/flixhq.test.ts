@@ -3,7 +3,7 @@ import runner from "@mochiapp/runner";
 import Source from "../src/flixhq";
 
 import { log, logEnabled } from "./utils/log"
-logEnabled(true)
+logEnabled(false)
 
 const source = runner(Source)
 
@@ -11,15 +11,15 @@ const source = runner(Source)
 //   log((await source.discoverListings()))
 // })
 
-test("gets filters", async () => {
-  log((await source.searchFilters()))
-})
-
-
-
-// test("provides correct search info", async () => {
-//   log(await source.search({ query: "hunter x hunter", filters: [] }))
+// test("gets filters", async () => {
+//   log((await source.searchFilters()))
 // })
+
+
+
+test("provides correct search info", async () => {
+  log(await source.search({ query: "word", filters: [] }))
+})
 
 
 // test("provides playlist details", async () => {
