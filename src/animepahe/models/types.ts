@@ -1,3 +1,15 @@
+export type PaheAiringRequest = {
+    total: number,
+    per_page: number,
+    current_page: number,
+    last_page: string,
+    next_page_url: string,
+    prev_page_url: string,
+    from: number,
+    to: number,
+    data: [{ [prop: string]: string}] // can't be bothered lmao
+}
+
 export type PaheRelease = {
     total: number;
     per_page: number;

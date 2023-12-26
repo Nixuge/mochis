@@ -15,6 +15,8 @@ import type {
   PlaylistEpisodeServer,
 } from '@mochiapp/js/dist';
 import {
+  DiscoverListingOrientationType,
+  DiscoverListingType,
   PlaylistEpisodeServerFormatType,
   PlaylistEpisodeServerQualityType,
   PlaylistStatus,
@@ -22,7 +24,7 @@ import {
   SourceModule,
   VideoContent
 } from '@mochiapp/js/dist';
-import { PaheRelease } from './models/types';
+import { PaheAiringRequest, PaheRelease } from './models/types';
 import { baseUrl } from './utils/constants';
 import { fetchScrapeEpisodes, paheToPlaylistItem } from './scraper/episodeScraper';
 import { KwikE } from './extractors/kwik';
@@ -33,22 +35,55 @@ import { load } from 'cheerio';
 // Adapted & sometimes made faster (anime's episodes requests now parallel)
 
 export default class Source extends SourceModule implements VideoContent {
-  async searchFilters(): Promise<SearchFilter[]> {
-    return [];
-  }
-  async discoverListings(request?: DiscoverListingsRequest | undefined): Promise<DiscoverListing[]> {
-    return [];
-  }
   metadata = {
     id: 'animepahe',
     name: 'AnimePahe',
-    version: '0.1.0',
+    version: '0.1.4',
     icon: "https://animepahe.com/pikacon.ico"
   }
 
+  async searchFilters(): Promise<SearchFilter[]> {
+    return [];
+  }
+  async discoverListings(listingRequest?: DiscoverListingsRequest | undefined): Promise<DiscoverListing[]> {
+    // Note: https://animepahe.ru/anime has EVERY anime listed in 1 request, could maybe use that idk.
+    // listingRequest.page = https://animepahe.ru/api?page=2
+    // we need https://animepahe.ru/api?m=airing&page=2"
+    const url = listingRequest ? listingRequest.page.replace("?page=", "?m=airing&page=") : "https://animepahe.ru/api?m=airing";
+    
+    const json: PaheAiringRequest = await request.get(url).then(resp => resp.json());
+    if (!json.data)
+      return [];
+    const items = json.data.map((anime) => {
+      return {
+        id: anime.anime_session,
+        title: anime.anime_title,
+        posterImage: (anime.snapshot && anime.snapshot.length > 0) ? anime.snapshot : undefined,
+        url: anime.anime_session,
+        status: PlaylistStatus.unknown,
+        type: PlaylistType.video
+      }
+    })
+    return [{
+      id: "latest",
+      title: "Latest Releases",
+      type: DiscoverListingType.featured,
+      orientation: DiscoverListingOrientationType.landscape,
+      paging: {
+        id: "latest",
+        previousPage: json.prev_page_url,
+        nextPage: json.next_page_url,
+        title: "Latest Releases",
+        items
+      }
+    }]
+  }
+
   async search(searchQuery: SearchQuery): Promise<Paging<Playlist>> {
-    try {
+    try {       
       // TODO: HANDLE MULTI PAGES SEARCH
+      // EDIT: actually idk if that's supported (tried ?page=, ?p=, ?current_page=, ?currentpage= and none work)
+      // Could still grab every anime in 1x before everything else but meh.
       const data: PaheRelease = await request.get(`${baseUrl}/api?m=search&q=${encodeURIComponent(searchQuery.query)}`).then(resp => resp.json());
 
       const res: Playlist[] = data.data.map((item: any) => ({
