@@ -40,7 +40,7 @@ export default class Source extends SourceModule implements VideoContent {
   metadata = {
     id: 'aniwave',
     name: 'Aniwave',
-    version: '0.2.6',
+    version: '0.2.7',
     icon: "https://s2.bunnycdn.ru/assets/sites/aniwave/favicon1.png"
   }
 
@@ -63,12 +63,7 @@ export default class Source extends SourceModule implements VideoContent {
     const altTitles = $(".info .names.font-italic").text().split("; ").filter((altTitle) => altTitle != mainTitle);
 
     let altPosters: string | string[] | undefined = $("div#player").attr("style")?.replace("background-image:url('", "").replace("')", "");
-    console.log("Prev posters: " + altPosters);
-    
     altPosters = (altPosters == undefined || altPosters == "") ? [] : [altPosters];
-    
-    console.warn("New posters; " + altPosters);
-    
 
     const playlistDetails: PlaylistDetails = { 
       synopsis: synopsis, genres: [], previews: [],
