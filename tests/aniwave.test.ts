@@ -8,20 +8,20 @@ logEnabled(true)
 const source = runner(Source)
 
 // test("provides correct search info", async () => {
-//   console.log(await source.search({ query: "hxh 2011", page: "1", filters: [] }))
+//   console.log(await source.search({ query: "ogre slayer", page: "1", filters: [] }))
 // })
 
-test("provides discover listings", async () => {
-  log((await source.discoverListings()))
-})
+// test("provides discover listings", async () => {
+//   log((await source.discoverListings())[0]["paging"])
+// })
 
 // test("load filters", async () => {
 //   log(await source.searchFilters())
 // })
 
-// test("provides playlist details", async () => {
-//   console.log(await source.playlistDetails("hunter-x-hunter-2011.295"))
-// })
+test("provides playlist details", async () => {
+  console.log(await source.playlistDetails("ogre-slayer.q33v"))
+})
 
 // test("gets the episode count", async() => {
 //   log(JSON.stringify(await source.playlistEpisodes("/watch/kage-no-jitsuryokusha-ni-naritakute-2nd-season.vvqkv/ep-1")))

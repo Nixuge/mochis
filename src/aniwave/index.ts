@@ -40,7 +40,7 @@ export default class Source extends SourceModule implements VideoContent {
   metadata = {
     id: 'aniwave',
     name: 'Aniwave',
-    version: '0.2.4',
+    version: '0.2.5',
     icon: "https://s2.bunnycdn.ru/assets/sites/aniwave/favicon1.png"
   }
 
@@ -62,12 +62,12 @@ export default class Source extends SourceModule implements VideoContent {
     const mainTitle = $(".info h1.title.d-title").text(); // have to get that to remove it from altTitles
     const altTitles = $(".info .names.font-italic").text().split("; ").filter((altTitle) => altTitle != mainTitle);
 
-    let altPoster: string | string[] | undefined = $("div#player").attr("style")?.replace("background-image:url('", "").replace("')", "");
-    altPoster = (altPoster == undefined) ? [] : [altPoster];
+    let altPosters: string | string[] | undefined = $("div#player").attr("style")?.replace("background-image:url('", "").replace("')", "");
+    altPosters = (altPosters == undefined || altPosters == "") ? [] : [altPosters];
 
     const playlistDetails: PlaylistDetails = { 
       synopsis: synopsis, genres: [], previews: [],
-      altBanners: [], altPosters: altPoster, altTitles: altTitles
+      altBanners: [], altPosters, altTitles
     }
     $(".info .bmeta .meta > div").map((i, meta) => {
       const metaRef = $(meta);
@@ -78,7 +78,13 @@ export default class Source extends SourceModule implements VideoContent {
           playlistDetails.genres = metaRef.text().trim().replace("Genres:  ", "").split(", ");
           break;
         case "date aired":
-          playlistDetails.yearReleased = parseInt(metaRef.text().match(/, ([0-9]{4}) to /)![1]);
+          const metaText = metaRef.text();
+          let year = metaText.match(/, ([0-9]{4}) to /)
+          if (year == null)
+            year = metaText.match(/, ([0-9]{4})/)
+          
+          if (year != null)
+            playlistDetails.yearReleased =  parseInt(year[1]);
           break;
         default:
           break;
@@ -269,7 +275,7 @@ export default class Source extends SourceModule implements VideoContent {
       const name = metaRef.text();
       const img = animeRef.find('div > a > img').attr('src') ?? '';      
       return {
-        id: url,
+        id: `/watch/${url}`,
         url: `${BASENAME}/category/${url}`,
         status: PlaylistStatus.unknown,
         type: PlaylistType.video,
