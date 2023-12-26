@@ -45,6 +45,17 @@ const REPLACEMENTS = {
 export let everyFilter: SearchFilter[] = [];
 export let everyAnime: Anime[] = [];
 
+export function findAnimeIDFromPoster(posterImage: string): number {
+    let animeId = -1;
+    for (const [i, anime] of everyAnime.entries()) {
+        if (anime.posterImage == posterImage) {
+            animeId = i;
+            break;
+        }
+    }
+    return animeId;
+}
+
 export async function loadEveryAnime() {
     const tempThemes: Set<string> = new Set();
     const tempVideoTypes: Set<string> = new Set();

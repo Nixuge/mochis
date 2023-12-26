@@ -10,12 +10,9 @@ import type {
   PlaylistEpisodeSourcesRequest,
   PlaylistItemsOptions,
   PlaylistItemsResponse,
-  PlaylistItem,
   SearchFilter,
   SearchQuery,
-  PlaylistEpisodeServer,
   SearchQueryFilter,
-  MochiResponse,
 } from '@mochiapp/js/dist';
 import {
   PlaylistEpisodeServerFormatType,
@@ -25,8 +22,6 @@ import {
   SourceModule,
   VideoContent
 } from '@mochiapp/js/dist';
-import { Cheerio, CheerioAPI, Element, load } from 'cheerio';
-import { Anime, RequestingPlaylistGroup } from './models/types';
 import { everyAnime, everyFilter, loadEveryAnime } from './searcher';
 import { sleep } from '../shared/utils/sleep';
 import { PlaylistEpisodesScraper } from './scraper/playlistepisodes';
@@ -34,18 +29,22 @@ import { sourceNames } from './utils/sourcenames';
 import { PlaylistDetailsScraper } from './scraper/playlistdetails';
 import { getVideo } from './extractors';
 import { isTesting } from '../shared/utils/isTesting';
+import { scrapeHome } from './scraper/homeScraper';
 
 export default class Source extends SourceModule implements VideoContent {
   metadata = {
     id: 'animesama',
     name: 'Anime-Sama',
-    version: '0.2.2',
+    version: '0.2.5',
     icon: "https://cdn.statically.io/gh/Anime-Sama/IMG/img/autres/AS_border.png"
   }
 
   async discoverListings(listingRequest?: DiscoverListingsRequest | undefined): Promise<DiscoverListing[]> {
-    loadEveryAnime();
-    return []
+    // We need the full anime list to scrape home to get the ids, so we start the home promise, scrape all anime,
+    // then get back to await the home request.
+    const htmlPromise = request.get("https://anime-sama.fr/").then(resp => resp.text());
+    await loadEveryAnime();
+    return scrapeHome(await htmlPromise);
   }
 
   async playlistDetails(id: string): Promise<PlaylistDetails> {
