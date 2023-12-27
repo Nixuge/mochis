@@ -63,10 +63,8 @@ export default class Source extends SourceModule implements VideoContent {
     const altTitles = $(".info .names.font-italic").text().split("; ").filter((altTitle) => altTitle != mainTitle);
 
     let altPosters: string | string[] | undefined = $("div#player").attr("style")?.replace("background-image:url('", "").replace("')", "");
-    console.warn("Prev altposters: " + altPosters);
     
     altPosters = (altPosters == undefined || altPosters == "") ? [] : [altPosters];
-    console.warn("New altposters: " + altPosters);
     
 
     const playlistDetails: PlaylistDetails = { 
