@@ -1,3 +1,4 @@
 {
-    "fiveServer.port": 18644
+    "fiveServer.port": 18644,
+    "vscord.app.privacyMode.enable": false
 }

@@ -38,7 +38,7 @@ export default class Source extends SourceModule implements VideoContent {
   metadata = {
     id: 'animepahe',
     name: 'AnimePahe',
-    version: '0.1.15',
+    version: '0.1.16',
     icon: "https://animepahe.com/pikacon.ico"
   }
 
@@ -47,9 +47,7 @@ export default class Source extends SourceModule implements VideoContent {
   }
   async discoverListings(listingRequest?: DiscoverListingsRequest | undefined): Promise<DiscoverListing[]> {
     // Note: https://animepahe.ru/anime has EVERY anime listed in 1 request, could maybe use that idk.
-    // listingRequest.page = https://animepahe.ru/api?page=2
-    // we need https://animepahe.ru/api?m=airing&page=2"
-    const url = listingRequest ? listingRequest.page.replace("?page=", "?m=airing&page=") : "https://animepahe.ru/api?m=airing";
+    const url = listingRequest ? listingRequest.page : "https://animepahe.ru/api?m=airing&page=1";
     
     const json: PaheAiringRequest = await request.get(url).then(resp => resp.json());
     if (!json.data)
@@ -70,9 +68,11 @@ export default class Source extends SourceModule implements VideoContent {
       type: DiscoverListingType.featured,
       orientation: DiscoverListingOrientationType.landscape,
       paging: {
-        id: "latest",
-        previousPage: json.prev_page_url,
-        nextPage: json.next_page_url,
+        id: url,
+        // json.next_page_url = https://animepahe.ru/api?page=2
+        // we need https://animepahe.ru/api?m=airing&page=2"
+        previousPage: json.prev_page_url?.replace("?page=", "?m=airing&page="),
+        nextPage: json.next_page_url?.replace("?page=", "?m=airing&page="),
         title: "Latest Releases",
         items
       }
