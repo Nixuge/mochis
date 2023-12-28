@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync, existsSync, mkdirSync, renameSync, readdir, rmSync } from "fs";
+import { readFileSync, writeFileSync, existsSync, mkdirSync, renameSync, rmSync, readdirSync } from "fs";
 import path from "path";
 
 const repo = JSON.parse(readFileSync('./dist/Manifest.json'));
@@ -6,18 +6,12 @@ const normalRepoName = repo.repository.name;
 
 // Clear all remanant old files
 const validInputFiles = ["Manifest.json", "index.html", "modules"]
-readdir('./dist/', (err, files) => {
-    if (err) {
-        console.log(err);
+const files = readdirSync('./dist/');
+files.forEach(file => {
+    const fileDir = path.join('./dist/', file);
+    if (!validInputFiles.includes(file)) {
+        rmSync(fileDir, {recursive: true});
     }
-
-    files.forEach(file => {
-        const fileDir = path.join('./dist/', file);
-
-        if (!validInputFiles.includes(file)) {
-            rmSync(fileDir, {recursive: true});
-        }
-    });
 });
 
 // Generate the modulePerSubfolder matches
