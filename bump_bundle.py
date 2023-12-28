@@ -2,6 +2,8 @@ import os
 import re
 import sys
 
+PROCESS_ANYWAYS = True
+
 if len(sys.argv) != 2:
     print("Invalid arg count")
     exit(1)
@@ -9,6 +11,8 @@ if len(sys.argv) != 2:
 matches = re.search(r"(src\/.*?\/)", sys.argv[1])
 if not matches:
     print("Invalid file to bump")
+    if PROCESS_ANYWAYS:
+        os.system("bun run bundle")
     exit(2)
 
 # Not sure if I should only use current file & check if is index (to make sure it doesn't overwrite anything)

@@ -19,7 +19,7 @@
   },
   "scripts": {
     "check": "mochi-cli check",
-    "bundle": "mochi-cli bundle --site",
+    "bundle": "mochi-cli bundle && node ./postprocessor/builder.js",
     "serve": "mochi-cli serve",
     "test": "mocha -r ts-node/register test/**/*.spec.ts"
   }

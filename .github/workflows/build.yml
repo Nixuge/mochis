@@ -27,7 +27,7 @@ jobs:
         run: pnpm bundle
       
       - name: Build HTML
-        run: node ./htmlbundler/builder.js
+        run: node ./postprocessor/builder.js
 
       - name: Fix permissions
         run: |
