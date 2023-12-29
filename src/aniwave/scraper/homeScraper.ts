@@ -103,9 +103,8 @@ export class HomeScraper {
           } satisfies Playlist
         }).get()
     
-        // Note: as of now those aren't working for some reason?
-        const previousRecentlyUpdatedPage = (!this.page || this.page == 1) ? undefined : this.page - 1;
-        const nextRecentlyUpdatedPage = (this.page == undefined) ? 2 : this.page + 1;
+        const previousRecentlyUpdatedPage = (this.page == 1) ? undefined : this.page - 1;
+        const nextRecentlyUpdatedPage = this.page + 1;
 
         const recentlyUpdatedListing = {
           title: "Recently Updated",
