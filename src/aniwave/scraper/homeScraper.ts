@@ -43,10 +43,10 @@ export class HomeScraper {
     private scrapeAll() {
         return [
             this.scrapeHotest(), 
-            this.scrapeBottomThreeColumns("new-release"), 
-            this.scrapeBottomThreeColumns("new-added"), 
+            this.scrapeRecentlyUpdated(),
             this.scrapeBottomThreeColumns("completed"), 
-            this.scrapeRecentlyUpdated()
+            this.scrapeBottomThreeColumns("new-added"), 
+            this.scrapeBottomThreeColumns("new-release"),
         ]
     }
 
@@ -139,14 +139,14 @@ export class HomeScraper {
         const itemRef = $(item);
         
         const url = itemRef.attr("href")!;
-        const posterImage = itemRef.find("div.poster span img").attr("src"); // returns -w100 at the end; not sure if that's supported
+        const posterImage = itemRef.find("div.poster span img").attr("src")?.replace("-w100", "-w9999"); // higher res thumbnail
         
         const title = itemRef.find("div.info div.name.d-title").text()
 
         return {
-          id: url,
-          title: title,
-          posterImage: posterImage,
+          id,
+          title,
+          posterImage,
           url: url,
           status: PlaylistStatus.unknown,
           type: PlaylistType.video
