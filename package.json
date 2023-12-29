@@ -5,6 +5,7 @@
   "devDependencies": {
     "@mochiapp/cli": "^0.0.8",
     "@mochiapp/runner": "^0.0.2",
+    "axios": "^1.6.3",
     "bun-types": "latest"
   },
   "peerDependencies": {
