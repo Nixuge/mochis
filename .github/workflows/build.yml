@@ -25,9 +25,6 @@ jobs:
 
       - name: Build Repository
         run: pnpm bundle
-      
-      - name: Build HTML
-        run: node ./postprocessor/builder.js
 
       - name: Fix permissions
         run: |
