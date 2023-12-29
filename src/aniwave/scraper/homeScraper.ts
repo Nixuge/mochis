@@ -2,40 +2,35 @@ import { DiscoverListingOrientationType, DiscoverListingType, DiscoverListingsRe
 import { Paging } from "@mochiapp/js/src/common/types"
 import { DiscoverListing, Playlist } from "@mochiapp/js/src/interfaces/source/types"
 import { CheerioAPI, load } from "cheerio"
-import { BASENAME } from "../utils/variables";
-
-// can't use async in constructors
-export async function getHomeScraper(listingRequest?: DiscoverListingsRequest): Promise<HomeScraper> {
-  // in the future, this must handle the ajax call for the right listingRequest (check f12),
-  // send the proper request & get back resp.json()["data"]
-  let html: string = "Default value - not handled (listingRequest not empty)";
-  if (!listingRequest)
-    html = await request.get(`${BASENAME}/home`).then(resp => resp.text());
-
-  // todo: match listingId (or dict w {listingId: [ajax]}), shared with HomeScraper.scrape() ?
-  
-  return new HomeScraper(html, listingRequest);
-}
+import { AJAX_BASENAME, BASENAME } from "../utils/variables";
 
 
 export class HomeScraper {
-    $: CheerioAPI;
+    $!: CheerioAPI;
     listingId?: string;
-    page?: number;
+    page: number;
 
-    constructor(html: string, listingRequest?: DiscoverListingsRequest) {
-        if (listingRequest) {
-            this.listingId = listingRequest.listingId;
-            this.page = parseInt(listingRequest.page);
-        }
-        this.$ = load(html);
+    constructor(listingRequest?: DiscoverListingsRequest) {
+      this.page = 1;
+      if (listingRequest) {
+        this.listingId = listingRequest.listingId;
+        this.page = parseInt(listingRequest.page);
+      }
     }
 
-    scrape(): DiscoverListing[] {
-      if (!this.listingId)
+    async scrape(): Promise<DiscoverListing[]> {
+      if (!this.listingId) {
+        const html = await request.get(`${BASENAME}/home`).then(resp => resp.text());
+        this.$ = load(html);
         return this.scrapeAll();
-      // todo: match listingId (or dict w {listingId: [function]})
-      return []
+      }
+      if (this.listingId == "recently-updated") {
+        const html = await request.get(`${AJAX_BASENAME}/home/widget/trending?page=${this.page}`).then(resp => resp.json()!["result"]);
+        this.$ = load(html);
+        return [this.scrapeRecentlyUpdated()]
+      }
+      
+      throw Error("How did you even get here? Unhandled listingId (" + this.listingId + ")");
     }
 
     // Note sure if/how I add "Top anime",
@@ -44,9 +39,10 @@ export class HomeScraper {
         return [
             this.scrapeHotest(), 
             this.scrapeRecentlyUpdated(),
+            // Can look at scraping the actual page for subpages on those ones maybe?
             this.scrapeBottomThreeColumns("completed"), 
             this.scrapeBottomThreeColumns("new-added"), 
-            this.scrapeBottomThreeColumns("new-release"),
+            this.scrapeBottomThreeColumns("new-release")
         ]
     }
 
@@ -88,7 +84,8 @@ export class HomeScraper {
 
     private scrapeRecentlyUpdated(): DiscoverListing {
         const $ = this.$;
-        const recentUpdatesSec = $("#recent-update .body .ani.items .item");
+        // const recentUpdatesSec = $("#recent-update .body .ani.items .item"); // more accurate for home, but doesnt work w subpages
+        const recentUpdatesSec = $(".ani.items .item");
         // TODO: MOVE THIS TO SCRAPER/ANIMEITEMSCRAPER & USE THE SAME IN SEARCH() AS THEY'RE SIMILAR
         const recentlyUpdatedItems = recentUpdatesSec.map((i, anime) => {
           const animeRef = $(anime);
@@ -107,20 +104,20 @@ export class HomeScraper {
         }).get()
     
         // Note: as of now those aren't working for some reason?
-        const previousRecentlyUpdatedPage = (!this.page || this.page == 1) ? undefined : (this.page - 1).toString();
-        const nextRecentlyUpdatedPage = (this.page == undefined) ? "2" : (this.page + 1).toString();
-            
+        const previousRecentlyUpdatedPage = (!this.page || this.page == 1) ? undefined : this.page - 1;
+        const nextRecentlyUpdatedPage = (this.page == undefined) ? 2 : this.page + 1;
+
         const recentlyUpdatedListing = {
           title: "Recently Updated",
           id: "recently-updated",
           type: DiscoverListingType.default,
           orientation: DiscoverListingOrientationType.portrait,
           paging: {
-            id: "recently-updated",
+            id: this.page.toString(),
             title: "Recently Updated",
             items: recentlyUpdatedItems,
-            previousPage: previousRecentlyUpdatedPage,
-            nextPage: nextRecentlyUpdatedPage
+            previousPage: previousRecentlyUpdatedPage?.toString(),
+            nextPage: nextRecentlyUpdatedPage?.toString()
           } satisfies Paging<Playlist>
         } satisfies DiscoverListing
 
@@ -139,15 +136,15 @@ export class HomeScraper {
         const itemRef = $(item);
         
         const url = itemRef.attr("href")!;
-        const posterImage = itemRef.find("div.poster span img").attr("src")?.replace("-w100", "-w9999"); // higher res thumbnail
+        const posterImage = itemRef.find("div.poster span img").attr("src")?.replace("-w100", "-w9999"); // higher quality
         
         const title = itemRef.find("div.info div.name.d-title").text()
 
         return {
-          id,
+          id: url,
           title,
           posterImage,
-          url: url,
+          url,
           status: PlaylistStatus.unknown,
           type: PlaylistType.video
         } satisfies Playlist

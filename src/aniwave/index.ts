@@ -29,7 +29,7 @@ import { load } from 'cheerio';
 import { getVrf, decodeVideoSkipData } from './utils/urlGrabber';
 import { getVideo } from './extractors';
 import { parseSkipData } from './utils/skipData';
-import { getHomeScraper } from './scraper/homeScraper';
+import { HomeScraper } from './scraper/homeScraper';
 import { BASENAME, AJAX_BASENAME } from './utils/variables';
 import { filters, scrapeFilters } from './scraper/filters';
 import { isTesting } from '../shared/utils/isTesting';
@@ -40,14 +40,13 @@ export default class Source extends SourceModule implements VideoContent {
   metadata = {
     id: 'aniwave',
     name: 'Aniwave',
-    version: '0.2.9',
+    version: '0.3.0',
     icon: "https://s2.bunnycdn.ru/assets/sites/aniwave/favicon1.png"
   }
 
   async discoverListings(listingRequest?: DiscoverListingsRequest | undefined): Promise<DiscoverListing[]> {
     scrapeFilters()
-    const homeScraper = getHomeScraper(listingRequest);
-    return (await homeScraper).scrape()
+    return await new HomeScraper(listingRequest).scrape()
   }
 
   async playlistDetails(id: string): Promise<PlaylistDetails> {
