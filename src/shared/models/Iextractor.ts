@@ -14,11 +14,6 @@ export abstract class VideoExtractor {
   protected abstract serverName: string;
 
   /**
-   * list of videos available
-   */
-  protected abstract sources: IVideo[];
-
-  /**
    * takes video link
    *
    * returns video sources (video links) available

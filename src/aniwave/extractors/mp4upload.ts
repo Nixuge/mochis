@@ -3,7 +3,6 @@ import { ISource, IVideo } from '../../shared/models/types';
 
 export class Mp4uploadE extends VideoExtractor {
   protected override serverName = 'mp4upload';
-  protected override sources: IVideo[] = [];
 
   override extract = async (): Promise<ISource> => {
     const html = this.htmlContent;

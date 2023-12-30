@@ -3,7 +3,6 @@ import { ISource, IVideo } from '../../shared/models/types';
 
 export class SibnetE extends VideoExtractor {
   protected override serverName = 'sibnet';
-  protected override sources: IVideo[] = [];
 
   override extract = async (): Promise<ISource> => {
     // url is a .mp4 w normal user-agent, but an m3u8 w ios' user agent

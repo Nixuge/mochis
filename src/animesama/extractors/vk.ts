@@ -4,7 +4,6 @@ import { getM3u8Qualities } from '../../shared/utils/m3u8';
 
 export class VkE extends VideoExtractor {
   protected override serverName = 'vk';
-  protected override sources: IVideo[] = [];
 
   override extract = async (): Promise<IVideo[]> => {
     let url = this.htmlContent.match(/,("hls":".*?\.m3u8\?.*?")/)![1];

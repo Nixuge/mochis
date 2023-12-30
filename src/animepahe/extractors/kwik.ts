@@ -5,7 +5,6 @@ import { baseUrl } from '../utils/constants';
 
 export class KwikE extends VideoExtractor {
   protected override serverName = 'kwik';
-  protected override sources: IVideo[] = [];
 
   override extract = async (): Promise<IVideo[]> => {
     const data = await request.get(this.referer, {headers: {"Referer": baseUrl}}).then(resp => resp.text())

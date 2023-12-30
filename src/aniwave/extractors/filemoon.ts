@@ -7,7 +7,6 @@ function packed(p,a,c,k){while(c--)if(k[c])p=p.replace(new RegExp('\\b'+c.toStri
 
 export class FilemoonE extends VideoExtractor {
   protected override serverName = 'filemoon';
-  protected override sources: IVideo[] = [];
 
   private dirtyArrayExtract(rawData: string): any[] {
     // lmao

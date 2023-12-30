@@ -15,7 +15,6 @@ interface IMediaInfo {
 // Note: this is named mycloud but works for both mycloud & vidplay
 export class MyCloudE extends VideoExtractor {
   protected override serverName = 'mycloud';
-  protected override sources: IVideo[] = [];
 
   override extract = async (): Promise<ISource> => {
     const url = this.referer;

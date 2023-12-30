@@ -14,7 +14,6 @@ type ResponseType = {
 
 export class VidCloudE extends VideoExtractor {
     protected override serverName = 'VidCloud';
-    protected override sources: IVideo[] = [];
 
     override extract = async (): Promise<ISource> => {
         const hostname = this.referer.split("/").slice(0, 3).join("/");
