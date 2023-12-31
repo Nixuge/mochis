@@ -8,7 +8,7 @@ export class VoeE extends VideoExtractor {
   protected override serverName = 'voe';
 
   override extract = async (): Promise<ISource> => {
-    const html = this.htmlContent!;
+    const html = this.htmlContent;
     const baseDomain = this.referer.split("/").slice(0, 3).join("/")
     
     const videoUrl = html.match(/var sources = {.*?'hls': '(https:\/\/.*?)',/s)![1];

@@ -1,15 +1,12 @@
 import { ISource, IVideo } from "./types";
 
+export type AnyExtractor = typeof RawVideoExtractor | typeof VideoExtractor;
 
-export abstract class VideoExtractor {
-  public requiresHtml: boolean = true;
+export abstract class RawVideoExtractor {
+  public extractorType = "RawVideoExtractor";
   protected referer: string;
-  protected htmlContent?: string;
-  constructor(referer: string, htmlContent?: string) {
+  constructor(referer: string) {
     this.referer = referer;
-    if (this.requiresHtml && (htmlContent == undefined || htmlContent == ""))
-      throw Error("Extractor requires html content, but none was provided !")
-    this.htmlContent = htmlContent;
   }
   /**
    * The server name of the video provider
@@ -35,5 +32,16 @@ export abstract class VideoExtractor {
     return {
       videos: await this.extract(args) as IVideo[]
     }
+  }
+}
+
+export abstract class VideoExtractor extends RawVideoExtractor {
+  public override extractorType = "VideoExtractor";
+  protected htmlContent: string;
+  constructor(referer: string, htmlContent: string) {
+    super(referer);
+    if (htmlContent == undefined || htmlContent == "")
+      throw Error("Extractor requires html content, but none was provided !")
+    this.htmlContent = htmlContent;
   }
 }

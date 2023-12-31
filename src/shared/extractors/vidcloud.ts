@@ -1,5 +1,5 @@
 import CryptoJS from 'crypto-js';
-import { VideoExtractor } from '../../shared/models/Iextractor';
+import { RawVideoExtractor } from '../../shared/models/Iextractor';
 import { ISource } from '../../shared/models/types';
 import { getM3u8Qualities } from '../../shared/utils/m3u8';
 import { IRawTrackMedia, parseSubtitles } from '../../shared/utils/subtitles';
@@ -12,8 +12,7 @@ type ResponseType = {
     tracks: IRawTrackMedia[]
 }
 
-export class VidCloudE extends VideoExtractor {
-    public override requiresHtml = false;
+export class VidCloudE extends RawVideoExtractor {
     protected override serverName = 'VidCloud';
 
     override extract = async (): Promise<ISource> => {

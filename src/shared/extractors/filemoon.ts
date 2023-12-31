@@ -24,7 +24,7 @@ export class FilemoonE extends VideoExtractor {
   }
 
   override extract = async (): Promise<ISource> => {
-    const html = this.htmlContent!;
+    const html = this.htmlContent;
     const match = html.match(/return p}\('(.*?\))\)\)/)?.[1]!;
 
     const rawData = this.dirtyArrayExtract(match);    

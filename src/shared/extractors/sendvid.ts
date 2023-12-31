@@ -6,7 +6,7 @@ export class SendVidE extends VideoExtractor {
   protected override serverName = 'sendvid';
 
   override extract = async (): Promise<IVideo[]> => {
-    const url = this.htmlContent!.match(/var video_source = "(.*?)";/)![1];
+    const url = this.htmlContent.match(/var video_source = "(.*?)";/)![1];
     return await getM3u8Qualities(url);
   }
 }

@@ -22,14 +22,14 @@ export async function getVideo(url: string): Promise<ISource> {
     if (url.includes(".anime-sama.fr/videos/")) {
         return { videos: [{ url: url, isDASH: true }] }
     }
+    if (url.startsWith("https://video.sibnet.ru/shell.php?")) {
+        return new SibnetE(url).extract();
+    }
 
     const html = await request.get(url).then(resp => {
         return isTesting() ? resp.text() : arrayBufferToString(resp.data())
     });
 
-    if (url.startsWith("https://video.sibnet.ru/shell.php?")) {
-        return new SibnetE(url, html).extract();
-    }
     if (url.startsWith("https://vk.com/video_ext.php?")) {
         return new VkE(url, html).getSource();
     }

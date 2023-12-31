@@ -1,10 +1,9 @@
-import { VideoExtractor } from '../models/Iextractor';
+import { RawVideoExtractor } from '../models/Iextractor';
 import { IVideo } from '../models/types';
 import { dynamicEval } from '../utils/eval';
 import { baseUrl } from '../../animepahe/utils/constants';
 
-export class KwikE extends VideoExtractor {
-  public override requiresHtml = false;
+export class KwikE extends RawVideoExtractor {
   protected override serverName = 'kwik';
 
   override extract = async (): Promise<IVideo[]> => {

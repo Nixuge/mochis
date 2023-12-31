@@ -20,7 +20,7 @@ export class MyCloudE extends VideoExtractor {
     const url = this.referer;
     const domain = url.split("/")[2];
     
-    const embedUrl = this.htmlContent!.match(/<script type="text\/javascript" src="(assets\/mcloud\/min\/embed\.js\?v=[a-zA-Z0-9]*?)"><\/script>/)?.[1]
+    const embedUrl = this.htmlContent.match(/<script type="text\/javascript" src="(assets\/mcloud\/min\/embed\.js\?v=[a-zA-Z0-9]*?)"><\/script>/)?.[1]
     const embedJs = (await request.get(`https://${domain}/${embedUrl}`, {headers: {"Referer": "https://aniwave.to/"}})).text();
     
     const mediaInfoUrl = await request.post("https://mochi_back.nixuge.me/thanksForTheServerRessources", {
