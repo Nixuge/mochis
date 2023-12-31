@@ -8,7 +8,7 @@ export class DoodE extends VideoExtractor {
     const html = this.htmlContent;
     const baseDomain = this.referer.split("/").slice(0, 3).join("/");
 
-    const videoUrl = baseDomain + html.match(/\$\.get\('(\/pass_md5\/.*?'), function\(data\)/)![1];
+    const videoUrl = baseDomain + html!.match(/\$\.get\('(\/pass_md5\/.*?'), function\(data\)/)![1];
     
     return [{
       url: videoUrl,

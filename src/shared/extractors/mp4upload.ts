@@ -5,7 +5,7 @@ export class Mp4uploadE extends VideoExtractor {
   protected override serverName = 'mp4upload';
 
   override extract = async (): Promise<ISource> => {
-    const html = this.htmlContent;
+    const html = this.htmlContent!;
     const url = html.match(/rplayer\.src.|\n*?src: "(.*?)"/)?.[1]!;
 
     return {

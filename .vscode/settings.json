@@ -5,4 +5,8 @@
         "extractors": "messages",
         "scraper": "client"
     },
+    "material-icon-theme.files.associations": {
+        "extractor.ts": "exe",
+        "searcher.ts": "tailwindcss"
+    },
 }

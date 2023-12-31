@@ -21,7 +21,7 @@ export class UpstreamE extends VideoExtractor {
   }
 
   override extract = async (): Promise<IVideo[]> => {
-    const html = this.htmlContent;
+    const html = this.htmlContent!;
     const match = html.match(/return p}\('(.*?\))\)\)/)?.[1]!;
     
     const rawData = this.dirtyArrayExtract(match);    

@@ -3,8 +3,8 @@ import { ISource, IVideo } from "./types";
 
 export abstract class VideoExtractor {
   protected referer: string;
-  protected htmlContent: string;
-  constructor(referer: string, htmlContent: string) {
+  protected htmlContent?: string;
+  constructor(referer: string, htmlContent?: string) {
     this.referer = referer;
     this.htmlContent = htmlContent;
   }
