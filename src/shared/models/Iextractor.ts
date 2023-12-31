@@ -1,9 +1,7 @@
 import { ISource, IVideo } from "./types";
 
-export type AnyExtractor = typeof RawVideoExtractor | typeof VideoExtractor;
-
 export abstract class RawVideoExtractor {
-  public extractorType = "RawVideoExtractor";
+  public static extractorType = "RawVideoExtractor";
   protected referer: string;
   constructor(referer: string) {
     this.referer = referer;
@@ -36,7 +34,7 @@ export abstract class RawVideoExtractor {
 }
 
 export abstract class VideoExtractor extends RawVideoExtractor {
-  public override extractorType = "VideoExtractor";
+  public static override extractorType = "VideoExtractor";
   protected htmlContent: string;
   constructor(referer: string, htmlContent: string) {
     super(referer);

@@ -205,7 +205,7 @@ export default class Source extends SourceModule implements VideoContent {
   };
 
   async playlistEpisodeServer(req: PlaylistEpisodeServerRequest): Promise<PlaylistEpisodeServerResponse> {
-    const video = (await new KwikE(req.serverId, "").extract())[0];
+    const video = (await new KwikE(req.serverId).extract())[0];
 
     return {
       links: [{
