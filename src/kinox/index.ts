@@ -28,7 +28,7 @@ import { load } from "cheerio";
 import { baseURL, mirrorUrl } from "./utils/constants";
 import { EpisodesScraper } from "./scraper/episodesScraper";
 import { KinoxServerRequestType } from "./models/types";
-import { getVideo } from "./extractors";
+import { getVideo } from "./extractor";
 
 export default class Kinox extends SourceModule implements VideoContent {
   metadata = {

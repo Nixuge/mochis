@@ -27,7 +27,7 @@ import {
 import { PaheAiringRequest, PaheRelease } from './models/types';
 import { baseUrl } from './utils/constants';
 import { fetchScrapeEpisodes, paheToPlaylistItem } from './scraper/episodeScraper';
-import { KwikE } from './extractors/kwik';
+import { KwikE } from '../shared/extractors/kwik';
 import { load } from 'cheerio';
 
 // NOTE:

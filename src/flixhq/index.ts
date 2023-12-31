@@ -27,7 +27,7 @@ import { HomeScraper } from './scraper/homeScraper';
 import { scrapeItemsBlock } from './scraper/item';
 import { EpisodesScraper } from './scraper/episodes';
 import { genericPlaylistDetails } from './scraper/details';
-import { getVideo } from './extractors';
+import { getVideo } from './extractor';
 import { filters, loadFilters } from './utils/filters';
 
 export default class Source extends SourceModule implements VideoContent {

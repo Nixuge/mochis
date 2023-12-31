@@ -27,7 +27,7 @@ import { sleep } from '../shared/utils/sleep';
 import { PlaylistEpisodesScraper } from './scraper/playlistepisodes';
 import { sourceNames } from './utils/sourcenames';
 import { PlaylistDetailsScraper } from './scraper/playlistdetails';
-import { getVideo } from './extractors';
+import { getVideo } from './extractor';
 import { isTesting } from '../shared/utils/isTesting';
 import { scrapeHome } from './scraper/homeScraper';
 

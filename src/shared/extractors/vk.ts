@@ -1,6 +1,6 @@
-import { VideoExtractor } from '../../shared/models/Iextractor';
-import { IVideo } from '../../shared/models/types';
-import { getM3u8Qualities } from '../../shared/utils/m3u8';
+import { VideoExtractor } from '../models/Iextractor';
+import { IVideo } from '../models/types';
+import { getM3u8Qualities } from '../utils/m3u8';
 
 export class VkE extends VideoExtractor {
   protected override serverName = 'vk';

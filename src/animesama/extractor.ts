@@ -1,8 +1,8 @@
-import { VkE } from "./vk"
-import { SibnetE } from "./sibnet";
-import { SendVidE } from "./sendvid";
-import { ISource } from "../../shared/models/types";
-import { isTesting } from "../../shared/utils/isTesting";
+import { VkE } from "../shared/extractors/vk"
+import { SibnetE } from "../shared/extractors/sibnet";
+import { SendVidE } from "../shared/extractors/sendvid";
+import { ISource } from "../shared/models/types";
+import { isTesting } from "../shared/utils/isTesting";
 
 // Why is this used?
 // Basically, the .text() function works on most responses, but it seems like

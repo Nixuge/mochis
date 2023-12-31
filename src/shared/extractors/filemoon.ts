@@ -1,6 +1,6 @@
-import { VideoExtractor } from '../../shared/models/Iextractor';
-import { ISource, IVideo } from '../../shared/models/types';
-import { getM3u8Qualities } from '../../shared/utils/m3u8';
+import { VideoExtractor } from '../models/Iextractor';
+import { ISource, IVideo } from '../models/types';
+import { getM3u8Qualities } from '../utils/m3u8';
 
 // filemoon's extract function
 function packed(p,a,c,k){while(c--)if(k[c])p=p.replace(new RegExp('\\b'+c.toString(a)+'\\b','g'),k[c]);return p}

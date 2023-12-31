@@ -1,7 +1,7 @@
-import { VideoExtractor } from '../../shared/models/Iextractor';
-import { IVideo } from '../../shared/models/types';
-import { dynamicEval } from '../../shared/utils/eval';
-import { baseUrl } from '../utils/constants';
+import { VideoExtractor } from '../models/Iextractor';
+import { IVideo } from '../models/types';
+import { dynamicEval } from '../utils/eval';
+import { baseUrl } from '../../animepahe/utils/constants';
 
 export class KwikE extends VideoExtractor {
   protected override serverName = 'kwik';

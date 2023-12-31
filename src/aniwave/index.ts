@@ -27,7 +27,7 @@ import {
 } from '@mochiapp/js/dist';
 import { load } from 'cheerio';
 import { getVrf, decodeVideoSkipData } from './utils/urlGrabber';
-import { getVideo } from './extractors';
+import { getVideo } from './extractor';
 import { parseSkipData } from './utils/skipData';
 import { HomeScraper } from './scraper/homeScraper';
 import { BASENAME, AJAX_BASENAME } from './utils/variables';

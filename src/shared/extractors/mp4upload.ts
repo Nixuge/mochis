@@ -1,5 +1,5 @@
-import { VideoExtractor } from '../../shared/models/Iextractor';
-import { ISource, IVideo } from '../../shared/models/types';
+import { VideoExtractor } from '../models/Iextractor';
+import { ISource, IVideo } from '../models/types';
 
 export class Mp4uploadE extends VideoExtractor {
   protected override serverName = 'mp4upload';

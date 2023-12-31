@@ -1,8 +1,8 @@
 import { PlaylistEpisodeServerSubtitleFormat } from '@mochiapp/js/dist';
-import { VideoExtractor } from '../../shared/models/Iextractor';
-import { ISource, IVideo } from '../../shared/models/types';
-import { getM3u8Qualities } from '../../shared/utils/m3u8';
-import { IRawTrackMedia, parseSubtitles } from '../../shared/utils/subtitles';
+import { VideoExtractor } from '../models/Iextractor';
+import { ISource, IVideo } from '../models/types';
+import { getM3u8Qualities } from '../utils/m3u8';
+import { IRawTrackMedia, parseSubtitles } from '../utils/subtitles';
 
 interface IMediaInfo {
   status: number,

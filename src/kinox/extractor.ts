@@ -1,9 +1,10 @@
 import { MochiResponse } from '@mochiapp/js/dist';
-import { ISource } from '../../shared/models/types';
-import { VoeE } from "./voe";
-import { StreamtapeE } from './streamtape';
-import { DoodE } from './dood';
-import { UpstreamE } from './upstream';
+import { ISource } from '../shared/models/types';
+import { VoeE } from '../shared/extractors/voe';
+import { StreamtapeE } from '../shared/extractors/streamtape';
+import { DoodE } from '../shared/extractors/dood';
+import { UpstreamE } from '../shared/extractors/upstream';
+
 
 export async function getVideo(url: string, provider: string): Promise<ISource> {
     let req: MochiResponse;

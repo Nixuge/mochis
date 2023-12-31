@@ -1,5 +1,5 @@
-import { ISource } from '../../shared/models/types';
-import { VidCloudE } from './vidcloud';
+import { VidCloudE } from '../shared/extractors/vidcloud';
+import { ISource } from '../shared/models/types';
 
 export async function getVideo(url: string, provider: string): Promise<ISource> {
     provider = provider.toLowerCase()
