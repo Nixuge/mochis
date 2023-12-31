@@ -4,6 +4,7 @@ import { dynamicEval } from '../utils/eval';
 import { baseUrl } from '../../animepahe/utils/constants';
 
 export class KwikE extends VideoExtractor {
+  public override requiresHtml = false;
   protected override serverName = 'kwik';
 
   override extract = async (): Promise<IVideo[]> => {

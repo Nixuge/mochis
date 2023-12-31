@@ -2,10 +2,13 @@ import { ISource, IVideo } from "./types";
 
 
 export abstract class VideoExtractor {
+  public requiresHtml: boolean = true;
   protected referer: string;
   protected htmlContent?: string;
   constructor(referer: string, htmlContent?: string) {
     this.referer = referer;
+    if (this.requiresHtml && (htmlContent == undefined || htmlContent == ""))
+      throw Error("Extractor requires html content, but none was provided !")
     this.htmlContent = htmlContent;
   }
   /**
