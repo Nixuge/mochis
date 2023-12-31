@@ -24,7 +24,12 @@ export async function getM3u8Qualities(mainFileUrl: string, opts: M3u8Opts = {})
             isDASH: false,
           } satisfies IVideo)
     
-    const m3u8Data = await request.get(mainFileUrl, { headers: opts.headers }).then(resp => resp.text());
+    let m3u8Data: string = "";
+    try {
+        m3u8Data = await request.get(mainFileUrl, { headers: opts.headers }).then(resp => resp.text());
+    } catch(e) {
+        throw Error("error grabbing m3u8data for url '" + mainFileUrl + "': " + e);
+    }
     const m3u8Sources = m3u8Data.matchAll(usedPattern);
     for (const m3u8Source of m3u8Sources) {
         const quality = m3u8Source[1];
