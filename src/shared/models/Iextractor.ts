@@ -1,5 +1,9 @@
 import { ISource, IVideo } from "./types";
 
+function isVideoArray(obj: IVideo[] | ISource): obj is IVideo[] {
+  return Array.isArray(obj);
+}
+
 export abstract class RawVideoExtractor {
   public static extractorType = "RawVideoExtractor";
   protected referer: string;
@@ -27,8 +31,12 @@ export abstract class RawVideoExtractor {
    * NOT TO BE USED IF extract() ALREADY RETURNS AN ISource
    */
   public async getSource(...args: any): Promise<ISource> {
+    const res = await this.extract(args);
+    if (!isVideoArray(res)) {
+      throw Error("Called getSource on an object that's already a source !")
+    }
     return {
-      videos: await this.extract(args) as IVideo[]
+      videos: res
     }
   }
 }
