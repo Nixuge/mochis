@@ -34,7 +34,7 @@ export default class Kinox extends SourceModule implements VideoContent {
   metadata = {
     id: 'kinox',
     name: 'kinox.to',
-    version: '0.0.46',
+    version: '0.1.0',
     icon: `${baseURL}/gr/favicon.ico`
   }
 
@@ -203,7 +203,7 @@ export default class Kinox extends SourceModule implements VideoContent {
       })).sort((a, b) => b.quality - a.quality),
       subtitles: res.subtitles ?? [],
       skipTimes: [],
-      headers: {}
+      headers: res.headers ?? {}
     }
   }
 }

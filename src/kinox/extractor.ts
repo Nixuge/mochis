@@ -4,6 +4,7 @@ import { VoeE } from '../shared/extractors/voe';
 import { StreamtapeE } from '../shared/extractors/streamtape';
 import { DoodE } from '../shared/extractors/dood';
 import { UpstreamE } from '../shared/extractors/upstream';
+import { NetuE } from '../shared/extractors/netu';
 
 
 export async function getVideo(url: string, provider: string): Promise<ISource> {
@@ -38,6 +39,8 @@ export async function getVideo(url: string, provider: string): Promise<ISource> 
             return new DoodE(url, html).getSource() //Note: cloudflare's flagging this :/
         case "Upstream.to":
             return new UpstreamE(url, html).getSource()
+        case "Netu.tv":
+            return new NetuE(url, html).extract()
         default:
             break;
     }

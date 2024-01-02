@@ -41,7 +41,7 @@ export interface ISubtitle {
 
 
 export interface ISource {
-    headers?: { [k: string]: string };
+    headers?: Record<string, string>;
     subtitles?: PlaylistEpisodeServerSubtitle[];
     videos: IVideo[];
     download?: string;

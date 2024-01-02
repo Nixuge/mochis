@@ -39,17 +39,17 @@ const source = runner(Source)
 // })
 
 // test("gets the episode sources", async() => {
-//   log(JSON.stringify(await source.playlistEpisodeSources({playlistId: "", episodeId: "/Stream/South_Park_Post_Covid-1.html"})))
+//   log(JSON.stringify(await source.playlistEpisodeSources({playlistId: "", episodeId: "/Stream/Aquaman_2_Lost_Kingdom-Neueste_Version-Gute_Qualitaet.html"})))
 // })
 
-// test("gets an episode server (Movie)", async() => {
-//   log(JSON.stringify(await source.playlistEpisodeServer({
-//     playlistId: "/Stream/Saw_X-1.html", 
-//     episodeId: "/Stream/Saw_X-1.html", 
-//     sourceId: "Kinox",
-//     serverId: "South_Park_Post_Covid-1&Hoster=91&Mirror=2"
-//   })))
-// })
+test("gets an episode server (Movie)", async() => {
+  log(JSON.stringify(await source.playlistEpisodeServer({
+    playlistId: "/Stream/Aquaman_2_Lost_Kingdom-Neueste_Version-Gute_Qualitaet.html", 
+    episodeId: "/Stream/Aquaman_2_Lost_Kingdom-Neueste_Version-Gute_Qualitaet.html", 
+    sourceId: "Kinox",
+    serverId: "Aquaman_2_Lost_Kingdom-Neueste_Version-Gute_Qualitaet&Hoster=73"
+  })))
+})
 
 // test("gets an episode server (Movie)", async() => {
 //   log(JSON.stringify(await source.playlistEpisodeServer({
