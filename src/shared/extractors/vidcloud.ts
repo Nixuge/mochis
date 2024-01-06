@@ -1,8 +1,8 @@
 import CryptoJS from 'crypto-js';
-import { RawVideoExtractor } from '../../shared/models/Iextractor';
-import { ISource } from '../../shared/models/types';
-import { getM3u8Qualities } from '../../shared/utils/m3u8';
-import { IRawTrackMedia, parseSubtitles } from '../../shared/utils/subtitles';
+import { RawVideoExtractor } from '../models/Iextractor';
+import { ISource } from '../models/types';
+import { getM3u8Qualities } from '../utils/m3u8';
+import { IRawTrackMedia, parseSubtitles } from '../utils/subtitles';
 
 // Mostly from consumet,
 // thanks to them & theonlymo
