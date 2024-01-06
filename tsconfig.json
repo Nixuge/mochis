@@ -11,7 +11,7 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "noImplicitAny": false,
-    "isolatedModules": false,
+    "isolatedModules": true,
     "allowSyntheticDefaultImports": true,
     "strict": true,
     "jsx": "preserve",
