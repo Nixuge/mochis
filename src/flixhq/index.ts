@@ -136,8 +136,10 @@ export default class Source extends SourceModule implements VideoContent {
     const serverJson = JSON.parse(req.serverId);
     const url = `${baseUrl}/ajax/episode/sources/${serverJson.id}`
     const data: any = await request.get(url).then(resp => resp.json())
-
+    console.log("a");
+    
     const source = await getVideo(data["link"], serverJson["provider"])    
+    console.log("b");
     
     return {
       links: source.videos.map((video) => ({

@@ -8,6 +8,9 @@ import { ISource } from '../shared/models/types';
 export async function getVideo(url: string, provider: string): Promise<ISource> {
     provider = provider.toLowerCase()
 
+    console.warn("You SHOULD see this");
+    
+
     // if (provider == "mixdrop")
     //     throw Error("Mixdrop is down");
 
@@ -23,7 +26,7 @@ export async function getVideo(url: string, provider: string): Promise<ISource> 
 
     // if (provider == "voe")
     //     return await new VoeE(url, html).extract();
-    console.log("If you see this, it's a good sign.");
+    console.log("If you see this, it's a good sign. v0.1.16");
     
     
     throw Error("No extractor for url " + url + "(provider: " + provider + ")");
