@@ -34,7 +34,7 @@ export default class Source extends SourceModule implements VideoContent {
   metadata = {
     id: 'flixhq',
     name: 'FlixHQ',
-    version: '0.1.7',
+    version: '0.1.8',
     icon: "https://img.flixhq.to/xxrz/100x100/100/bc/3c/bc3c462f0fb1b1c71288170b3bd55aeb/bc3c462f0fb1b1c71288170b3bd55aeb.png"
   }
 
