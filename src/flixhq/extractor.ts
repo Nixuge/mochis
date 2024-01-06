@@ -2,9 +2,8 @@
 // import { UpstreamE } from '../shared/extractors/upstream';
 // import { VidCloudE } from '../shared/extractors/vidcloud';
 // import { VoeE } from '../shared/extractors/voe';
-// import { ISource } from '../shared/models/types';
+import { ISource } from '../shared/models/types';
 
-import { ISource } from "./utils/types";
 
 export async function getVideo(url: string, provider: string): Promise<ISource> {
     provider = provider.toLowerCase()
@@ -24,6 +23,8 @@ export async function getVideo(url: string, provider: string): Promise<ISource> 
 
     // if (provider == "voe")
     //     return await new VoeE(url, html).extract();
+    console.log("If you see this, it's a good sign.");
+    
     
     throw Error("No extractor for url " + url + "(provider: " + provider + ")");
 }
