@@ -4,7 +4,7 @@ export * from './src/aniwave'
 
 export default {
   name: "Nixuge's Mochi Repo",
-  description: "Aniwave module for Mochi - @Nixuge",
+  description: "Nixuge's Mochi Repo",
   author: "Nixuge",
   icon: "https://nixuge.me/favicon.ico",
 } satisfies RepoMetadata

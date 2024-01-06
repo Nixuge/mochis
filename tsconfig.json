@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
-    "target": "ES2017",
+    "target": "ES2021",
     "lib": [
-      "es2021",
+      "ES2021.String",
       "DOM",
       "DOM.Iterable"
     ],
@@ -20,10 +20,5 @@
     "skipLibCheck": true
   },
   "include": ["src"],
-  "exclude": ["node_modules", "dist", "./test"],
-  "ts-node": {
-      "compilerOptions": {
-          "module": "commonjs"
-      }
-  }
+  "exclude": ["node_modules", "dist", "./test"]
 }
