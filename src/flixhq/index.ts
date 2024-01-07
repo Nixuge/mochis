@@ -27,8 +27,12 @@ import { HomeScraper } from './scraper/homeScraper';
 import { scrapeItemsBlock } from './scraper/item';
 import { EpisodesScraper } from './scraper/episodes';
 import { genericPlaylistDetails } from './scraper/details';
-import { getVideo } from './extractor';
 import { filters, loadFilters } from './utils/filters';
+import { UrlMatcher } from '../shared/models/matcher';
+import { VidCloudE } from '../shared/extractors/vidcloud';
+import { UpstreamE } from '../shared/extractors/upstream';
+import { DoodE } from '../shared/extractors/dood';
+import { VoeE } from '../shared/extractors/voe';
 
 export default class Source extends SourceModule implements VideoContent {
   metadata = {
@@ -136,10 +140,15 @@ export default class Source extends SourceModule implements VideoContent {
     const serverJson = JSON.parse(req.serverId);
     const url = `${baseUrl}/ajax/episode/sources/${serverJson.id}`
     const data: any = await request.get(url).then(resp => resp.json())
-    console.log("a");
-    
-    const source = await getVideo(data["link"], serverJson["provider"])    
-    console.log("b");
+
+    const provider = serverJson["provider"].toLowerCase();
+    const source = await new UrlMatcher({
+      "upcloud": VidCloudE,
+      "vidcloud": VidCloudE,
+      "upstream": UpstreamE,
+      "doodstream": DoodE,
+      "voe": VoeE
+    }, data["link"], provider).getResult()
     
     return {
       links: source.videos.map((video) => ({
