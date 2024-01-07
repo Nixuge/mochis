@@ -29,6 +29,12 @@ import { baseURL, mirrorUrl } from "./utils/constants";
 import { EpisodesScraper } from "./scraper/episodesScraper";
 import { KinoxServerRequestType } from "./models/types";
 import { getVideo } from "./extractor";
+import { DoodE } from "../shared/extractors/dood";
+import { NetuE } from "../shared/extractors/netu";
+import { StreamtapeE } from "../shared/extractors/streamtape";
+import { UpstreamE } from "../shared/extractors/upstream";
+import { VoeE } from "../shared/extractors/voe";
+import { UrlMatcher } from "../shared/models/matcher";
 
 export default class Kinox extends SourceModule implements VideoContent {
   metadata = {
@@ -192,7 +198,13 @@ export default class Kinox extends SourceModule implements VideoContent {
     const $ = load(serverData.Stream);
     const serverUrl = $("a").attr("href")!;
 
-    const res = await getVideo(serverUrl, serverData.HosterName);
+    const res = await new UrlMatcher({
+      "Voe.SX": VoeE,
+      "Streamtape.com": StreamtapeE,
+      "Dood.to": DoodE,
+      "Upstream.to": UpstreamE,
+      "Netu.tv": NetuE
+    }, serverUrl, serverData.HosterName).getResult()
         
     return {
       links: res.videos.map((video) => ({

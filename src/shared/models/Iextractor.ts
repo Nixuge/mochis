@@ -19,7 +19,7 @@ export abstract class RawVideoExtractor {
    *
    * returns video sources (video links) available
    */
-  protected abstract extract(videoUrl: string, ...args: any): Promise<IVideo[] | ISource>;
+  public abstract extract(...args: any): Promise<IVideo[] | ISource>;
 
   /**
    * takes same argument as extract
