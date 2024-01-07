@@ -51,3 +51,5 @@ export abstract class VideoExtractor extends RawVideoExtractor {
     this.htmlContent = htmlContent;
   }
 }
+
+console.log("Test - if you see this, static properties are working in one way or another");
