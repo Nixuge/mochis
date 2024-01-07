@@ -5,7 +5,6 @@ function isVideoArray(obj: IVideo[] | ISource): obj is IVideo[] {
 }
 
 export abstract class RawVideoExtractor {
-  protected static extractorType = "RawVideoExtractor";
   protected referer: string;
   constructor(referer: string) {
     this.referer = referer;
@@ -42,7 +41,6 @@ export abstract class RawVideoExtractor {
 }
 
 export abstract class VideoExtractor extends RawVideoExtractor {
-  protected static override extractorType = "VideoExtractor";
   protected htmlContent: string;
   constructor(referer: string, htmlContent: string) {
     super(referer);
@@ -51,5 +49,3 @@ export abstract class VideoExtractor extends RawVideoExtractor {
     this.htmlContent = htmlContent;
   }
 }
-
-console.log("Test - if you see this, static properties are working in one way or another");
