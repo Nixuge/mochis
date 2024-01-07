@@ -5,7 +5,7 @@ function isVideoArray(obj: IVideo[] | ISource): obj is IVideo[] {
 }
 
 export abstract class RawVideoExtractor {
-  public static extractorType = "RawVideoExtractor";
+  // public static extractorType = "RawVideoExtractor";
   protected referer: string;
   constructor(referer: string) {
     this.referer = referer;
@@ -42,7 +42,7 @@ export abstract class RawVideoExtractor {
 }
 
 export abstract class VideoExtractor extends RawVideoExtractor {
-  public static override extractorType = "VideoExtractor";
+  // public static override extractorType = "VideoExtractor";
   protected htmlContent: string;
   constructor(referer: string, htmlContent: string) {
     super(referer);
