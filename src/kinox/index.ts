@@ -7,14 +7,11 @@ import {
   PlaylistDetails,
   PlaylistEpisodeServer,
   PlaylistEpisodeServerFormatType,
-  PlaylistEpisodeServerLink,
   PlaylistEpisodeServerQualityType,
   PlaylistEpisodeServerRequest,
   PlaylistEpisodeServerResponse,
-  PlaylistEpisodeServerSubtitleFormat,
   PlaylistEpisodeSource,
   PlaylistEpisodeSourcesRequest,
-  PlaylistItem,
   PlaylistItemsOptions,
   PlaylistItemsResponse,
   PlaylistStatus,
@@ -28,7 +25,6 @@ import { load } from "cheerio";
 import { baseURL, mirrorUrl } from "./utils/constants";
 import { EpisodesScraper } from "./scraper/episodesScraper";
 import { KinoxServerRequestType } from "./models/types";
-import { getVideo } from "./extractor";
 import { DoodE } from "../shared/extractors/dood";
 import { NetuE } from "../shared/extractors/netu";
 import { StreamtapeE } from "../shared/extractors/streamtape";
