@@ -38,8 +38,7 @@ export class HomeScraper {
         data.push(this.makeBlockDiscoverListing($(block[1]), title + " TV Shows"))
       }
     })
-    // For some reason as of now Mochi's order is reversed
-    return data.reverse();
+    return data;
   }
 
   private makeBlockDiscoverListing(block: Cheerio<Element>, title: string): DiscoverListing {
