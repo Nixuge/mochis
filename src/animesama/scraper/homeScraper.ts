@@ -85,5 +85,9 @@ export function scrapeHome(html: string): DiscoverListing[] {
         };
     }).get();
     
-    return listings;
+    // - Decouvrez des pépites
+    // - Les classiques
+    // - Derniers ajouts
+
+    return listings.reverse();
 }
