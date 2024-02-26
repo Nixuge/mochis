@@ -28,30 +28,35 @@ export class VidCloudE extends RawVideoExtractor {
         // console.log(`${hostname}/ajax/embed-4/getSources?id=${id}`);
         
         // console.log(data);
+
+        // For some unknown reason, they removed the keys altogether?
+        // so now the raw playlist.m3u8 url is in the response directly
+        // If they do enable keys again, uncomment all below.
         
+        // const key: any = await request.get('https://raw.githubusercontent.com/theonlymo/keys/e4/key').then(resp => resp.json());
+        // const sourcesArray = data.sources.split('');
+        // let extractedKey = '';
 
-        const key: any = await request.get('https://raw.githubusercontent.com/theonlymo/keys/e4/key').then(resp => resp.json());
-        const sourcesArray = data.sources.split('');
-        let extractedKey = '';
+        // let currentIndex = 0;
+        // for (const index of key) {
+        //     const start = index[0] + currentIndex;
+        //     const end = start + index[1];
+        //     for (let i = start; i < end; i++) {
+        //         extractedKey += data.sources[i];
+        //         sourcesArray[i] = '';
+        //     }
+        //     currentIndex += parseInt(index[1]);
+        // }
 
-        let currentIndex = 0;
-        for (const index of key) {
-            const start = index[0] + currentIndex;
-            const end = start + index[1];
-            for (let i = start; i < end; i++) {
-                extractedKey += data.sources[i];
-                sourcesArray[i] = '';
-            }
-            currentIndex += parseInt(index[1]);
-        }
+        // data.sources = sourcesArray.join('');
 
-        data.sources = sourcesArray.join('');
-
-        const decryptedVal = JSON.parse(CryptoJS.AES.decrypt(data.sources, extractedKey).toString(CryptoJS.enc.Utf8));
+        // const decryptedVal = JSON.parse(CryptoJS.AES.decrypt(data.sources, extractedKey).toString(CryptoJS.enc.Utf8));
 
         // Making assumption that there's only 1 m3u8 element (which should basically always be the case).
-        const url: string = decryptedVal[0].file;
-        const videos = await getM3u8Qualities(url);
+        // const url: string = decryptedVal[0].file;
+        // const videos = await getM3u8Qualities(url);
+
+        const videos = await getM3u8Qualities(data.sources[0]["file"]);
         
         return {
             videos,
