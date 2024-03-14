@@ -40,7 +40,7 @@ export default class Source extends SourceModule implements VideoContent {
   metadata = {
     id: 'aniwave',
     name: 'Aniwave',
-    version: '0.3.1',
+    version: '0.3.2',
     icon: "https://s2.bunnycdn.ru/assets/sites/aniwave/favicon1.png"
   }
 

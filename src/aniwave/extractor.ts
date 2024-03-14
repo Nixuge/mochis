@@ -13,7 +13,7 @@ export async function getVideo(url: string): Promise<ISource> {
     if (url.startsWith("https://www.mp4upload.com/")) {
         return new Mp4uploadE(url, html).extract()
     }
-    if (url.startsWith("https://mcloud.bz/") || url.startsWith("https://vidplay.online/")) {
+    if (url.startsWith("https://mcloud.bz/") || url.startsWith("https://vidplay.online/") || url.startsWith("https://ea1928580f.site/")) {
         return new MyCloudE(url, html).extract()
     }
     
