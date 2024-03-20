@@ -1,12 +1,12 @@
 import { RawVideoExtractor } from '../models/Iextractor';
 import { ISource } from '../models/types';
 import { getM3u8Qualities } from '../utils/m3u8';
-import { PlaylistEpisodeServerSubtitle, PlaylistEpisodeServerSubtitleFormat } from '@mochiapp/js/dist';
+import { IRawTrackMedia, parseSubtitles } from '../utils/subtitles';
 
 
 type ResponseType = {
-    source: string,
-    subtitle: string[]
+  source: string,
+  tracks: IRawTrackMedia[]
 }
 
 export class VidCloudE extends RawVideoExtractor {
@@ -23,29 +23,13 @@ export class VidCloudE extends RawVideoExtractor {
           headers: {"Content-Type": "application/json"},
           body: JSON.stringify({"id": id})}
         ).then(req => req.json())
-
+        
 
         const videos = await getM3u8Qualities(data.source);
-        const subtitles: PlaylistEpisodeServerSubtitle[] = [];
-        for (const subtitle of data.subtitle) {
-          let name = subtitle;
-          try {
-            const splitted = subtitle.split("/");
-            name = splitted[splitted.length-1].split(".vtt")[0]
-          } catch {}
-          subtitles.push({
-            url: subtitle,
-            name,
-            format: PlaylistEpisodeServerSubtitleFormat.vtt,
-            default: false,
-            autoselect: false
-          } satisfies PlaylistEpisodeServerSubtitle)
-        }
-
 
         return {
             videos,
-            subtitles
+            subtitles: parseSubtitles(data.tracks)
         };
     };
 }
