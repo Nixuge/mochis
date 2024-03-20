@@ -38,7 +38,7 @@ export default class Source extends SourceModule implements VideoContent {
   metadata = {
     id: 'flixhq',
     name: 'FlixHQ',
-    version: '0.1.22',
+    version: '0.1.23',
     icon: "https://img.flixhq.to/xxrz/100x100/100/bc/3c/bc3c462f0fb1b1c71288170b3bd55aeb/bc3c462f0fb1b1c71288170b3bd55aeb.png"
   }
 
@@ -108,7 +108,7 @@ export default class Source extends SourceModule implements VideoContent {
     return new EpisodesScraper(url, options).scrape()
   }
 
-  async playlistEpisodeSources(req: PlaylistEpisodeSourcesRequest): Promise<PlaylistEpisodeSource[]> {
+  async playlistEpisodeSources(req: PlaylistEpisodeSourcesRequest): Promise<PlaylistEpisodeSource[]> {    
     const html = await request.get(`${baseUrl}${req.episodeId}`).then(resp => resp.text())
     const $ = load(html);
     const servers: PlaylistEpisodeServer[] = $("div.server-select ul.nav li.nav-item").map((i, item) => {
@@ -127,7 +127,7 @@ export default class Source extends SourceModule implements VideoContent {
         displayName, 
         description 
       } 
-    }).get()    
+    }).get()
     
     return [{
       id: "FlixHQ",
@@ -140,7 +140,8 @@ export default class Source extends SourceModule implements VideoContent {
     const serverJson = JSON.parse(req.serverId);
     const url = `${baseUrl}/ajax/episode/sources/${serverJson.id}`
     const data: any = await request.get(url).then(resp => resp.json())
-
+    console.log(serverJson["provider"]);
+    
     const provider = serverJson["provider"].toLowerCase();
     const source = await new UrlMatcher({
       "upcloud": VidCloudE,
