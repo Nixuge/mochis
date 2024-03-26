@@ -34,10 +34,10 @@ test("provides playlist details", async () => {
 // })
 
 // test("gets the episode sources", async() => {
-//   log(JSON.stringify(await source.playlistEpisodeSources({playlistId: "how-not-to-summon-a-demon-lord-w.oz6y/ep-1", episodeId: "HT2aDw==,HTSbA88j,GjicAs4= | softsub"})))
+//   log(JSON.stringify(await source.playlistEpisodeSources({playlistId: "how-not-to-summon-a-demon-lord-w.oz6y/ep-1", episodeId: "HTmfCcgl,HTSZA8sl,HTqXDM4m | softsub"})))
 // })
 
 // timeout 15s as the deobfuscation can take some time when the js changes.
 // test("gets an episode server", async() => {
-//   log(JSON.stringify(await source.playlistEpisodeServer({playlistId: "how-not-to-summon-a-demon-lord-w.oz6y/ep-1", episodeId: "HTmfCcgl,HTSZA8sl,HTqXDM4m", sourceId:"servers", serverId:"GDyXDcMlnw=="})))
+//   log(JSON.stringify(await source.playlistEpisodeServer({playlistId: "how-not-to-summon-a-demon-lord-w.oz6y/ep-1", episodeId: "HTmfCcgl,HTSZA8sl,HTqXDM4m", sourceId:"servers", serverId:"HzuaDc8gkQ=="})))
 // }, {timeout: 15000})

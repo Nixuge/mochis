@@ -103,7 +103,9 @@ export default class Source extends SourceModule implements VideoContent {
     const $ = load(html.text());
     const data_id = $("div#watch-main").attr("data-id");
     // @ts-ignore
-    const episodesHtml = (await request.get(`${AJAX_BASENAME}/episode/list/${data_id}?vrf=${getVrf(parseInt(data_id))}`)).json()["result"] 
+    const url = `${AJAX_BASENAME}/episode/list/${data_id}?vrf=${getVrf(parseInt(data_id))}`
+    // @ts-ignore
+    const episodesHtml = (await request.get(url)).json()["result"] 
     const $$ = load(episodesHtml);
     
     // Note:

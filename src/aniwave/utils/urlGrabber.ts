@@ -61,40 +61,34 @@ function rc4Cypher(key: string, data: string) {
 
 // To be called on the id to get data.
 function caesarRot13(t: string) {
-    t = encodeURI(t)
+    t = encodeURIComponent(t);
     return function (t) {
-        var r = "";
-        var t = serializeText(t)
-        var n = 8;
-        for (var s = 0; s < t.length; s++) {
-            var o = t.charCodeAt(s)
-            if (s % n == 1) {
-                o += 3;
-            } else if (s % n == 7) {
-                o += 5;
-            } else if (s % n == 2) {
-                o -= 4;
-            } else if (s % n == 4) {
-                o -= 2;
-            } else if (s % n == 6) {
-                o += 4;
-            } else if (s % n == 0) {
-                o -= 3;
-            } else if (s % n == 3) {
-                o += 2;
-            } else if (s % n == 5) {
-                o += 5;
-            }
-            r += String.fromCharCode(o);
+      var i = 9;
+      var t = serializeText(t.split("").reverse().join(""));
+      var n = "";
+      for (var s = 0; s < t.length; s++) {
+        var r = t.charCodeAt(s);
+        if (s % i == 3 || s % i == 6) {
+          r -= 4;
+        } else if (s % i == 4) {
+          r -= 3;
+        } else if (s % i == 0) {
+          r += 2;
+        } else if (s % i == 7) {
+          r -= 3;
+        } else if (s % i == 1) {
+          r += 6;
+        } else if (s % i == 5) {
+          r += 2;
+        } else if (s % i == 8) {
+          r += 3;
+        } else if (s % i == 2) {
+          r += 2;
         }
-        return r = function (t) {
-            return t.replace(/[a-zA-Z]/g, function (t) {
-                // @ts-ignore
-                const res = String.fromCharCode((t <= "Z" ? 90 : 122) >= (t = t.charCodeAt(0) + 13) ? t : t - 26);
-                return res;
-            });
-        }(r = serializeText(r));
-    }(serializeText(rc4Cypher("ysJhV6U27FVIjjuk", t)));
+        n += String.fromCharCode(r);
+      }
+      return n;
+    }(serializeText(rc4Cypher("XObq4uXPsPJLP36z", t)));
 }
 
 function b64decode(t: string) {
@@ -127,8 +121,8 @@ function b64decode(t: string) {
 
 export function decodeVideoSkipData(encoded_url: string) {
     encoded_url = b64decode("".concat(encoded_url).replace(/_/g, "/").replace(/-/g, "+"));
-    const decoded_url = decodeURIComponent(rc4Cypher("hlPeNwkncH0fq9so", encoded_url));
+    const decoded_url = decodeURIComponent(rc4Cypher("LUyDrL4qIxtIxOGs", encoded_url));
     return (decoded_url);
 }
 // clearer name
-export function getVrf(input: string) { return caesarRot13(input) };
+export function getVrf(input: string) { return encodeURIComponent(caesarRot13(input)) };
