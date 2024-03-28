@@ -40,7 +40,7 @@ export default class Source extends SourceModule implements VideoContent {
   metadata = {
     id: 'aniwave',
     name: 'Aniwave',
-    version: '0.3.4',
+    version: '0.3.5',
     icon: "https://s2.bunnycdn.ru/assets/sites/aniwave/favicon1.png"
   }
 
@@ -99,25 +99,26 @@ export default class Source extends SourceModule implements VideoContent {
     const watch = playlistId.startsWith("/watch/") ? "" : "/watch/"
     const fullUrl = `${BASENAME}${watch}${playlistId}`
     
-    const html = await request.get(fullUrl)
+    const html = await request.get(fullUrl);
+    if (html.text().includes("<title>WAF</title>")) {
+      console.error("Seems like you're getting captcha'd. Unfortunately I can't do much about it. Retry later/change your ip.");
+      return [];
+    }
+    
     const $ = load(html.text());
     const data_id = $("div#watch-main").attr("data-id");
+
     // @ts-ignore
     const url = `${AJAX_BASENAME}/episode/list/${data_id}?vrf=${getVrf(parseInt(data_id))}`
+    console.log("url: " + url);
     
     let episodesHtml;
     try {
       // @ts-ignore
-      episodesHtml = (await request.get(url, {headers: {"x-requested-with": "XMLHttpRequest"}})).json()
-      console.log(episodesHtml);
-      
+      episodesHtml = (await request.get(url, {headers: {"x-requested-with": "XMLHttpRequest"}})).json()["result"]      
     } catch(e) {
-      console.log(url);
-      
-      console.log("BAD!");
-      // console.log(await request.get(url));
-      
-      
+      console.error("If you see this, there's an issue.");
+      return [];
     }
     const $$ = load(episodesHtml);
     

@@ -87,7 +87,6 @@ function caesarRot13(t: string) {
         }
         r += String.fromCharCode(h);
       }
-      console.log(r)
       return r = serializeText(r = r.split("").reverse().join(""));
     }(serializeText(rc4Cypher("tGn6kIpVXBEUmqjD", t)));
 }
