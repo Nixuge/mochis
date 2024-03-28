@@ -60,35 +60,44 @@ function rc4Cypher(key: string, data: string) {
 }
 
 // To be called on the id to get data.
-function caesarRot13(t: string) {
+function caesarRot13(t: string) {    
     t = encodeURIComponent(t);
     return function (t) {
-      var i = 9;
-      var t = serializeText(t.split("").reverse().join(""));
-      var n = "";
-      for (var s = 0; s < t.length; s++) {
-        var r = t.charCodeAt(s);
-        if (s % i == 3 || s % i == 6) {
-          r -= 4;
-        } else if (s % i == 4) {
-          r -= 3;
-        } else if (s % i == 0) {
-          r += 2;
-        } else if (s % i == 7) {
-          r -= 3;
-        } else if (s % i == 1) {
-          r += 6;
-        } else if (s % i == 5) {
-          r += 2;
-        } else if (s % i == 8) {
-          r += 3;
-        } else if (s % i == 2) {
-          r += 2;
+      var s = 8;
+      t = serializeText(shuffle(shuffle(t)))
+      var r = "";
+      for (var o = 0; o < t.length; o++) {
+        var h = t.charCodeAt(o);
+        if (o % s == 7) {
+          h += 6;
+        } else if (o % s == 5) {
+          h -= 3;
+        } else if (o % s == 3) {
+          h += 6;
+        } else if (o % s == 2) {
+          h -= 5;
+        } else if (o % s == 6) {
+          h += 3;
+        } else if (o % s == 0) {
+          h -= 2;
+        } else if (o % s == 4) {
+          h += 2;
+        } else if (o % s == 1) {
+          h -= 4;
         }
-        n += String.fromCharCode(r);
+        r += String.fromCharCode(h);
       }
-      return n;
-    }(serializeText(rc4Cypher("XObq4uXPsPJLP36z", t)));
+      console.log(r)
+      return r = serializeText(r = r.split("").reverse().join(""));
+    }(serializeText(rc4Cypher("tGn6kIpVXBEUmqjD", t)));
+}
+
+function shuffle(t) {
+    return t.replace(/[a-zA-Z]/g, function (t) {
+        // @ts-ignore
+        const res = String.fromCharCode((t <= "Z" ? 90 : 122) >= (t = t.charCodeAt(0) + 13) ? t : t - 26);
+        return res;
+    });
 }
 
 function b64decode(t: string) {

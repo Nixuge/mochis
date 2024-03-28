@@ -40,7 +40,7 @@ export default class Source extends SourceModule implements VideoContent {
   metadata = {
     id: 'aniwave',
     name: 'Aniwave',
-    version: '0.3.3',
+    version: '0.3.4',
     icon: "https://s2.bunnycdn.ru/assets/sites/aniwave/favicon1.png"
   }
 
@@ -104,8 +104,21 @@ export default class Source extends SourceModule implements VideoContent {
     const data_id = $("div#watch-main").attr("data-id");
     // @ts-ignore
     const url = `${AJAX_BASENAME}/episode/list/${data_id}?vrf=${getVrf(parseInt(data_id))}`
-    // @ts-ignore
-    const episodesHtml = (await request.get(url)).json()["result"] 
+    
+    let episodesHtml;
+    try {
+      // @ts-ignore
+      episodesHtml = (await request.get(url, {headers: {"x-requested-with": "XMLHttpRequest"}})).json()
+      console.log(episodesHtml);
+      
+    } catch(e) {
+      console.log(url);
+      
+      console.log("BAD!");
+      // console.log(await request.get(url));
+      
+      
+    }
     const $$ = load(episodesHtml);
     
     // Note:
