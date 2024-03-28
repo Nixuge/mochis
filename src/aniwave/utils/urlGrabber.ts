@@ -60,11 +60,11 @@ function rc4Cypher(key: string, data: string) {
 }
 
 // To be called on the id to get data.
-function caesarRot13(t: string) {    
+function idToVrf(t: string) {    
     t = encodeURIComponent(t);
     return function (t) {
       var s = 8;
-      t = serializeText(shuffle(shuffle(t)))
+      t = serializeText(caesarRot13(caesarRot13(t)))
       var r = "";
       for (var o = 0; o < t.length; o++) {
         var h = t.charCodeAt(o);
@@ -91,7 +91,7 @@ function caesarRot13(t: string) {
     }(serializeText(rc4Cypher("tGn6kIpVXBEUmqjD", t)));
 }
 
-function shuffle(t) {
+function caesarRot13(t) {
     return t.replace(/[a-zA-Z]/g, function (t) {
         // @ts-ignore
         const res = String.fromCharCode((t <= "Z" ? 90 : 122) >= (t = t.charCodeAt(0) + 13) ? t : t - 26);
@@ -133,4 +133,4 @@ export function decodeVideoSkipData(encoded_url: string) {
     return (decoded_url);
 }
 // clearer name
-export function getVrf(input: string) { return encodeURIComponent(caesarRot13(input)) };
+export function getVrf(input: string) { return encodeURIComponent(idToVrf(input)) };
