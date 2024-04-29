@@ -19,13 +19,13 @@ const source = runner(Source)
 //   log(await source.searchFilters())
 // })
 
-test("provides playlist details", async () => {
-  console.log(await source.playlistDetails("ogre-slayer.q33v"))
-})
+// test("provides playlist details", async () => {
+//   console.log(await source.playlistDetails("ogre-slayer.q33v"))
+// })
 
-test("gets the episode count", async() => {
-  log(JSON.stringify(await source.playlistEpisodes("/watch/kage-no-jitsuryokusha-ni-naritakute-2nd-season.vvqkv/ep-1")))
-})
+// test("gets the episode count", async() => {
+//   log(JSON.stringify(await source.playlistEpisodes("/watch/kage-no-jitsuryokusha-ni-naritakute-2nd-season.vvqkv/ep-1")))
+// })
 // test("gets the episode count", async() => {
 //   JSON.stringify(await source.playlistEpisodes("/watch/boushoku-no-berserk-ore-dake-reberu-to-iu-gainen-wo-toppa-suru.ojll4/ep-1"))
 // })
@@ -39,5 +39,5 @@ test("gets the episode count", async() => {
 
 // timeout 15s as the deobfuscation can take some time when the js changes.
 // test("gets an episode server", async() => {
-//   log(JSON.stringify(await source.playlistEpisodeServer({playlistId: "how-not-to-summon-a-demon-lord-w.oz6y/ep-1", episodeId: "HTmfCcgl,HTSZA8sl,HTqXDM4m", sourceId:"servers", serverId:"HzuaDc8gkQ=="})))
-// }, {timeout: 15000})
+//   log(JSON.stringify(await source.playlistEpisodeServer({playlistId: "how-not-to-summon-a-demon-lord-w.oz6y/ep-1", episodeId: "HTmfCcgl,HTSZA8sl,HTqXDM4m", sourceId:"servers", serverId:"GDyXC84gkg=="})))
+// }, {timeout: 20000})

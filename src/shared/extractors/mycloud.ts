@@ -18,19 +18,19 @@ export class MyCloudE extends VideoExtractor {
 
   override extract = async (): Promise<ISource> => {
     const url = this.referer;
-    const domain = url.split("/")[2];
     
-    const embedUrl = this.htmlContent.match(/<script type="text\/javascript" src="(assets\/mcloud\/min\/embed\.js\?v=[a-zA-Z0-9]*?)"><\/script>/)?.[1]
-    const embedJs = (await request.get(`https://${domain}/${embedUrl}`, {headers: {"Referer": "https://aniwave.to/"}})).text();
+    // Note:
+    // Server side is handling more things than previously.
+    // If I want to reverse to how it was done before, check commit before (including) this one:
+    // https://github.com/Nixuge/mochis/commit/ce615f9ff486ec82b01dcdcb8e6d08a987871d8d
     
-    const mediaInfoUrl = await request.post("https://mochi_back.nixuge.me/thanksForTheServerRessources", {
+    const mediaInfo: IMediaInfo = await request.post("https://anithunder.vercel.app/api/mcloud", {
       headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({"url": url, "embed.js": embedJs})}
-    ).then(req => req.text())
-
-    const mediaInfo: IMediaInfo = await request.get(mediaInfoUrl, {headers: {"Referer": "https://aniwave.to/"}}).then(req => req.json())
-
+      body: JSON.stringify({"url": url})}
+    ).then(req => req.json())
+    
     const sourcesJson = mediaInfo.result.sources;
+    
     const videos = await getM3u8Qualities(sourcesJson[0]["file"])
     
     const subtitles = parseSubtitles(mediaInfo.result.tracks)
