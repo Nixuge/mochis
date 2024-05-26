@@ -26,14 +26,13 @@ import {
 import { baseUrl } from "./utils/constants";
 import { load } from "cheerio";
 import { grabSetCookieValues } from "../shared/utils/cookies";
-import { isTesting } from "../shared/utils/isTesting";
 import { PlayerApiResponse } from "./models/types";
 
 export default class Hstream extends SourceModule implements VideoContent {
   metadata = {
     id: 'hstream||NSFW||Nixuge\'s NSFW Mochi Repo||NSFW modules for Mochi||https://upload.wikimedia.org/wikipedia/commons/f/f8/Stylized_uwu_emoticon.svg',
     name: 'hstream.moe',
-    version: '0.0.26',
+    version: '0.0.27',
     icon: "https://hstream.moe/images/cropped-HS-1-270x270.png"
   }
 
@@ -231,27 +230,27 @@ export default class Hstream extends SourceModule implements VideoContent {
     const body = {
       "episode_id": episode_id
     }
-
+    
     let apiResp: PlayerApiResponse;
     try {
-      if (isTesting()) {
-        // Post issue w request currently. Not much I can do.
-        const axios = (await import("axios")).default;
-        apiResp = await axios.post("https://hstream.moe/player/api", JSON.stringify(body), {headers}).then(resp => resp.data);
-      } else {
         apiResp = await request.post("https://hstream.moe/player/api", {body: JSON.stringify(body), headers}).then(resp => resp.json());
-      }      
-    } catch(e) {
-      // @ts-ignore
+    } catch(e: any) {
       console.log(e.response.status);
       throw Error("Request failed. Config issue lol.")
     }
-    // All servers are the same
+    const res = JSON.stringify(apiResp)
+    
+    if (res === undefined) {
+      console.error("Request failed. Couldn't parse the JSON. See below for the failing response.");
+      console.error(apiResp);
+      throw Error()
+    }
+    
     return [{
       id: "main",
       displayName: "hstream",
       servers: [{
-        id: JSON.stringify(apiResp),
+        id: res,
         displayName: "Main server"
       }]
     }]
