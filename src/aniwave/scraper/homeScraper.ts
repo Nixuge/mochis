@@ -1,4 +1,4 @@
-import { DiscoverListingOrientationType, DiscoverListingType, DiscoverListingsRequest, MochiResponse, PlaylistStatus, PlaylistType } from "@mochiapp/js/dist"
+import { DiscoverListingOrientationType, DiscoverListingType, DiscoverListingsRequest, MochiResponse, PlaylistStatus, PlaylistType, StatusError } from "@mochiapp/js/dist"
 import { Paging } from "@mochiapp/js/src/common/types"
 import { DiscoverListing, Playlist } from "@mochiapp/js/src/interfaces/source/types"
 import { CheerioAPI, load } from "cheerio"
@@ -20,17 +20,29 @@ export class HomeScraper {
 
     async scrape(): Promise<DiscoverListing[]> {
       if (!this.listingId) {
-        const html = await request.get(`${BASENAME}/home`).then(resp => resp.text());
+        const response = await request.get(`${BASENAME}/home`)
+        this.check403(response);
+
+        const html = response.text();
         this.$ = load(html);
         return this.scrapeAll();
       }
       if (this.listingId == "recently-updated") {
-        const html = await request.get(`${AJAX_BASENAME}/home/widget/trending?page=${this.page}`).then(resp => resp.json()!["result"]);
+        const response = await request.get(`${AJAX_BASENAME}/home/widget/trending?page=${this.page}`)
+        this.check403(response);
+
+        const html = response.json()!["result"]
         this.$ = load(html);
         return [this.scrapeRecentlyUpdated()]
       }
       
       throw Error("How did you even get here? Unhandled listingId (" + this.listingId + ")");
+    }
+
+    private check403(response: MochiResponse) {
+      if (response.status == 403) {
+        throw new StatusError(403, "Blocked by Cloudflare.", response.text(), BASENAME);
+      }
     }
 
     // Note sure if/how I add "Top anime",
