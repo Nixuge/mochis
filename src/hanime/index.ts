@@ -18,36 +18,103 @@ import {
   PlaylistType,
   SearchFilter,
   SearchQuery,
+  SearchQueryFilter,
   SourceModule,
   VideoContent
 } from "@mochiapp/js";
 import { load } from "cheerio";
-import { PageMeta, Server } from "./models/pageMeta";
+import { HentaiVideo, PageMeta, Server } from "./models/pageMeta";
 import { baseUrl, baseVideoUrl, nuxtJsonRegex } from "./utils/constants";
+import { SearchResult } from "./models/search";
+import { isTesting } from "../shared/utils/isTesting";
+import { sleep } from "../shared/utils/sleep";
+import { filters, scrapeFilters } from "./scrape/filters";
 
 export default class Hstream extends SourceModule implements VideoContent {
   metadata = {
     id: 'hanime||NSFW||Nixuge\'s NSFW Mochi Repo||NSFW modules for Mochi||https://upload.wikimedia.org/wikipedia/commons/f/f8/Stylized_uwu_emoticon.svg',
     name: 'hanime',
-    version: '0.0.1',
+    version: '0.1.0',
     icon: "https://hanime.tv/favicon.png"
   }
 
   async searchFilters(): Promise<SearchFilter[]> {
-    // TODO
-    return [];
+    while (isTesting() && filters.length == 0) {
+      await sleep(10);
+    }
+    return filters;
   }
 
   async search(query: SearchQuery): Promise<Paging<Playlist>> {
-    // TODO
+    // Unwrap the "order by/ordering" tags
+    const orderByToProcessIndex = query.filters.findIndex(element => element.id === "order_by_to_process");
+    if (orderByToProcessIndex !== -1) {
+      // Value required and no multiselect, we can index 0 everywhere.
+      const jsonOrderValues = JSON.parse(query.filters.splice(orderByToProcessIndex, 1)[0].optionIds[0]);
+      query.filters.push({id: "order_by", optionIds: [jsonOrderValues["order_by"]]} satisfies SearchQueryFilter)
+      query.filters.push({id: "ordering", optionIds: [jsonOrderValues["ordering"]]} satisfies SearchQueryFilter)
+    }
+
+    const currentPage = query.page ?? "0";
+    const currentPageInt = parseInt(currentPage);
+
+    const basePayload = {
+      search_text: query.query,
+      tags: [],
+      tags_mode: "OR",
+      brands: [],
+      blacklist: [],
+      order_by: "created_at_unix",
+      ordering: "desc",
+      page: currentPage
+    }
+    // If default value is an array, add to array
+    // Otherwise, replace value
+    for (const filter of query.filters) {
+      const defaultValue = basePayload[filter.id];
+      if (Array.isArray(defaultValue)) {
+        filter.optionIds.forEach(optionId => {
+          basePayload[filter.id].push(optionId);
+        });
+      } else {
+        basePayload[filter.id] = filter.optionIds[0];
+      }
+    }
+     
+    const response = await request.post("https://search.htv-services.com/", {body: JSON.stringify(basePayload), headers: {"Content-Type": "application/json"}});
+    const searchResult: SearchResult = response.json();
+        
+    const prevPage = (currentPage=="0") ? undefined : (currentPageInt-1).toString();
+    const nextPage = (searchResult.nbPages > currentPageInt) ? (currentPageInt+1).toString() : undefined;
+
+    const items: Playlist[] = []
+    if (searchResult.hits.length > 0) {
+      const listingData: HentaiVideo[] = JSON.parse(searchResult.hits)
+      for (const listing of listingData) {
+        items.push({
+          id: listing.slug.replace(/-\d+$/, "-1"),
+          title: listing.name.replace(/ \d+$/, ""),
+          posterImage: listing.cover_url,
+          bannerImage: listing.poster_url,
+          url: listing.slug,
+          status: PlaylistStatus.unknown,
+          type: PlaylistType.video
+        } satisfies Playlist)
+      }
+    }
+    
     return {
-      id: "0",
-      items: []
+      id: currentPage,
+      previousPage: prevPage,
+      nextPage: nextPage,
+      title: `Search for ${query.query} - page ${currentPageInt+1}`,
+      items
     }
   }
 
   
   async discoverListings(): Promise<DiscoverListing[]> {
+    scrapeFilters()
     const html = await request.get(baseUrl).then(resp => resp.text());
     const jsonRes: PageMeta = JSON.parse(html.match(nuxtJsonRegex)![1]);
 
@@ -101,8 +168,12 @@ export default class Hstream extends SourceModule implements VideoContent {
   async playlistDetails(id: string): Promise<PlaylistDetails> {
     const html = await request.get(baseVideoUrl + "/" + id).then(resp => resp.text())
     const jsonRes: PageMeta = JSON.parse(html.match(nuxtJsonRegex)![1]);
-
+    
+    // console.log(JSON.stringify(jsonRes.state.data));
+    
     const videoData = jsonRes.state.data.video;
+    console.log(JSON.stringify(videoData));
+    
     const hentaiVideo = videoData.hentai_video;
 
     const synopsis = hentaiVideo.description ? load(hentaiVideo.description).text() : undefined;

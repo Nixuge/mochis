@@ -7,21 +7,25 @@ logEnabled(true)
 
 const source = runner(Source)
 
-// test("provides discover listings", async () => {
-//   log((await source.discoverListings())[0]["paging"])
-// })
+test("provides discover listings", async () => {
+  log((await source.discoverListings())[0]["paging"])
+})
 
 
 // test("provides correct search info", async () => {
-//   log(await source.search({ query: "hxh", page: "1", filters: [] }))
+//   log(await source.search({ query: "f", page: "0", filters: [] }))
 // })
 
-
-
-
-test("provides playlist details", async () => {
-  console.log(await source.playlistDetails("tenioha-2-limit-over-mada-mada-ippai-ecchi-shiyo-2"))
+test("provides correct search info", async () => {
+  log(await source.searchFilters())
 })
+
+
+
+
+// test("provides playlist details", async () => {
+//   console.log(await source.playlistDetails("tenioha-2-limit-over-mada-mada-ippai-ecchi-shiyo-2"))
+// })
 
 // test("gets the episode count", async() => {
 //   log((await source.playlistEpisodes("sakusei-byoutou-1"))[0]["variants"]![0]["pagings"]![0]["items"]);
