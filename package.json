@@ -12,7 +12,7 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
-    "@mochiapp/js": "^0.0.2",
+    "@mochiapp/js": "github:danielbady/js#main",
     "@types/crypto-js": "^4.2.1",
     "cheerio": "^1.0.0-rc.12",
     "crypto-js": "^4.2.0",
