@@ -1,4 +1,4 @@
-import { DiscoverListingOrientationType, DiscoverListingType, PlaylistGroup, PlaylistGroupVariant, } from '@mochiapp/js/src/interfaces/source/types';
+import { PlaylistGroup, PlaylistGroupVariant, } from '@mochiapp/js/src/interfaces/source/types';
 
 import type {
   DiscoverListing,
@@ -40,7 +40,7 @@ export default class Source extends SourceModule implements VideoContent {
   metadata = {
     id: 'aniwave',
     name: 'Aniwave',
-    version: '0.3.7',
+    version: '0.3.8',
     icon: "https://s2.bunnycdn.ru/assets/sites/aniwave/favicon1.png"
   }
 
@@ -163,8 +163,10 @@ export default class Source extends SourceModule implements VideoContent {
 
         // the "title" attribute on the lis has all the properties to grab sub/dub/softsub
         let episodeReleaseDate: string | undefined = undefined;
-        let variantReleaseDates: string | IterableIterator<RegExpMatchArray> | undefined = inScraper.attr("title");
-        variantReleaseDates = variantReleaseDates?.matchAll(/- ([a-zA-Z]*?): ([0-9]{4}\/[0-9]{2}\/[0-9]{2} [0-9]{2}:[0-9]{2} .*?) /g)!;
+        let variantReleaseDatesRaw: string | undefined = inScraper.attr("title");
+        // Note: this is kinda wonky lmao
+        // See on regex101 for what this does exactly.
+        const variantReleaseDates: IterableIterator<RegExpMatchArray> = variantReleaseDatesRaw?.matchAll(/- ([a-zA-Z]*?): ([0-9]{4}\/[0-9]{2}\/[0-9]{2} [0-9]{2}:[0-9]{2} .*?)( |$)/g)!;
 
         
         for (let match of variantReleaseDates) {
@@ -197,6 +199,7 @@ export default class Source extends SourceModule implements VideoContent {
     })
     return [answer];
   }
+
   async playlistEpisodeSources(req: PlaylistEpisodeSourcesRequest): Promise<PlaylistEpisodeSource[]> {
     const [episodeId, variantType] = req.episodeId.split(" | ");
     
