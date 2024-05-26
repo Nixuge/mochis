@@ -11,13 +11,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Use Node.js
+      - name: Use Bun
         uses: oven-sh/setup-bun@v1
 
       # - run: corepack enable
       # - run: corepack prepare bun@latest --activate
 
-      - name: Install
+      - name: Install packages
         run: bun install --no-frozen-lockfile
       
       - name: Build DanielBady's JS
@@ -33,7 +33,7 @@ jobs:
           done
 
       - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v2
+        uses: actions/upload-pages-artifact@v3
         with:
           path: "./dist"
 
@@ -52,4 +52,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v2
+        uses: actions/deploy-pages@v4
