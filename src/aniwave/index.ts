@@ -40,7 +40,7 @@ export default class Source extends SourceModule implements VideoContent {
   metadata = {
     id: 'aniwave',
     name: 'Aniwave',
-    version: '0.3.8',
+    version: '0.3.9',
     icon: "https://s2.bunnycdn.ru/assets/sites/aniwave/favicon1.png"
   }
 
@@ -159,7 +159,7 @@ export default class Source extends SourceModule implements VideoContent {
         const episodeNum = parseInt(inScraper.find("a").attr("data-num")!);
         // episode title
         const titleDiv = inScraper.find("a").find("span.d-title");
-        const episodeTitle = (titleDiv.text()) ? titleDiv.text() : undefined;
+        let episodeTitle = (titleDiv.text()) ? titleDiv.text() : undefined;
 
         // the "title" attribute on the lis has all the properties to grab sub/dub/softsub
         let episodeReleaseDate: string | undefined = undefined;
@@ -167,6 +167,13 @@ export default class Source extends SourceModule implements VideoContent {
         // Note: this is kinda wonky lmao
         // See on regex101 for what this does exactly.
         const variantReleaseDates: IterableIterator<RegExpMatchArray> = variantReleaseDatesRaw?.matchAll(/- ([a-zA-Z]*?): ([0-9]{4}\/[0-9]{2}\/[0-9]{2} [0-9]{2}:[0-9]{2} .*?)( |$)/g)!;
+
+        // variantReleaseDatesRaw string also includes this if the episode is a filler
+        if (variantReleaseDatesRaw?.includes("** Filler Episode **")) {
+          episodeTitle = (episodeTitle == undefined)?
+            `[F] Episode ${episodeNum}` :
+            `[F] ${episodeTitle}`
+        }
 
         
         for (let match of variantReleaseDates) {

@@ -3,7 +3,7 @@ import runner from "@mochiapp/runner";
 import Source from "../src/aniwave";
 
 import { log, logEnabled } from "./utils/log"
-logEnabled(true)
+logEnabled(false)
 
 const source = runner(Source)
 
