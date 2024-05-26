@@ -22,6 +22,7 @@ import {
   PlaylistStatus,
   PlaylistType,
   SourceModule,
+  StatusError,
   VideoContent
 } from '@mochiapp/js/dist';
 import { PaheAiringRequest, PaheRelease } from './models/types';
@@ -38,7 +39,7 @@ export default class Source extends SourceModule implements VideoContent {
   metadata = {
     id: 'animepahe',
     name: 'AnimePahe',
-    version: '0.1.16',
+    version: '0.1.17',
     icon: "https://animepahe.com/pikacon.ico"
   }
 
@@ -47,9 +48,14 @@ export default class Source extends SourceModule implements VideoContent {
   }
   async discoverListings(listingRequest?: DiscoverListingsRequest | undefined): Promise<DiscoverListing[]> {
     // Note: https://animepahe.ru/anime has EVERY anime listed in 1 request, could maybe use that idk.
-    const url = listingRequest ? listingRequest.page : "https://animepahe.ru/api?m=airing&page=1";
-    
-    const json: PaheAiringRequest = await request.get(url).then(resp => resp.json());
+    const url = listingRequest ? listingRequest.page : `${baseUrl}/api?m=airing&page=1`;
+    const response = await request.get(url)
+    if (response.status == 403) {
+      throw new StatusError(403, "Blocked by DDoS-Guard.", response.text(), baseUrl);
+    }
+
+    const json: PaheAiringRequest = response.json();
+
     if (!json.data)
       return [];
     const items: Playlist[] = json.data.map((anime) => {
