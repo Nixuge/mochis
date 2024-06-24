@@ -7,9 +7,10 @@ logEnabled(true)
 
 const source = runner(Source)
 
-// test("provides discover listings", async () => {
-//   log((await source.discoverListings()))
-// })
+test("provides discover listings", async () => {
+  log((await source.discoverListings()))
+  // (await source.discoverListings())
+})
 
 
 // test("provides correct search info", async () => {
@@ -35,6 +36,6 @@ let episodeId: string = ""
 //   log(JSON.stringify(await source.playlistEpisodeSources({playlistId: "0", episodeId: episodeId})))
 // })
 
-test("gets an episode server", async() => {
-  log(JSON.stringify(await source.playlistEpisodeServer({playlistId: "a", episodeId: "b", sourceId:"c", serverId:"https://vk.com/video_ext.php?oid=755747641&id=456240187&hd=3"})))
-}, {timeout: 15000})
+// test("gets an episode server", async() => {
+//   log(JSON.stringify(await source.playlistEpisodeServer({playlistId: "a", episodeId: "b", sourceId:"c", serverId:"https://vk.com/video_ext.php?oid=755747641&id=456240187&hd=3"})))
+// }, {timeout: 15000})
