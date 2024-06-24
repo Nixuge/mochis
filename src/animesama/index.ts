@@ -35,7 +35,7 @@ export default class Source extends SourceModule implements VideoContent {
   metadata = {
     id: 'animesama',
     name: 'Anime-Sama',
-    version: '0.2.7',
+    version: '0.2.8',
     icon: "https://cdn.statically.io/gh/Anime-Sama/IMG/img/autres/logo.png"
   }
 
