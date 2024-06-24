@@ -1,11 +1,6 @@
-import { DiscoverListingOrientationType, DiscoverListingType, DiscoverListingsRequest, FetchedPaging, MochiResponse, PlaylistGroup, PlaylistGroupVariant, PlaylistItem, PlaylistItemsOptionFetchPage, PlaylistItemsOptions, PlaylistStatus, PlaylistType } from "@mochiapp/js/dist"
-import { Paging } from "@mochiapp/js/src/common/types"
-import { DiscoverListing, Playlist } from "@mochiapp/js/src/interfaces/source/types"
-import { Cheerio, CheerioAPI, Element, load } from "cheerio"
-import { bannerRes, baseUrl } from "../utils/constants";
-import { scrapeItemsBlock } from "./item";
-import { genericPlaylistDetails } from "./details";
-
+import { FetchedPaging, PlaylistGroup, PlaylistGroupVariant, PlaylistItem, PlaylistItemsOptions } from "@mochiapp/js/dist"
+import {load } from "cheerio"
+import { baseUrl } from "../utils/constants";
 export class EpisodesScraper {
   private url: string;
   private playlistId: string;
