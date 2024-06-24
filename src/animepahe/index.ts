@@ -39,8 +39,8 @@ export default class Source extends SourceModule implements VideoContent {
   metadata = {
     id: 'animepahe',
     name: 'AnimePahe',
-    version: '0.1.18',
-    icon: "https://animepahe.com/pikacon.ico"
+    version: '0.1.19',
+    icon: "https://animepahe.ru/pikacon.ico"
   }
 
   async searchFilters(): Promise<SearchFilter[]> {
