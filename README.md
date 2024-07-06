@@ -1,15 +1,17 @@
-# mochi
+# Mochis
+A repo containing some (mostly anime but not only) modules for Mochi, an iOS/macOS media viewer.
 
-To install dependencies:
+# How to install
+- Add `https://mochi.nixuge.me` to Mochi
+- Install the modules you need
+- Done
 
-```bash
-bun install
-```
+# Building
+Due to the fact that Mochi's been abandonned by its original dev (Erik), some dependencies are only updated on some forks, making building a bit finnicky
 
-To run:
+For those step, i assume you're using `bun` on Linux, but you can adapt those to use npm or something else
 
-```bash
-bun run index.ts
-```
-
-This project was created using `bun init` in bun v1.0.18. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
+- Install dependencies by running `bun install`
+- Build the forked @mochiapp/js from danielbady (should've been git cloned automatically in the previous step) by running `(cd node_modules/@mochiapp/js && bun run build)`
+- Bundle using `bun bundle`
+- All done, your built repo should be under the `./dist/` folder
