@@ -4,6 +4,9 @@ import { load } from "cheerio";
 export let filters: SearchFilter[] = []
 
 export async function loadFilters() {
+    if (filters.length > 0)
+        return;
+    
     const html = await request.get("https://flixhq.to/search/hunter-x-hunter").then(resp => resp.text());
     const $ = load(html);
 

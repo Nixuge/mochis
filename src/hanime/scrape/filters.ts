@@ -2,6 +2,9 @@ import { SearchFilter, SearchFilterOption } from "@mochiapp/js/dist";
 import { FilterScrape } from "../models/filter";
 
 export async function scrapeFilters() {
+    if (filters.length > 0)
+        return;
+    
     // Note: this is quite dirty lmao
     const rawHanimeJs = await request.get("https://hanime.tv/dist/774702ea5de712d430ef.js");
     
