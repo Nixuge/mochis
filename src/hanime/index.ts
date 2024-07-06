@@ -34,7 +34,7 @@ export default class Hstream extends SourceModule implements VideoContent {
   metadata = {
     id: 'hanime||NSFW||Nixuge\'s NSFW Mochi Repo||NSFW modules for Mochi||https://upload.wikimedia.org/wikipedia/commons/f/f8/Stylized_uwu_emoticon.svg',
     name: 'hanime',
-    version: '0.1.0',
+    version: '0.1.1',
     icon: "https://hanime.tv/favicon.png"
   }
 
