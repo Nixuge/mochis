@@ -2,6 +2,9 @@ import { SearchFilter, SearchFilterOption } from "@mochiapp/js/dist";
 import { load } from "cheerio";
 
 export async function scrapeFilters() {
+    if (filters.length > 0)
+        return;
+    
     const html = await request.get("https://aniwave.to/filter").then(resp => resp.text())
     const $ = load(html);
     // 3 special cases:

@@ -147,7 +147,7 @@ export class HomeScraper {
         const itemRef = $(item);
         
         const url = itemRef.attr("href")!;
-        const posterImage = itemRef.find("div.poster span img").attr("src")?.replace("-w100", "-w9999"); // higher quality
+        const posterImage = itemRef.find("div.poster span img").attr("src")?.replace("@100.jpg", "@1000.jpg"); // higher quality        
         
         const title = itemRef.find("div.info div.name.d-title").text()
 

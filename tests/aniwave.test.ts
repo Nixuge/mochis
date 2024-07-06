@@ -3,12 +3,12 @@ import runner from "@mochiapp/runner";
 import Source from "../src/aniwave";
 
 import { log, logEnabled } from "./utils/log"
-logEnabled(false)
+// logEnabled(true)
 
 const source = runner(Source)
 
 // test("provides correct search info", async () => {
-//   console.log(await source.search({ query: "pokemon", page: "1", filters: [] }))
+//   log(await source.search({ query: "pokemon", page: "1", filters: [] }))
 // })
 
 // test("provides discover listings", async () => {
@@ -23,9 +23,9 @@ const source = runner(Source)
 //   console.log(await source.playlistDetails("/watch/pokemon.r9vq/ep-1"))
 // })
 
-test("gets the episode count", async() => {
-  log(JSON.stringify(await source.playlistEpisodes("/watch/pokemon.r9vq/ep-1")))
-})
+// test("gets the episode count", async() => {
+//   log(JSON.stringify(await source.playlistEpisodes("/watch/pokemon.r9vq/ep-1")))
+// })
 // test("gets the episode count", async() => {
 //   JSON.stringify(await source.playlistEpisodes("/watch/boushoku-no-berserk-ore-dake-reberu-to-iu-gainen-wo-toppa-suru.ojll4/ep-1"))
 // })
