@@ -61,7 +61,7 @@ export class HomeScraper {
     private scrapeHotest(): DiscoverListing {
         const $ = this.$;
 
-        const swiper = $(".swiper-wrapper .swiper-slide.item");
+        const swiper = $("#hotest .swiper-wrapper .swiper-slide.item");
         const hotestItems = swiper.map((i, anime) => {
             const animeRef = $(anime)
             const title = animeRef.find("h2.title.d-title").text()
