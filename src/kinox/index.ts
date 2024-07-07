@@ -37,8 +37,8 @@ export default class Kinox extends SourceModule implements VideoContent {
   metadata = {
     id: 'kinox',
     name: 'kinox.to',
-    version: '0.2.1',
-    icon: `${baseURL}/gr/favicon.ico`
+    version: '0.2.2',
+    icon: `https://i0.wp.com/androidmag.de/wp-content/uploads/2014/08/kinox_to_icon.png`
   }
 
   async searchFilters(): Promise<SearchFilter[]> {
