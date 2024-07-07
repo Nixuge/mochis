@@ -23,10 +23,10 @@ import {
 import { getUrlInfo, getPlaylistImages, convertPosterSize, sanitizeHtml } from "./utils";
 import * as cheerio from "cheerio";
 import { scrapeAvailableLanguages, scrapeGenres, scrapeGroups, scrapeSynopsis } from "./scraper";
-import { getM3u8Qualities } from "../shared/utils/m3u8";
 import { VoeE } from "../shared/extractors/voe";
 import { ISource } from "../shared/models/types";
 import { VidozaE } from "../shared/extractors/vidoza";
+import { StreamtapeE } from "../shared/extractors/streamtape";
 
 // very ugly hack to change BASE_URL
 // this is needed bc mochi js implementation cannot read class properties
@@ -47,7 +47,7 @@ export default class AniWorld extends SourceModule implements VideoContent {
     name: "AniWorld (@dominik)",
     description: "Almost all credits to @d9menik for this.",
     icon: `${BASE_URL}/favicon.ico`,
-    version: '1.1.3',
+    version: '1.1.4',
   };
 
   constructor(baseUrl?: string) {
@@ -214,11 +214,13 @@ export default class AniWorld extends SourceModule implements VideoContent {
   async playlistEpisodeServer(req: PlaylistEpisodeServerRequest): Promise<PlaylistEpisodeServerResponse> {
     const { serverId: _serverId } = req;
     const [serverId, redirectId] = _serverId.split("/");
-
-    const content = await request.get(
-      `${BASE_URL}/redirect/${redirectId}`,
-      {headers: {"User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_5_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1"}}
-    ).then(resp => resp.text());
+    
+    const resp = await request.get(
+      `${BASE_URL}/redirect/${redirectId}`
+    );
+    const content = resp.text();
+    // For some obscure reason this thing DOES NOT SPIT OUT THE REDIRECTED URL.
+    
     
     let source: ISource;
     if (serverId == "voe") {
@@ -227,6 +229,8 @@ export default class AniWorld extends SourceModule implements VideoContent {
       source = await new VoeE(redirectId, content).extract()
     } else if (serverId == "vidoza") {
       source = await new VidozaE(redirectId, content).extract()
+    } else if (serverId == "streamtape") {
+      source = await new StreamtapeE(redirectId, content).extract()
     } else {
       console.error(redirectId);
       throw Error("Unimplemented server.")
