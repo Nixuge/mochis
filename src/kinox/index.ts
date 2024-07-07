@@ -19,6 +19,7 @@ import {
   SearchFilter,
   SearchQuery,
   SourceModule,
+  StatusError,
   VideoContent
 } from "@mochiapp/js";
 import { load } from "cheerio";
@@ -36,7 +37,7 @@ export default class Kinox extends SourceModule implements VideoContent {
   metadata = {
     id: 'kinox',
     name: 'kinox.to',
-    version: '0.1.0',
+    version: '0.1.1',
     icon: `${baseURL}/gr/favicon.ico`
   }
 
@@ -76,8 +77,12 @@ export default class Kinox extends SourceModule implements VideoContent {
   }
 
   async discoverListings(): Promise<DiscoverListing[]> {
-    const html = await request.get(baseURL).then(resp => resp.text());
-    const $ = load(html);
+    const response = await request.get(baseURL);
+    if (response.status == 403) {
+      throw new StatusError(403, "Blocked by Cloudflare.", response.text(), baseURL);
+    }
+    
+    const $ = load(response.text());
     const tables: DiscoverListing[] = $("div.ModuleHead.mHead").map((i, head) => {
       if (i == 0)
         return undefined; // First "news" tab, ignore lmao
