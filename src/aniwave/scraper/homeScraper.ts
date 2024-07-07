@@ -103,7 +103,7 @@ export class HomeScraper {
           const animeRef = $(anime);
           const titleElem = animeRef.find("a.name.d-title");
           const title = titleElem.text();
-          const url = titleElem.attr("href")!;
+          let url = titleElem.attr("href")!.split("/").splice(0, 3).join("/"); // remove the /ep-x at the end
           const image = animeRef.find("div.ani.poster > a > img").attr("src");      
           return {
             id: url,
