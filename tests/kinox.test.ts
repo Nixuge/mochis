@@ -42,12 +42,21 @@ const source = runner(Source)
 //   log(JSON.stringify(await source.playlistEpisodeSources({playlistId: "", episodeId: "/Stream/Aquaman_2_Lost_Kingdom-Neueste_Version-Gute_Qualitaet.html"})))
 // })
 
+// test("gets an episode server (Movie)", async() => {
+//   log(JSON.stringify(await source.playlistEpisodeServer({
+//     playlistId: "/Stream/Aquaman_2_Lost_Kingdom-Neueste_Version-Gute_Qualitaet.html", 
+//     episodeId: "/Stream/Aquaman_2_Lost_Kingdom-Neueste_Version-Gute_Qualitaet.html", 
+//     sourceId: "Kinox",
+//     serverId: "Aquaman_2_Lost_Kingdom-Neueste_Version-Gute_Qualitaet&Hoster=73"
+//   })))
+// })
+
 test("gets an episode server (Movie)", async() => {
   log(JSON.stringify(await source.playlistEpisodeServer({
-    playlistId: "/Stream/Aquaman_2_Lost_Kingdom-Neueste_Version-Gute_Qualitaet.html", 
-    episodeId: "/Stream/Aquaman_2_Lost_Kingdom-Neueste_Version-Gute_Qualitaet.html", 
+    playlistId: "/Stream/Despicable_Me_4.html", 
+    episodeId: "/Stream/Despicable_Me_4.html", 
     sourceId: "Kinox",
-    serverId: "Aquaman_2_Lost_Kingdom-Neueste_Version-Gute_Qualitaet&Hoster=73"
+    serverId: "Despicable_Me_4&Hoster=102"
   })))
 })
 

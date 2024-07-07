@@ -1,5 +1,5 @@
 import { VideoExtractor } from '../../shared/models/Iextractor';
-import { ISource, IVideo } from '../../shared/models/types';
+import { ISource } from '../../shared/models/types';
 
 export class VidozaE extends VideoExtractor {
   protected override serverName = 'vidoza';
