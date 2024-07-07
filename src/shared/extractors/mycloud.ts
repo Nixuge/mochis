@@ -91,7 +91,7 @@ async function attemptDecodingSelenium(url: string) {
 }
 // SELENIUM DECRYPTION END //
 
-// Note: this is named mycloud but works for both mycloud & vidplay
+// Note: this is named mycloud but works for both mycloud & vidplay (now named vidstream & megaf)
 export class MyCloudE extends VideoExtractor {
   protected override serverName = 'mycloud';
 
@@ -99,9 +99,12 @@ export class MyCloudE extends VideoExtractor {
     const url = this.referer;
     
     // Note:
-    // Server side is handling more things than previously.
-    // If I want to reverse to how it was done before, check commit before (including) this one:
-    // https://github.com/Nixuge/mochis/commit/ce615f9ff486ec82b01dcdcb8e6d08a987871d8d
+    // There are 3 major iterations of this extractor:
+    // - before (including) commit https://github.com/Nixuge/mochis/commit/ce615f9ff486ec82b01dcdcb8e6d08a987871d8d, where things are handled in a good part server side but using keys extracted myself.
+    // - before (including) commit https://github.com/Nixuge/mochis/commit/e30e87e5e9c56bd767bc1e3af3454903fcad2295, where things were only almost all handled using a browser on the server side (basically a hotfix done in haste because I didn't have a lot of time).
+    // - after (including) commit https://github.com/Nixuge/mochis/commit/50d28ceb78e960baadf8c9aa0ece2a8a9fef22a9, where third party keys are used for faster loading, still with the browser fallback from the previous commits.
+    // 
+    // If possible in the future should setup my own key extractor for better stability
 
     let mediaInfo: IMediaInfo;
     try {
