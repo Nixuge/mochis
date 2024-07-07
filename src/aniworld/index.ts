@@ -27,6 +27,7 @@ import { VoeE } from "../shared/extractors/voe";
 import { ISource } from "../shared/models/types";
 import { VidozaE } from "../shared/extractors/vidoza";
 import { StreamtapeE } from "../shared/extractors/streamtape";
+import { SAFARI_USER_AGENT } from "../shared/utils/userAgent";
 
 // very ugly hack to change BASE_URL
 // this is needed bc mochi js implementation cannot read class properties
@@ -47,7 +48,7 @@ export default class AniWorld extends SourceModule implements VideoContent {
     name: "AniWorld (@dominik)",
     description: "Almost all credits to @d9menik for this.",
     icon: `${BASE_URL}/favicon.ico`,
-    version: '1.1.4',
+    version: '1.1.6',
   };
 
   constructor(baseUrl?: string) {
@@ -216,7 +217,8 @@ export default class AniWorld extends SourceModule implements VideoContent {
     const [serverId, redirectId] = _serverId.split("/");
     
     const resp = await request.get(
-      `${BASE_URL}/redirect/${redirectId}`
+      `${BASE_URL}/redirect/${redirectId}`,
+      {headers: {"User-Agent": SAFARI_USER_AGENT}} // Seems to flag CF less (especially for streamtape)
     );
     const content = resp.text();
     // For some obscure reason this thing DOES NOT SPIT OUT THE REDIRECTED URL.

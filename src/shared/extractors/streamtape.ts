@@ -7,7 +7,6 @@ export class StreamtapeE extends VideoExtractor {
 
   override extract = async (): Promise<ISource> => {
     const html = this.htmlContent;
-    const baseDomain = this.referer.split("/").slice(0, 3).join("/");
     
     // Should always be right with "botlink" as this is what the player itself gets the url from.
     let videoUrl = dynamicEval(html.match(/document\.getElementById\('botlink'\)\.innerHTML = (.*?;)/s)![1]);
