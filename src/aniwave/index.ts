@@ -34,13 +34,14 @@ import { BASENAME, AJAX_BASENAME } from './utils/variables';
 import { filters, scrapeFilters } from './scraper/filters';
 import { isTesting } from '../shared/utils/isTesting';
 import { sleep } from '../shared/utils/sleep';
+import { scrapeEpisodes, scrapeSeasonsDiv } from './scraper/episodesScraper';
 
 
 export default class Source extends SourceModule implements VideoContent {
   metadata = {
     id: 'aniwave',
     name: 'Aniwave',
-    version: '0.4.1',
+    version: '0.5.0',
     icon: "https://s2.bunnycdn.ru/assets/sites/aniwave/favicon1.png"
   }
 
@@ -50,8 +51,7 @@ export default class Source extends SourceModule implements VideoContent {
   }
 
   async playlistDetails(id: string): Promise<PlaylistDetails> {
-    const watch = id.startsWith("/watch/") ? "" : "/watch/";
-    const fullUrl = `${BASENAME}${watch}${id}`;
+    const fullUrl = `${BASENAME}${id}`;
     const html = await request.get(fullUrl);
 
     const $ = load(html.text());
@@ -96,115 +96,34 @@ export default class Source extends SourceModule implements VideoContent {
   }
 
   async playlistEpisodes(playlistId: string, options?: PlaylistItemsOptions | undefined): Promise<PlaylistItemsResponse> {
-    const watch = playlistId.startsWith("/watch/") ? "" : "/watch/"
-    const fullUrl = `${BASENAME}${watch}${playlistId}`
-    
-    const html = await request.get(fullUrl);
-    if (html.text().includes("<title>WAF</title>")) {
-      console.error("Seems like you're getting captcha'd. Unfortunately I can't do much about it. Retry later/change your ip.");
-      return [];
+    // If grabbing another season, just grab that one
+    if (options != null) {
+      if (options.type != "group")
+        throw Error("How did you even end up here ?")
+      const currentSeasonEpisodes = (await scrapeEpisodes(options.groupId))!;
+      return [currentSeasonEpisodes];
     }
     
-    const $ = load(html.text());
-    const data_id = $("div#watch-main").attr("data-id");
+    // Otherwise, grab it & check for the all seasons slider
+    const currentSeasonEpisodes = (await scrapeEpisodes(playlistId))!;
+    const allSeasons = await scrapeSeasonsDiv(playlistId);
 
-    // @ts-ignore
-    const url = `${AJAX_BASENAME}/episode/list/${data_id}?vrf=${getVrf(parseInt(data_id))}`
-    console.log("url: " + url);
+    // If only one, obv return that one only
+    if (allSeasons.length == 0)
+      return [currentSeasonEpisodes];
     
-    let episodesHtml;
-    try {
-      // @ts-ignore
-      episodesHtml = (await request.get(url, {headers: {"x-requested-with": "XMLHttpRequest"}})).json()["result"]      
-    } catch(e) {
-      console.error("If you see this, there's an issue.");
-      return [];
+    // Otherwise add its episode data in there.
+    // Could also just do allSeasons in there & do the rest in other func calls after,
+    // but doing it that way saves one whole request (which is pretty nice since its for the initial load).
+    for (const season of allSeasons) {
+      if (season.id == currentSeasonEpisodes.id) {
+        season.variants = currentSeasonEpisodes.variants;
+        season.default = true;
+        break;
+      }
     }
-    const $$ = load(episodesHtml);
     
-    // Note:
-    // This *technically* isn't always correct, eg if a sub has 12 eps and a dub only 2, it'll always show 1-12 even for the dub variant.
-    // However, the amount of logic required to avoid this thing is way greater than any benefit, for now it's staying as is
-    const episodeCounts = $$(".dropdown.filter.range .dropdown-menu .dropdown-item");
-    const firstEpisode = parseInt(episodeCounts.first().text().split("-")[0]);
-    const lastEpisode = parseInt(episodeCounts.last().text().split("-")[1]);
-    const allEpisodes = `${firstEpisode}-${lastEpisode}`;
-    
-    const answer: PlaylistGroup = {
-      id: playlistId,
-      number: 1, // not much way to reliably grab this
-      variants: []
-    }
-
-    function makeDummyVariantObject(type: string) {
-      return {
-        id: type.toLowerCase(),
-        title: type,
-        pagings: [
-          {
-            id: allEpisodes,
-            title: allEpisodes,
-            items: []
-          }
-        ]
-
-      } satisfies PlaylistGroupVariant
-    }
-
-    $$("li").map((i, li) => {
-        const inScraper = $$(li);
-        // data ids needed for next step
-        const dataIds = inScraper.find("a").attr("data-ids")!;                
-        // episode number
-        const episodeNum = parseInt(inScraper.find("a").attr("data-num")!);
-        // episode title
-        const titleDiv = inScraper.find("a").find("span.d-title");
-        let episodeTitle = (titleDiv.text()) ? titleDiv.text() : undefined;
-
-        // the "title" attribute on the lis has all the properties to grab sub/dub/softsub
-        let episodeReleaseDate: string | undefined = undefined;
-        let variantReleaseDatesRaw: string | undefined = inScraper.attr("title");
-        // Note: this is kinda wonky lmao
-        // See on regex101 for what this does exactly.
-        const variantReleaseDates: IterableIterator<RegExpMatchArray> = variantReleaseDatesRaw?.matchAll(/- ([a-zA-Z]*?): ([0-9]{4}\/[0-9]{2}\/[0-9]{2} [0-9]{2}:[0-9]{2} .*?)( |$)/g)!;
-
-        // variantReleaseDatesRaw string also includes this if the episode is a filler
-        if (variantReleaseDatesRaw?.includes("** Filler Episode **")) {
-          episodeTitle = (episodeTitle == undefined)?
-            `[F] Episode ${episodeNum}` :
-            `[F] ${episodeTitle}`
-        }
-
-        
-        for (let match of variantReleaseDates) {
-          const variantType = match[1];
-          if (variantType == "Release") {
-            episodeReleaseDate = match[2]; // SHOULD work (should)
-            continue;
-          }
-          // Never happens, but makes the compiler happy
-          if (answer.variants == undefined)
-            answer.variants = [];
-          
-          // get playlist group for variantType
-          let playlistGroup: PlaylistGroupVariant | undefined = undefined;
-          const playlistGroups = answer.variants.filter(variant => variant.title == variantType);
-          if (playlistGroups.length == 0) {
-            playlistGroup = makeDummyVariantObject(variantType);
-            answer.variants.push(playlistGroup)
-          } else {
-            playlistGroup = playlistGroups[0];
-          }
-          playlistGroup.pagings?.[0].items?.push({
-            id: dataIds + " | " + variantType.toLowerCase(), // kinda dirty but idk how else to pass data through to the next step
-            title: episodeTitle,
-            number: episodeNum,
-            timestamp: episodeReleaseDate as unknown as Date,
-            tags: []
-          } satisfies PlaylistItem)
-        }
-    })
-    return [answer];
+    return allSeasons;
   }
 
   async playlistEpisodeSources(req: PlaylistEpisodeSourcesRequest): Promise<PlaylistEpisodeSource[]> {
