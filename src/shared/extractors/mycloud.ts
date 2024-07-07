@@ -4,6 +4,7 @@ import { getM3u8Qualities } from '../utils/m3u8';
 import { IRawTrackMedia, parseSubtitles } from '../utils/subtitles';
 import { rc4Cypher } from '../utils/aniwave/rc4';
 import { b64encode } from '../utils/aniwave/b64encode';
+import { PlaylistEpisodeServerSubtitleFormat } from '@mochiapp/js/dist';
 
 interface IMediaInfo {
   status: number,
@@ -125,7 +126,7 @@ export class MyCloudE extends VideoExtractor {
     
     const videos = await getM3u8Qualities(sourcesJson[0]["file"])
     
-    const subtitles = parseSubtitles(mediaInfo.result.tracks)
+    const subtitles = parseSubtitles(mediaInfo.result.tracks, PlaylistEpisodeServerSubtitleFormat.vtt, true)
 
     return {
       videos: videos,

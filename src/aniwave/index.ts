@@ -1,5 +1,3 @@
-import { PlaylistGroup, PlaylistGroupVariant, } from '@mochiapp/js/src/interfaces/source/types';
-
 import type {
   DiscoverListing,
   DiscoverListingsRequest,
@@ -12,7 +10,6 @@ import type {
   PlaylistEpisodeSourcesRequest,
   PlaylistItemsOptions,
   PlaylistItemsResponse,
-  PlaylistItem,
   SearchFilter,
   SearchQuery,
   PlaylistEpisodeServer,
@@ -41,7 +38,7 @@ export default class Source extends SourceModule implements VideoContent {
   metadata = {
     id: 'aniwave',
     name: 'Aniwave',
-    version: '0.6.0',
+    version: '0.6.1',
     icon: "https://s2.bunnycdn.ru/assets/sites/aniwave/favicon1.png"
   }
 

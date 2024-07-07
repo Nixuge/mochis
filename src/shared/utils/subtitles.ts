@@ -10,7 +10,7 @@ function isSubtitle(object: any): object is IRawTrackMedia {
     return "kind" in object && object["kind"] == "captions";
 }
 
-export function parseSubtitles(tracks: IRawTrackMedia[], format: PlaylistEpisodeServerSubtitleFormat = PlaylistEpisodeServerSubtitleFormat.vtt) {
+export function parseSubtitles(tracks: IRawTrackMedia[], format: PlaylistEpisodeServerSubtitleFormat = PlaylistEpisodeServerSubtitleFormat.vtt, offset?: boolean) {
     const subtitles: PlaylistEpisodeServerSubtitle[] = []
     for (const track of tracks) {
       if (!isSubtitle(track))
@@ -23,5 +23,12 @@ export function parseSubtitles(tracks: IRawTrackMedia[], format: PlaylistEpisode
         autoselect: track.default ?? false
       } satisfies PlaylistEpisodeServerSubtitle)
     }
+
+    if (offset) {
+      for (const sub of subtitles) {
+        sub.url = `https://adjust-vtt.vercel.app/api/adjust-vtt?vttUrl=${sub.url}&offset=1.5`
+      }
+    }
+
     return subtitles
 }
