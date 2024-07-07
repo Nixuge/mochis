@@ -1,6 +1,7 @@
 import { MochiResponse } from "@mochiapp/js/dist";
 import { RawVideoExtractor, VideoExtractor } from "./Iextractor";
 import { ISource, IVideo } from "./types";
+import { SAFARI_USER_AGENT } from "../utils/userAgent";
 
 function isVideoArray(obj: IVideo[] | ISource): obj is IVideo[] {
   return Array.isArray(obj);
@@ -31,7 +32,7 @@ export class UrlMatcher {
     let status: number = 0;
     let statusText: string = "";
     try {
-        req = await request.get(this.url);
+        req = await request.get(this.url, {headers: {"User-Agent": SAFARI_USER_AGENT}});
         status = req.status; statusText = req.statusText; // Mochi bad response code
     } catch(e) {
         // @ts-ignore
