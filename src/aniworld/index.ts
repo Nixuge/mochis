@@ -28,6 +28,8 @@ import { ISource } from "../shared/models/types";
 import { VidozaE } from "../shared/extractors/vidoza";
 import { StreamtapeE } from "../shared/extractors/streamtape";
 import { SAFARI_USER_AGENT } from "../shared/utils/userAgent";
+import { DoodE } from "../shared/extractors/dood";
+import { isTesting } from "../shared/utils/isTesting";
 
 // very ugly hack to change BASE_URL
 // this is needed bc mochi js implementation cannot read class properties
@@ -48,7 +50,7 @@ export default class AniWorld extends SourceModule implements VideoContent {
     name: "AniWorld (@dominik)",
     description: "Almost all credits to @d9menik for this.",
     icon: `${BASE_URL}/favicon.ico`,
-    version: '1.1.6',
+    version: '1.1.7',
   };
 
   constructor(baseUrl?: string) {
@@ -200,7 +202,7 @@ export default class AniWorld extends SourceModule implements VideoContent {
         const displayName = $(li).find("h4").text();
         return { id: `${displayName.toLowerCase()}/${id}`, displayName };
       })
-      // .filter(({ displayName }) => Object.keys(extractors).includes(displayName.toLowerCase())); // filter for supported servers
+      // .filter(({ displayName }) => displayName.toLowerCase() == "doodstream"); // filter for supported servers
 
     return [
       {
@@ -215,25 +217,38 @@ export default class AniWorld extends SourceModule implements VideoContent {
   async playlistEpisodeServer(req: PlaylistEpisodeServerRequest): Promise<PlaylistEpisodeServerResponse> {
     const { serverId: _serverId } = req;
     const [serverId, redirectId] = _serverId.split("/");
-    
+
+    const url = `${BASE_URL}/redirect/${redirectId}`;
+
     const resp = await request.get(
-      `${BASE_URL}/redirect/${redirectId}`,
-      {headers: {"User-Agent": SAFARI_USER_AGENT}} // Seems to flag CF less (especially for streamtape)
+      url, {headers: {"User-Agent": SAFARI_USER_AGENT}} // Seems to flag CF less (especially for streamtape)
     );
     const content = resp.text();
+    
     // For some obscure reason this thing DOES NOT SPIT OUT THE REDIRECTED URL.
-    
-    
+    // We try to get it using the response cookies in a dirty way.
+    let domain = redirectId;
+    try {
+      let cookieKey = isTesting() ? "set-cookie" : "Set-Cookie";
+
+      domain = resp.headers[cookieKey].match(/domain=\.(.*?);/s)![1];
+      domain = `https://${domain}/`;
+      console.log("Got domain: " + domain)
+    } catch(e) {
+      console.warn("Couldn't get domain. Things may go wrong.")
+    }
+
     let source: ISource;
     if (serverId == "voe") {
-      // Note: the redirectId is wrong here; this should be the full url
-      // but oh well, this usually gets redirected anyways, should be fine, only used for subs.
-      source = await new VoeE(redirectId, content).extract()
+      source = await new VoeE(domain, content).extract()
     } else if (serverId == "vidoza") {
-      source = await new VidozaE(redirectId, content).extract()
+      source = await new VidozaE(domain, content).extract()
     } else if (serverId == "streamtape") {
-      source = await new StreamtapeE(redirectId, content).extract()
+      source = await new StreamtapeE(domain, content).extract()
+    } else if (serverId == "doodstream") {
+      source = await new DoodE(domain, content).extract()
     } else {
+      console.error(serverId);
       console.error(redirectId);
       throw Error("Unimplemented server.")
     }
