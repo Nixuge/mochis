@@ -1,20 +1,25 @@
 import { VideoExtractor } from '../../shared/models/Iextractor';
-import { IVideo } from '../../shared/models/types';
+import { ISource } from '../../shared/models/types';
 import { dynamicEval } from '../../shared/utils/eval';
 
 export class StreamtapeE extends VideoExtractor {
   protected override serverName = 'streamtape';
 
-  override extract = async (): Promise<IVideo[]> => {
+  override extract = async (): Promise<ISource> => {
     const html = this.htmlContent;
     const baseDomain = this.referer.split("/").slice(0, 3).join("/");
-        
-    let videoUrl = dynamicEval(html.match(/document\.getElementById\('ideoooolink'\)\.innerHTML = (.*?)document/s)![1]);
-    videoUrl = `${baseDomain}/get_video?id=${videoUrl.split("?id=")[1]}`;
+    
+    // Should always be right with "botlink" as this is what the player itself gets the url from.
+    let videoUrl = dynamicEval(html.match(/document\.getElementById\('botlink'\)\.innerHTML = (.*?;)/s)![1]);
 
-    return [{
-      url: videoUrl,
-      isDASH: true
-    }]
+    if (videoUrl.startsWith("//"))
+      videoUrl = "https:" + videoUrl;
+    
+    return {
+      videos: [{
+        url: videoUrl,
+        isDASH: true
+      }]
+    }
   };
 }
