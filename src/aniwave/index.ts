@@ -41,7 +41,7 @@ export default class Source extends SourceModule implements VideoContent {
   metadata = {
     id: 'aniwave',
     name: 'Aniwave',
-    version: '0.5.0',
+    version: '0.5.1',
     icon: "https://s2.bunnycdn.ru/assets/sites/aniwave/favicon1.png"
   }
 
@@ -98,8 +98,6 @@ export default class Source extends SourceModule implements VideoContent {
   async playlistEpisodes(playlistId: string, options?: PlaylistItemsOptions | undefined): Promise<PlaylistItemsResponse> {
     // If grabbing another season, just grab that one
     if (options != null) {
-      if (options.type != "group")
-        throw Error("How did you even end up here ?")
       const currentSeasonEpisodes = (await scrapeEpisodes(options.groupId))!;
       return [currentSeasonEpisodes];
     }
