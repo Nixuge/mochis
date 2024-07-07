@@ -37,7 +37,7 @@ export default class Kinox extends SourceModule implements VideoContent {
   metadata = {
     id: 'kinox',
     name: 'kinox.to',
-    version: '0.2.0',
+    version: '0.2.1',
     icon: `${baseURL}/gr/favicon.ico`
   }
 

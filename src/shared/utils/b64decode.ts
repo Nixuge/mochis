@@ -1,40 +1,34 @@
-export function b64decode(base64: string): string {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
-
-    const lookup = new Uint8Array(256);
-    for (let i = 0; i < chars.length; i++) {
-        lookup[chars.charCodeAt(i)] = i;
+export function b64decode(input: string): string {
+    const base64Chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+    const base64Lookup: Record<string, number> = {};
+    for (let i = 0; i < base64Chars.length; i++) {
+        base64Lookup[base64Chars.charAt(i)] = i;
     }
 
-    let padding = 0;
-    if (base64.endsWith('=')) {
-        padding = base64.endsWith('==') ? 2 : 1;
-        base64 = base64.slice(0, -padding);
-    }
+    let output = '';
+    let buffer = 0;
+    let bufferLength = 0;
 
-    const length = base64.length;
-    const bytes = new Uint8Array((length * 3 / 4) - padding);
-    let byteIndex = 0;
-
-    for (let i = 0; i < length; i += 4) {
-        const chunk = (lookup[base64.charCodeAt(i)] << 18) |
-                      (lookup[base64.charCodeAt(i + 1)] << 12) |
-                      (lookup[base64.charCodeAt(i + 2)] << 6) |
-                      lookup[base64.charCodeAt(i + 3)];
-
-        bytes[byteIndex++] = (chunk >> 16) & 0xFF;
-        if (byteIndex < bytes.length) {
-            bytes[byteIndex++] = (chunk >> 8) & 0xFF;
+    for (let i = 0; i < input.length; i++) {
+        const char = input.charAt(i);
+        if (char === '=') {
+            // Padding signifies end of data, break out of the loop
+            break;
         }
-        if (byteIndex < bytes.length) {
-            bytes[byteIndex++] = chunk & 0xFF;
+
+        const charCode = base64Lookup[char];
+        if (charCode === undefined) {
+            throw new Error('Invalid Base64 input');
+        }
+
+        buffer = (buffer << 6) | charCode;
+        bufferLength += 6;
+
+        if (bufferLength >= 8) {
+            bufferLength -= 8;
+            output += String.fromCharCode((buffer >> bufferLength) & 0xFF);
         }
     }
 
-    let decodedString = '';
-    for (let i = 0; i < bytes.length; i++) {
-        decodedString += String.fromCharCode(bytes[i]);
-    }
-
-    return decodedString;
+    return output;
 }
