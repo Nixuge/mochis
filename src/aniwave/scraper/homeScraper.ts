@@ -3,6 +3,21 @@ import { Paging } from "@mochiapp/js/src/common/types"
 import { DiscoverListing, Playlist } from "@mochiapp/js/src/interfaces/source/types"
 import { CheerioAPI, load } from "cheerio"
 import { AJAX_BASENAME, BASENAME } from "../utils/variables";
+import { parseSubpage } from "./subpage";
+
+const bottomColumnsUrls = new Map<string, string>([
+    ["completed", "completed"],
+    ["new-added", "added"],
+    ["new-release", "newest"],
+]);
+
+const bottomColumns = Array.from(bottomColumnsUrls.keys())
+
+const bottomColumnsAlreadyDone = {
+  "completed": [],
+  "new-added": [],
+  "new-release": [],
+}
 
 
 export class HomeScraper {
@@ -35,6 +50,14 @@ export class HomeScraper {
         this.$ = load(html);
         return [this.scrapeRecentlyUpdated()]
       }
+
+      const bottomColumnUrl = bottomColumnsUrls.get(this.listingId);
+      if (bottomColumnUrl != undefined) {
+        const html = await request.get(`${BASENAME}/${bottomColumnUrl}?page=${this.page}`)
+        this.$ = load(html.text());
+
+        return [await this.scrapeSubpage()]
+      }
       
       throw Error("How did you even get here? Unhandled listingId (" + this.listingId + ")");
     }
@@ -48,14 +71,13 @@ export class HomeScraper {
     // Note sure if/how I add "Top anime",
     // as it has "Day/Week/Month" selectors
     private scrapeAll() {
-        return [
-            this.scrapeHotest(), 
-            this.scrapeRecentlyUpdated(),
-            // Can look at scraping the actual page for subpages on those ones maybe?
-            this.scrapeBottomThreeColumns("completed"), 
-            this.scrapeBottomThreeColumns("new-added"), 
-            this.scrapeBottomThreeColumns("new-release")
-        ]
+      const allParts = [this.scrapeHotest(), this.scrapeRecentlyUpdated()]
+
+      for (const columnId of bottomColumns) {
+        allParts.push(this.scrapeBottomThreeColumns(columnId))
+      }
+
+      return allParts;
     }
 
     private scrapeHotest(): DiscoverListing {
@@ -150,6 +172,8 @@ export class HomeScraper {
         const posterImage = itemRef.find("div.poster span img").attr("src")?.replace("@100.jpg", "@1000.jpg"); // higher quality        
         
         const title = itemRef.find("div.info div.name.d-title").text()
+        
+        bottomColumnsAlreadyDone[id].push(url); // add to cache so that we don't re add another one similar after
 
         return {
           id: url,
@@ -168,11 +192,34 @@ export class HomeScraper {
         orientation: DiscoverListingOrientationType.portrait,
         paging: {
           title: title,
-          id: id,
           items: items,
+          id: "0",
+          nextPage: "1"
         } satisfies Paging<Playlist>
       } satisfies DiscoverListing
 
       return listing;
+    }
+
+    // Made for scraping additional pages of the bottom three columns
+    private async scrapeSubpage(): Promise<DiscoverListing> {
+      const parsedSubpage = parseSubpage(this.$, this.page);
+
+      const alreadyDone = bottomColumnsAlreadyDone[this.listingId!];      
+      const filteredItems = parsedSubpage.items.filter((val) => !alreadyDone.includes(val.id))
+
+      return {
+        title: "",
+        id: this.listingId!,
+        type: DiscoverListingType.default,
+        orientation: DiscoverListingOrientationType.portrait,
+        paging: {
+          title: "",
+          id: this.page.toString(),
+          items: filteredItems,
+          nextPage: parsedSubpage.nextPage,
+          previousPage: (this.page-1).toString() // If we're here, the page is always 1+, and we start at 0, so we can just use page-1
+        } satisfies Paging<Playlist>
+      } satisfies DiscoverListing
     }
 }

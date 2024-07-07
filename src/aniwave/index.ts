@@ -17,8 +17,6 @@ import type {
 import {
   PlaylistEpisodeServerFormatType,
   PlaylistEpisodeServerQualityType,
-  PlaylistStatus,
-  PlaylistType,
   SourceModule,
   VideoContent
 } from '@mochiapp/js/dist';
@@ -32,13 +30,14 @@ import { filters, scrapeFilters } from './scraper/filters';
 import { isTesting } from '../shared/utils/isTesting';
 import { sleep } from '../shared/utils/sleep';
 import { scrapeEpisodes, scrapeSeasonsDiv } from './scraper/episodesScraper';
+import { parseSubpage } from './scraper/subpage';
 
 
 export default class Source extends SourceModule implements VideoContent {
   metadata = {
     id: 'aniwave',
     name: 'Aniwave',
-    version: '0.6.1',
+    version: '0.6.2',
     icon: "https://s2.bunnycdn.ru/assets/sites/aniwave/favicon1.png"
   }
 
@@ -195,44 +194,15 @@ export default class Source extends SourceModule implements VideoContent {
     }
 
     const html = await request.get(`${BASENAME}/filter?keyword=${encodeURIComponent(searchQuery.query)}&page=${currentPageInt}${filterString}`)
-
     const $ = load(html.text());
 
-    const pages = $('ul.pagination > li.page-item');    
-    const lastPageSelector = parseInt(pages.contents().filter(function() {
-        const text: string = $(this).text()
-        // @ts-ignore
-        return text == parseInt(text, 10)
-    }).last().text())
-
-    const hasNextPage = (lastPageSelector != Number.NaN) && (lastPageSelector > currentPageInt)
-
-    const items: Playlist[] = $('#list-items > div.item').map((i, anime) => {
-      const animeRef = $(anime);
-      
-      const metaRef = animeRef.find('div.b1 > a.name.d-title');
-      const url = metaRef.attr('href')?.split('/').pop() ?? '';
-      
-      const name = metaRef.text();
-      const img = animeRef.find('div > a > img').attr('src') ?? '';      
-      return {
-        id: `/watch/${url}`,
-        url: `${BASENAME}/category/${url}`,
-        status: PlaylistStatus.unknown,
-        type: PlaylistType.video,
-        title: name,
-        bannerImage: img,
-        posterImage: img,
-      } satisfies Playlist
-    }).get();
-
-    
+    const parsedSubpage = parseSubpage($, currentPageInt);
 
     return {
       id: `${BASENAME}/search.html?keyword=${searchQuery.query}&page=${searchQuery.page ?? 1}`,
       previousPage: currentPageInt == 1 ? undefined : (currentPageInt+1).toString(),
-      nextPage: hasNextPage ? (currentPageInt+1).toString() : undefined,
-      items: items,
+      nextPage: parsedSubpage.nextPage,
+      items: parsedSubpage.items,
       title: "Search",
     };
   }
