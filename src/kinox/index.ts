@@ -37,7 +37,7 @@ export default class Kinox extends SourceModule implements VideoContent {
   metadata = {
     id: 'kinox',
     name: 'kinox.to',
-    version: '0.1.1',
+    version: '0.1.21',
     icon: `${baseURL}/gr/favicon.ico`
   }
 
@@ -197,7 +197,10 @@ export default class Kinox extends SourceModule implements VideoContent {
     const serverData: KinoxServerRequestType = await request.get(`${baseURL}${mirrorUrl}/${req.serverId}${episodeIdMatch}`).then(resp => resp.json())
     
     const $ = load(serverData.Stream);
-    const serverUrl = $("a").attr("href")!;
+    let serverUrl = $("iframe").attr("src")!;
+
+    if (serverUrl.startsWith("//"))
+        serverUrl = "https:" + serverUrl;
 
     const res = await new UrlMatcher({
       "Voe.SX": VoeE,
@@ -206,7 +209,7 @@ export default class Kinox extends SourceModule implements VideoContent {
       "Upstream.to": UpstreamE,
       "Netu.tv": NetuE
     }, serverUrl, serverData.HosterName).getResult()
-        
+    
     return {
       links: res.videos.map((video) => ({
         url: video.url,
