@@ -14,7 +14,7 @@ export async function getM3u8Qualities(mainFileUrl: string, opts: M3u8Opts = {})
     const urlSplit = mainFileUrl.split("/")
     const baseDomain = urlSplit.slice(0, 3).join("/") + "/"
     urlSplit.pop()
-    const baseUrl =  urlSplit.join("/") + "/"
+    const baseUrl = urlSplit.join("/") + "/"
 
     const sources: IVideo[] = []
     if (opts.keepAuto === undefined || opts.keepAuto)
@@ -28,7 +28,7 @@ export async function getM3u8Qualities(mainFileUrl: string, opts: M3u8Opts = {})
     try {
         m3u8Data = await request.get(mainFileUrl, { headers: opts.headers }).then(resp => resp.text());
     } catch(e) {
-        throw Error("error grabbing m3u8data for url '" + mainFileUrl + "': " + e);
+        throw Error("Error grabbing m3u8data for url '" + mainFileUrl + "': " + e);
     }
     const m3u8Sources = m3u8Data.matchAll(usedPattern);
     for (const m3u8Source of m3u8Sources) {

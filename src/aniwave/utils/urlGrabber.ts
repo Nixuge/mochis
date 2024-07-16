@@ -9,32 +9,33 @@ function serializeText(t: string) {
 function idToVrf(t: string) {    
     t = encodeURIComponent(t);
     return function (t) {
-      var s = 8;
-      t = serializeText(caesarRot13(caesarRot13(t)))
-      var r = "";
-      for (var o = 0; o < t.length; o++) {
-        var h = t.charCodeAt(o);
-        if (o % s == 7) {
-          h += 6;
-        } else if (o % s == 5) {
-          h -= 3;
-        } else if (o % s == 3) {
-          h += 6;
-        } else if (o % s == 2) {
-          h -= 5;
-        } else if (o % s == 6) {
-          h += 3;
-        } else if (o % s == 0) {
-          h -= 2;
-        } else if (o % s == 4) {
-          h += 2;
-        } else if (o % s == 1) {
-          h -= 4;
-        }
-        r += String.fromCharCode(h);
-      }
-      return r = serializeText(r = r.split("").reverse().join(""));
-    }(serializeText(rc4Cypher("tGn6kIpVXBEUmqjD", t)));
+      // var s = 8;
+      // t = serializeText(caesarRot13(caesarRot13(t)))
+      // var r = "";
+      // for (var o = 0; o < t.length; o++) {
+      //   var h = t.charCodeAt(o);
+      //   if (o % s == 7) {
+      //     h += 6;
+      //   } else if (o % s == 5) {
+      //     h -= 3;
+      //   } else if (o % s == 3) {
+      //     h += 6;
+      //   } else if (o % s == 2) {
+      //     h -= 5;
+      //   } else if (o % s == 6) {
+      //     h += 3;
+      //   } else if (o % s == 0) {
+      //     h -= 2;
+      //   } else if (o % s == 4) {
+      //     h += 2;
+      //   } else if (o % s == 1) {
+      //     h -= 4;
+      //   }
+      //   r += String.fromCharCode(h);
+      // }
+      // return r = serializeText(r = r.split("").reverse().join(""));
+      return t;
+    }(serializeText(rc4Cypher("p01EDKu734HJP1Tm", t)));
 }
 
 function caesarRot13(t) {
@@ -75,7 +76,7 @@ function b64decode(t: string) {
 
 export function decodeVideoSkipData(encoded_url: string) {
     encoded_url = b64decode("".concat(encoded_url).replace(/_/g, "/").replace(/-/g, "+"));
-    const decoded_url = decodeURIComponent(rc4Cypher("LUyDrL4qIxtIxOGs", encoded_url));
+    const decoded_url = decodeURIComponent(rc4Cypher("ctpAbOz5u7S6OMkx", encoded_url));
     return (decoded_url);
 }
 // clearer name
