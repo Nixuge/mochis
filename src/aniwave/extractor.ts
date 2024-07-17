@@ -6,7 +6,7 @@ import { MyCloudE } from "../shared/extractors/mycloud";
 export async function getVideo(url: string): Promise<ISource> {
     const html = (await request.get(url, {headers: {"Referer": "https://aniwave.to/"}})).text();
     
-    // Dirty for now
+    // Check for URLs matches
     if (url.startsWith("https://filemoon.sx/") || url.startsWith("https://kerapoxy.cc/") || url.startsWith("https://hellnaw.cc/")) {
         return new FilemoonE(url, html).extract()
     }
@@ -17,10 +17,17 @@ export async function getVideo(url: string): Promise<ISource> {
         return new MyCloudE(url, html).extract()
     }
 
+    // If the url doesn't match anything, as of now it's either vidplay or filemoon, so check their html
+    if (html.includes("Barracuda")) {
+        return new FilemoonE(url, html).extract()
+    }
+    if (html.includes("mcloud/min/embed.js")) {
+        return new MyCloudE(url, html).extract()
+    }    
+
     console.warn(`No extractor found for url ${url}. 
-    HOWEVER, due to the fact vidplay really enjoy changing their domain often, the vidplay extractor is going to be used.
-    I could rewrite some parts of the module to simply pass along the name of the server instead of the url only, but too much work ngl (5mins).
-    (+ w how the system is made it's technically made to only pass 1 property which is the url here)`);
+    However, due to the fact vidplay really enjoy changing their domain often, the vidplay extractor is going to be used.
+    If this doesn't work, consider it normal & report it.`);
 
     return new MyCloudE(url, html).extract()
 }
