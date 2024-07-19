@@ -50,7 +50,7 @@ export default class AniWorld extends SourceModule implements VideoContent {
     name: "AniWorld (@dominik)",
     description: "Almost all credits to @d9menik for this.",
     icon: `${BASE_URL}/favicon.ico`,
-    version: '1.1.8',
+    version: '1.1.9',
   };
 
   constructor(baseUrl?: string) {
@@ -74,7 +74,7 @@ export default class AniWorld extends SourceModule implements VideoContent {
     const ids: string[] = [];
 
     const playlists: Promise<Playlist>[] = data
-      // .filter(({ link }) => link.startsWith("/anime/stream/")) // animes only
+      .filter(({ link }) => link.startsWith("/anime/stream/") || link.startsWith("/serie/stream/")) // media only
       .filter(({ link }) => link.split("/").length === 4) // no specific season or episode results
       .filter(({ link }) => {
         const id = link.split("/")[3];

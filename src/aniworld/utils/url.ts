@@ -9,7 +9,7 @@ export type UrlInfo = {
 
 export const getUrlInfo = (url: string): UrlInfo => {
   const match = url.match(
-    /^(?:https:\/\/aniworld\.to)?\/anime\/stream\/([^/]+)\/?([^/]+)?\/?([^/]+)?$/
+    /^(?:https:\/\/aniworld\.to)?\/(?:[^/]+)\/stream\/([^/]+)\/?([^/]+)?\/?([^/]+)?$/
   );
   if (!match) throw new Error(`Invalid url: ${url}`);
 
