@@ -11,6 +11,13 @@ const source = runner(Source)
 //   log((await source.discoverListings())[0]["paging"]["items"])
 // })
 
+test("provides discover listings", async () => {
+    log((await source.search({
+      query: "a",
+      filters: []
+    })))
+});
+
 // NOTE: SEARCH BROKEN ON SERIEN !
 // test("provides correct search info", async () => {
 //   log(await source.search({ query: "a", filters: [] }))
@@ -30,11 +37,11 @@ const source = runner(Source)
 // })
 
 
-test("gets an episode server (TV)", async() => {
-  log(JSON.stringify(await source.playlistEpisodeServer({
-    playlistId: "/serie/stream/mayor-of-kingstown", 
-    episodeId: "staffel-1/episode-7/public", 
-    sourceId: "aniworld",
-    serverId: "voe/14148964"
-  })))
-})
+// test("gets an episode server (TV)", async() => {
+//   log(JSON.stringify(await source.playlistEpisodeServer({
+//     playlistId: "/serie/stream/mayor-of-kingstown", 
+//     episodeId: "staffel-1/episode-7/public", 
+//     sourceId: "aniworld",
+//     serverId: "voe/14148964"
+//   })))
+// })

@@ -11,6 +11,13 @@ const source = runner(Source)
 //   log((await source.discoverListings())[0]["paging"])
 // })
 
+test("provides discover listings", async () => {
+  log((await source.search({
+    query: "a",
+    filters: []
+  })))
+});
+
 test("gets the episode count", async() => {
   log((await source.playlistEpisodes("/anime/stream/quality-assurance-in-another-world"))[0]["variants"]![0]["pagings"]![0]["items"]);
 })
