@@ -50,7 +50,7 @@ export default class AniWorld extends SourceModule implements VideoContent {
     name: "AniWorld (@dominik)",
     description: "Almost all credits to @d9menik for this.",
     icon: `${BASE_URL}/favicon.ico`,
-    version: '1.1.7',
+    version: '1.1.8',
   };
 
   constructor(baseUrl?: string) {
@@ -74,7 +74,7 @@ export default class AniWorld extends SourceModule implements VideoContent {
     const ids: string[] = [];
 
     const playlists: Promise<Playlist>[] = data
-      .filter(({ link }) => link.startsWith("/anime/stream/")) // animes only
+      // .filter(({ link }) => link.startsWith("/anime/stream/")) // animes only
       .filter(({ link }) => link.split("/").length === 4) // no specific season or episode results
       .filter(({ link }) => {
         const id = link.split("/")[3];
@@ -124,7 +124,7 @@ export default class AniWorld extends SourceModule implements VideoContent {
               .toArray()
               .map((a) => {
                 return {
-                  id: $(a).attr("href")!.split("/").at(-1)!,
+                  id: $(a).attr("href")!,
                   title: $(a).find("h3").text(),
                   posterImage: convertPosterSize(
                     `${BASE_URL}${$(a).find("img").attr("data-src")!}`,
@@ -143,8 +143,8 @@ export default class AniWorld extends SourceModule implements VideoContent {
     return [...carousels];
   }
 
-  async playlistDetails(id: string): Promise<PlaylistDetails> {
-    const response = await request.get(`${BASE_URL}/anime/stream/${id}`);
+  async playlistDetails(id: string): Promise<PlaylistDetails> {    
+    const response = await request.get(`${BASE_URL}${id}`);
     const $ = cheerio.load(response.text());
 
     let yearReleased;
@@ -172,7 +172,7 @@ export default class AniWorld extends SourceModule implements VideoContent {
   ): Promise<PlaylistItemsResponse> {
     const groupId = options?.groupId || "";
 
-    const response = await request.get(`${BASE_URL}/anime/stream/${playlistId}/${groupId}`);
+    const response = await request.get(`${BASE_URL}${playlistId}/${groupId}`);
     const $ = cheerio.load(response.text());
 
     return scrapeGroups($);
@@ -185,7 +185,7 @@ export default class AniWorld extends SourceModule implements VideoContent {
     const [groupId, episodeId, variantId] = _episodeId.split("/");
 
     const response = await request.get(
-      `${BASE_URL}/anime/stream/${playlistId}/${groupId}/${episodeId}`
+      `${BASE_URL}${playlistId}/${groupId}/${episodeId}`
     );
     const $ = cheerio.load(response.text());
 
