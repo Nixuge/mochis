@@ -26,14 +26,7 @@ async function grabKeysFromGithub(e) {
   return JSON.parse(rawKeysHtml.replaceAll("\\", ""));
 }
 
-function encodeVideoId(input: string, key: string) {
-  input = encodeURIComponent(input);
-  const e = rc4Cypher(key, input);
-  const out = b64encode(e).replace(/\//g, "_").replace(/\+/g, '-');
-  return out;
-}
-
-function encodeH(input: string, key: string) {
+function encodeElement(input: string, key: string) {
   input = encodeURIComponent(input);
   const e = rc4Cypher(key, input);
   const out = b64encode(e).replace(/\//g, "_").replace(/\+/g, '-');
@@ -52,8 +45,8 @@ async function getUrl(fullUrl: string, keys: ParsedKeys) {
     
   const urlEnd = "?" + fullUrl.split("?").pop();
 
-  let encodedVideoId = encodeVideoId(videoId, keys.encrypt[1]);
-  let h = encodeH(videoId, keys.encrypt[2]);
+  let encodedVideoId = encodeElement(videoId, keys.encrypt[1]);
+  let h = encodeElement(videoId, keys.encrypt[2]);
   let mediainfo_url = `https://vid2v11.site/mediainfo/${encodedVideoId}${urlEnd}&ads=0&h=${encodeURIComponent(h)}`;
   
   return mediainfo_url;
@@ -94,8 +87,10 @@ export class MyCloudE extends VideoExtractor {
     // - before (including) commit https://github.com/Nixuge/mochis/commit/ce615f9ff486ec82b01dcdcb8e6d08a987871d8d, where things are handled in a good part server side but using keys extracted myself.
     // - before (including) commit https://github.com/Nixuge/mochis/commit/e30e87e5e9c56bd767bc1e3af3454903fcad2295, where things were only almost all handled using a browser on the server side (basically a hotfix done in haste because I didn't have a lot of time).
     // - before (including) commit https://github.com/Nixuge/mochis/commit/c7f49451da720ee35925b502bfb3e1fa6750746d, where third party keys are used for faster loading, still with the browser fallback from the previous commits.
-    // - after (not including, the one right after that bumps to 0.6.6!) commit https://github.com/Nixuge/mochis/commit/33492fe2c62b0d9d1164e11230887460b52b51f9, (the first one) where they changed how the mediaInfo response worked, having its response's result encrypted.
+    // - after (including) commit https://github.com/Nixuge/mochis/commit/246db5ff82a1b06d4820e791bdb1dba0789b0580, where they changed how the mediaInfo response worked, having its response's result encrypted.
+    
     // If possible in the future should setup my own key extractor for better stability
+    
     let keys: ParsedKeys;
     try {
       keys = await grabKeysFromGithub("https://github.com/Ciarands/vidsrc-keys/blob/main/keys.json");
