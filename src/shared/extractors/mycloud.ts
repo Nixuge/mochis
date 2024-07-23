@@ -5,6 +5,7 @@ import { IRawTrackMedia, parseSubtitles } from '../utils/subtitles';
 import { rc4Cypher } from '../utils/aniwave/rc4';
 import { b64encode } from '../utils/aniwave/b64encode';
 import { PlaylistEpisodeServerSubtitleFormat } from '@mochiapp/js/dist';
+import { b64decode } from '../utils/b64decode';
 
 interface IMediaInfo {
   status: number,
@@ -92,6 +93,13 @@ async function attemptDecodingSelenium(url: string) {
 }
 // SELENIUM DECRYPTION END //
 
+function embed_dec(inp) {
+  const i = b64decode((inp).replace(/_/g, "/").replace(/-/g, "+"));
+  let e = rc4Cypher('eO74cTKZayUWH8x5', i);
+  e = decodeURIComponent(e);
+  return e;
+}
+
 // Note: this is named mycloud but works for both mycloud & vidplay (now named vidstream & megaf)
 export class MyCloudE extends VideoExtractor {
   protected override serverName = 'mycloud';
@@ -121,6 +129,8 @@ export class MyCloudE extends VideoExtractor {
         // If this fails again, just let it throw an error...
       }
     }
+
+    mediaInfo.result = JSON.parse(embed_dec(mediaInfo.result));    
 
     const sourcesJson = mediaInfo.result.sources;
     

@@ -39,14 +39,14 @@ const source = runner(Source)
 // test("gets the episode sources", async() => {
 //   log(JSON.stringify(await source.playlistEpisodeSources({playlistId: "/watch/how-not-to-summon-a-demon-lord-w.oz6y", episodeId: "HTmfCcgl,HTSZA8sl,HTqXDM4m | softsub"})))
 // })
-test("gets the episode sources", async() => {
-  log(JSON.stringify(await source.playlistEpisodeSources({playlistId: "/watch/how-not-to-summon-a-demon-lord-w.oz6y", episodeId: "HTmfCckh,HTSZAsIh,HTqXDM8i | sub"})))
-})
+// test("gets the episode sources", async() => {
+//   log(JSON.stringify(await source.playlistEpisodeSources({playlistId: "/watch/how-not-to-summon-a-demon-lord-w.oz6y", episodeId: "HTmfCckh,HTSZAsIh,HTqXDM8i | sub"})))
+// })
 
 // timeout 15s as the deobfuscation can take some time when the js changes.
-// test("gets an episode server", async() => {
-//   log(JSON.stringify(await source.playlistEpisodeServer({playlistId: "/watch/how-not-to-summon-a-demon-lord-w.oz6y", episodeId: "HTmfCcgl,HTSZA8sl,HTqXDM4m", sourceId:"servers", serverId:"GDyXC84gkg=="})))
-// }, {timeout: 20000})
+test("gets an episode server", async() => {
+  log(JSON.stringify(await source.playlistEpisodeServer({playlistId: "/watch/how-not-to-summon-a-demon-lord-w.oz6y", episodeId: "HTmfCcgl,HTSZA8sl,HTqXDM4m", sourceId:"servers", serverId:"GDyXC84gkg=="})))
+}, {timeout: 20000})
 // test("gets an episode server", async() => {
 //   log(JSON.stringify(await source.playlistEpisodeServer({playlistId: "/watch/how-not-to-summon-a-demon-lord-w.oz6y", episodeId: "HTmfCckh,HTSZAsIh,HTqXDM8i | sub", sourceId:"servers", serverId:"HzuaDckjlg=="})))
 // }, {timeout: 20000})
