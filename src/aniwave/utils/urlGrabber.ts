@@ -1,5 +1,5 @@
-import { b64encode } from "../../shared/utils/aniwave/b64encode";
 import { rc4Cypher } from "../../shared/utils/aniwave/rc4";
+import { b64encode } from "../../shared/utils/b64";
 
 function serializeText(t: string) {
     return "".concat(b64encode(t)).replace(/\//g, "_").replace(/\+/g, "-");

@@ -3,7 +3,7 @@ import { VideoExtractor } from '../../shared/models/Iextractor';
 import { ISource } from '../../shared/models/types';
 import { getM3u8Qualities } from '../../shared/utils/m3u8';
 import { PlaylistEpisodeServerSubtitle, PlaylistEpisodeServerSubtitleFormat } from '@mochiapp/js/dist';
-import { b64decode } from '../utils/b64decode';
+import { b64decode } from '../utils/b64';
 
 export class VoeE extends VideoExtractor {
   protected override serverName = 'voe';
