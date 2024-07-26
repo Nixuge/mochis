@@ -27,14 +27,14 @@ export class PlaylistEpisodesScraper {
     private async grabSeasons(): Promise<IterableIterator<RegExpMatchArray>> {
         const mainPage = await request.get(this.mainUrl).then(resp => resp.text());        
 
-        const $ = load(mainPage);
-        const saisonsRef = $("h2.text-white.text-xl.font-bold.uppercase.border-b-2.mt-5.border-slate-500").map((i, elem) => {
-          const elemRef = $(elem);
-          if (elemRef.text() == "Anime")
-            return $(elemRef.next())
-        }).get()[0]
+        // const $ = load(mainPage);
+        // const saisonsRef = $("h2.text-white.text-xl.font-bold.uppercase.border-b-2.mt-5.border-slate-500").map((i, elem) => {
+        //   const elemRef = $(elem);
+        //   if (elemRef.text() == "Anime")
+        //     return $(elemRef.next())
+        // }).get()[0]        
     
-        const saisonsMatches = saisonsRef.text().matchAll(/^(?: *?|\t*?)panneauAnime\("(.*?)", "(.*?)"\)/gm);
+        const saisonsMatches = mainPage.matchAll(/^(?: *?|\t*?)panneauAnime\("(.*?)", "(.*?)"\)/gm);
         return saisonsMatches;
     }
 

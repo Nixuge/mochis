@@ -19,8 +19,8 @@ interface ParsedKeys {
   decrypt: string[]
 }
 
-async function grabKeysFromGithub(e) {
-  const resp = await request.get(e).then(s => s.text())!
+async function grabKeysFromGithub(url: string) {
+  const resp = await request.get(url).then(s => s.text())!
   const rawKeysHtml = resp.match(/"rawLines":\["(.+?)"],"styling/)![1];
 
   return JSON.parse(rawKeysHtml.replaceAll("\\", ""));

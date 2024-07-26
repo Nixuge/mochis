@@ -35,7 +35,7 @@ export default class Source extends SourceModule implements VideoContent {
   metadata = {
     id: 'animesama',
     name: 'Anime-Sama',
-    version: '0.2.8',
+    version: '0.2.9',
     icon: "https://cdn.statically.io/gh/Anime-Sama/IMG/img/autres/logo.png"
   }
 
@@ -61,7 +61,7 @@ export default class Source extends SourceModule implements VideoContent {
     while (isTesting() && everyAnime.length == 0) {
       await sleep(10);
     }
-        
+
     const anime = everyAnime[parseInt(playlistId)];
 
     return await new PlaylistEpisodesScraper(anime).scrape()
