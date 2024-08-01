@@ -22,6 +22,6 @@ export class SibnetE extends RawVideoExtractor {
         url: url,
         isDASH: false
       }]
-    }    
+    }
   };
 }

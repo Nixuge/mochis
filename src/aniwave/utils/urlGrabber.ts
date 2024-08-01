@@ -35,7 +35,7 @@ function idToVrf(t: string) {
       // }
       // return r = serializeText(r = r.split("").reverse().join(""));
       return t;
-    }(serializeText(rc4Cypher("p01EDKu734HJP1Tm", t)));
+    }(serializeText(rc4Cypher("T78s2WjTc7hSIZZR", t)));
 }
 
 function caesarRot13(t) {

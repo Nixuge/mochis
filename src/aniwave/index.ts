@@ -159,7 +159,7 @@ export default class Source extends SourceModule implements VideoContent {
     // @ts-ignore
     const result: string = (await request.get(`${AJAX_BASENAME}/server/${req.serverId}?vrf=${getVrf(req.serverId)}`)).json()["result"];
     const url = decodeVideoSkipData(result["url"])
-    let skipData = parseSkipData(decodeVideoSkipData(result["skip_data"]))
+    let skipData = parseSkipData(decodeVideoSkipData(result["skip_data"]));
     
     const sourceData = await getVideo(url);
     const videos = sourceData.videos;

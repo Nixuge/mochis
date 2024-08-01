@@ -27,7 +27,7 @@ const source = runner(Source)
 //   log((await source.playlistEpisodes("/watch/pokemon.r9vq")))
 // })
 // test("gets the episode count", async() => {
-//   JSON.stringify(await source.playlistEpisodes("/watch/boushoku-no-berserk-ore-dake-reberu-to-iu-gainen-wo-toppa-suru.ojll4"))
+//   log(JSON.stringify(await source.playlistEpisodes("/watch/hazure-waku-no-joutai-ijou-skill-de-saikyou-ni-natta-ore-ga-subete-wo-juurin-suru-made.lp3dr/ep-1")))
 // })
 // test("gets the episode count", async() => {
 //   log(JSON.stringify(await source.playlistEpisodes("/watch/hunter-x-hunter-2011.295")))
@@ -37,7 +37,7 @@ const source = runner(Source)
 // })
 
 // test("gets the episode sources", async() => {
-//   log(JSON.stringify(await source.playlistEpisodeSources({playlistId: "/watch/how-not-to-summon-a-demon-lord-w.oz6y", episodeId: "HTmfCcgl,HTSZA8sl,HTqXDM4m | softsub"})))
+//   log(JSON.stringify(await source.playlistEpisodeSources({playlistId: "/watch/how-not-to-summon-a-demon-lord-w.oz6y", episodeId: "Hj-WA8Im,Hj-WA8In | sub"})))
 // })
 // test("gets the episode sources", async() => {
 //   log(JSON.stringify(await source.playlistEpisodeSources({playlistId: "/watch/how-not-to-summon-a-demon-lord-w.oz6y", episodeId: "HTmfCckh,HTSZAsIh,HTqXDM8i | sub"})))
