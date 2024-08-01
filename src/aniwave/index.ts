@@ -37,7 +37,7 @@ export default class Source extends SourceModule implements VideoContent {
   metadata = {
     id: 'aniwave',
     name: 'Aniwave',
-    version: '0.7.0',
+    version: '0.7.1',
     icon: "https://aniwave.to/assets/s/e8c93166fd4dcf9ab41d5178518295fc1b5fcb27fd90df1c268eb0.png"
   }
 
