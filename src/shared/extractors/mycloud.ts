@@ -20,6 +20,15 @@ interface ParsedKeys {
   decodeResult: string
 }
 
+// Note: those keys are valid, but the algorithm has changed.
+async function tempDirtyKeys(): Promise<ParsedKeys> {
+  return {
+    encodeVideoId: "3aBkbZuYYg0nyUkQ",
+    encodeH: "BvxAphQAmWO9BIJ8",
+    decodeResult: "48viMBoCGDnap1Qe"
+  }
+}
+
 async function grabKeysFromGithub(url: string): Promise<ParsedKeys> {
   const resp = await request.get(url).then(s => s.text())!
   const rawKeysHtml = resp.match(/"rawLines":\["(.+?)"],"styling/)![1];
@@ -115,6 +124,7 @@ export class MyCloudE extends VideoExtractor {
     
     // If possible in the future should setup my own key extractor for better stability
     const keySources = [
+      [tempDirtyKeys(), "temp dirty keys"],
       [grabKeysFromGithub("https://github.com/Ciarands/vidsrc-keys/blob/main/keys.json"), "github"],
       [grabKeysFromMe("https://mochi_back.nixuge.me/thanksForTheServerRessources"), "my server"]
     ]

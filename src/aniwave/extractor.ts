@@ -21,7 +21,8 @@ export async function getVideo(url: string): Promise<ISource> {
     if (html.includes("Barracuda")) {
         return new FilemoonE(url, html).extract()
     }
-    if (html.includes("mcloud/min/embed.js")) {
+    
+    if (html.includes("/min/all.js") || html.includes("/min/embed.js")) {
         return new MyCloudE(url, html).extract()
     }    
 
