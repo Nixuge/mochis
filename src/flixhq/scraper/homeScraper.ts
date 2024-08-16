@@ -1,7 +1,7 @@
 import { DiscoverListingOrientationType, DiscoverListingType, DiscoverListingsRequest, MochiResponse, PlaylistStatus, PlaylistType } from "@mochiapp/js/dist"
 import { Paging } from "@mochiapp/js/src/common/types"
 import { DiscoverListing, Playlist } from "@mochiapp/js/src/interfaces/source/types"
-import { Cheerio, CheerioAPI, Element, load } from "cheerio"
+import { Cheerio, CheerioAPI, load } from "cheerio"
 import { bannerRes } from "../utils/constants";
 import { scrapeItemsBlock } from "./item";
 
@@ -29,7 +29,8 @@ export class HomeScraper {
       if (title == "Coming Soon") 
         return;
 
-      const block = sectionRef.find("div.film_list-wrap");
+      // TODO: replace any with proper type (formerly element)
+      const block: any = sectionRef.find("div.film_list-wrap");
       if (block.length == 1) {
         data.push(this.makeBlockDiscoverListing(block, title))
       } else {
@@ -40,7 +41,7 @@ export class HomeScraper {
     })
     return data;
   }
-
+  
   private makeBlockDiscoverListing(block: Cheerio<Element>, title: string): DiscoverListing {
     return {
       id: title,

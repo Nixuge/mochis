@@ -1,8 +1,9 @@
 import { Playlist, PlaylistStatus, PlaylistType } from "@mochiapp/js/dist";
-import { Cheerio, Element } from "cheerio";
+import { Cheerio } from "cheerio";
 import { baseUrl, posterRes } from "../utils/constants";
 
-export function scrapeItemsBlock(ref: Cheerio<Element>): Playlist[] {
+// TODO: replace any with proper type (formerly element)
+export function scrapeItemsBlock(ref: Cheerio<any>): Playlist[] {
     const items: Playlist[] = ref.find("div.flw-item").map((i, elem) => {
       const elemRef = ref.find(elem);
       const id = elemRef.find("div.film-poster a").attr("href")!;

@@ -1,7 +1,7 @@
 import { DiscoverListingOrientationType, DiscoverListingType, DiscoverListingsRequest, FetchedPaging, MochiResponse, PlaylistGroup, PlaylistGroupVariant, PlaylistItem, PlaylistItemsOptionFetchPage, PlaylistItemsOptions, PlaylistStatus, PlaylistType } from "@mochiapp/js/dist"
 import { Paging } from "@mochiapp/js/src/common/types"
 import { DiscoverListing, Playlist } from "@mochiapp/js/src/interfaces/source/types"
-import { Cheerio, CheerioAPI, Element, load } from "cheerio"
+import { Cheerio, CheerioAPI, load } from "cheerio"
 import { baseURL, mirrorsEpisodeUrl } from "../utils/constants";
 
 export class EpisodesScraper {
