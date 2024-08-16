@@ -39,7 +39,7 @@ export default class Source extends SourceModule implements VideoContent {
   metadata = {
     id: 'animepahe',
     name: 'AnimePahe',
-    version: '0.1.20',
+    version: '0.1.21',
     icon: "https://pbs.twimg.com/profile_images/1587822716312489985/RDbLTyya_400x400.png"
   }
 
@@ -138,7 +138,7 @@ export default class Source extends SourceModule implements VideoContent {
       animeInfo.altPosters = [$('div.anime-poster a').attr('href')!];
       animeInfo.altBanners = [`https:${$('div.anime-cover').attr('data-src')}`]; // not sure about that one
 
-      animeInfo.synopsis = $('div.anime-summary').text();
+      animeInfo.synopsis = $('div.anime-summary').text().trim();
       animeInfo.genres = $('div.anime-genre ul li')
         .map((i, el) => $(el).find('a').attr('title'))
         .get();
