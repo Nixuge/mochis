@@ -1,50 +1,36 @@
 import { rc4Cypher } from "../../shared/utils/aniwave/rc4";
+import { substituteString } from "../../shared/utils/aniwave/substituteString";
 import { b64encode } from "../../shared/utils/b64";
 
 function serializeText(t: string) {
     return "".concat(b64encode(t)).replace(/\//g, "_").replace(/\+/g, "-");
 }
 
-// To be called on the id to get data.
-function idToVrf(t: string) {    
-    t = encodeURIComponent(t);
-    return function (t) {
-      // var s = 8;
-      // t = serializeText(caesarRot13(caesarRot13(t)))
-      // var r = "";
-      // for (var o = 0; o < t.length; o++) {
-      //   var h = t.charCodeAt(o);
-      //   if (o % s == 7) {
-      //     h += 6;
-      //   } else if (o % s == 5) {
-      //     h -= 3;
-      //   } else if (o % s == 3) {
-      //     h += 6;
-      //   } else if (o % s == 2) {
-      //     h -= 5;
-      //   } else if (o % s == 6) {
-      //     h += 3;
-      //   } else if (o % s == 0) {
-      //     h -= 2;
-      //   } else if (o % s == 4) {
-      //     h += 2;
-      //   } else if (o % s == 1) {
-      //     h -= 4;
-      //   }
-      //   r += String.fromCharCode(h);
-      // }
-      // return r = serializeText(r = r.split("").reverse().join(""));
-      return t;
-    }(serializeText(rc4Cypher("T78s2WjTc7hSIZZR", t)));
+export function getVrf(input: string) {
+    const reverse = (str: string) => str.split("").reverse().join("");
+
+    // required - transform to string
+    input = '' + input;
+
+    input = substituteString(input, "AP6GeR8H0lwUz1", "UAz8Gwl10P6ReH");
+    input = rc4Cypher("ItFKjuWokn4ZpB", input);
+    input = serializeText(input);
+    input = reverse(input);
+
+    input = reverse(input);
+    input = rc4Cypher("fOyt97QWFB3", input);
+    input = serializeText(input);
+    input = substituteString(input, "1majSlPQd2M5", "da1l2jSmP5QM");
+
+    input = substituteString(input, "CPYvHj09Au3", "0jHA9CPYu3v");
+    input = reverse(input);
+    input = rc4Cypher("736y1uTJpBLUX", input);
+    input = serializeText(input);
+
+    input = serializeText(input);
+    return input;
 }
 
-function caesarRot13(t) {
-    return t.replace(/[a-zA-Z]/g, function (t) {
-        // @ts-ignore
-        const res = String.fromCharCode((t <= "Z" ? 90 : 122) >= (t = t.charCodeAt(0) + 13) ? t : t - 26);
-        return res;
-    });
-}
 
 function b64decode(t: string) {
     if ((t = (t = (t = "".concat(t)).replace(/[\t\n\f\r]/g, "")).length % 4 == 0 ? t.replace(/==?$/, "") : t).length % 4 == 1 || /[^+/0-9A-Za-z]/.test(t)) {
@@ -80,4 +66,4 @@ export function decodeVideoSkipData(encoded_url: string) {
     return (decoded_url);
 }
 // clearer name
-export function getVrf(input: string) { return encodeURIComponent(idToVrf(input)) };
+// export function getVrf(input: string) { return encodeURIComponent(idToVrf(input)) };
