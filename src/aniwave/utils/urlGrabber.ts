@@ -1,18 +1,6 @@
+import { deserializeText, reverse, serializeText } from "../../shared/utils/aniwave/aniwaveUtils";
 import { rc4Cypher } from "../../shared/utils/aniwave/rc4";
 import { substituteString } from "../../shared/utils/aniwave/substituteString";
-import { b64decode, b64encode } from "../../shared/utils/b64";
-
-function serializeText(t: string) {
-    return "".concat(b64encode(t)).replace(/\//g, "_").replace(/\+/g, "-");
-}
-
-function deserializeText(t: string) {
-    return b64decode(t.replace(/_/g, '/').replace(/-/g, '+'));
-}
-
-function reverse(t: string) {
-    return t.split("").reverse().join("");
-}
 
 export function getVrf(input: string) {
     // required - transform to string

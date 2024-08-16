@@ -5,6 +5,8 @@ import { IRawTrackMedia, parseSubtitles } from '../utils/subtitles';
 import { rc4Cypher } from '../utils/aniwave/rc4';
 import { PlaylistEpisodeServerSubtitleFormat } from '@mochiapp/js/dist';
 import { b64encode, b64decode } from '../utils/b64';
+import { deserializeText, reverse, serializeText } from '../utils/aniwave/aniwaveUtils';
+import { substituteString } from '../utils/aniwave/substituteString';
 
 interface IMediaInfo {
   status: number,
@@ -107,6 +109,66 @@ async function doAllForKeySource(url: string, keySource: (string | Promise<Parse
   return mediaInfo;
 }
 
+// This is really quite dirty, but will do the job
+// until Aniwave stabilizes to a specific key format.
+async function temporaryMyCloudHandling(input: string): Promise<ISource> {  
+  let key = input;
+  key = rc4Cypher("V4pBzCPyMSwqx", key);
+  key = serializeText(key);
+  key = substituteString(key, "4pjVI6otnvxW", "Ip64xWVntvoj");
+
+  key = reverse(key);
+  key = substituteString(key, "kHWPSL5RKG9Ei8Q", "REG859WSLiQkKHP");
+  key = rc4Cypher("eLWogkrHstP", key)
+  key = serializeText(key);
+
+  key = reverse(key)
+  key = rc4Cypher("bpPVcKMFJXq", key)
+  key = serializeText(key)
+
+  key = substituteString(key, "VtravPeTH34OUog", "OeaTrt4H3oVgvPU");
+  key = reverse(key);
+  key = serializeText(key);  
+
+  const hParam = serializeText(rc4Cypher("BvxAphQAmWO9BIJ8", input));
+  
+  // ?t=4xjSCv0iAVcLzg%3D%3D&autostart=true is window.location.search
+  let a = await request.get(`https://vid2a41.site/mediainfo/${key}?t=4xjSCv0iAVAJzw==&autostart=true&h=${hParam}`)
+  let jsonBody: any = a.json();
+  
+  let res: string = jsonBody.result;
+
+  res = deserializeText(res);
+
+  res = reverse(res);
+  res = substituteString(res, "OeaTrt4H3oVgvPU", "VtravPeTH34OUog");
+  res = deserializeText(res)
+  res = rc4Cypher("bpPVcKMFJXq", res);
+
+  res = reverse(res);
+  res = deserializeText(res);
+  res = rc4Cypher("eLWogkrHstP", res)
+  res = substituteString(res, "REG859WSLiQkKHP", "kHWPSL5RKG9Ei8Q");
+
+  res = res.split('').reverse().join('')
+  res = substituteString(res, "Ip64xWVntvoj", "4pjVI6otnvxW")
+  res = deserializeText(res)
+  res = rc4Cypher("V4pBzCPyMSwqx", res);
+
+  const jsonResult = JSON.parse(res)
+
+  console.log(jsonResult);
+  const videos = await getM3u8Qualities(jsonResult.sources[0]["file"]);
+  
+  const subtitles = parseSubtitles(jsonResult.tracks, PlaylistEpisodeServerSubtitleFormat.vtt, true);
+
+  return {
+    videos: videos,
+    subtitles: subtitles
+  } satisfies ISource
+}
+
+
 // Note: this is named mycloud but works for both mycloud & vidplay (now named vidstream & megaf)
 export class MyCloudE extends VideoExtractor {
   protected override serverName = 'mycloud';
@@ -114,6 +176,9 @@ export class MyCloudE extends VideoExtractor {
   override extract = async (): Promise<ISource> => {
     const url = this.referer;
     
+    let urlSplit = url.split("?")[0].split("/");
+    return temporaryMyCloudHandling(urlSplit[urlSplit.length-1])
+
     // Note:
     // There are 4.5 major iterations of this extractor:
     // - before (including) commit https://github.com/Nixuge/mochis/commit/ce615f9ff486ec82b01dcdcb8e6d08a987871d8d, where things are handled in a good part server side but using keys extracted myself.
@@ -149,11 +214,11 @@ export class MyCloudE extends VideoExtractor {
       throw Error("Couldn't get source !")
     }
 
-
+    // @ts-ignore - TODO: REMOVE, dead code warn
     const sourcesJson = mediaInfo.result.sources;
     
     const videos = await getM3u8Qualities(sourcesJson[0]["file"]);
-    
+    // @ts-ignore - TODO: REMOVE, dead code warn
     const subtitles = parseSubtitles(mediaInfo.result.tracks, PlaylistEpisodeServerSubtitleFormat.vtt, true);
 
     return {
