@@ -18,13 +18,13 @@ export async function getVideo(url: string): Promise<ISource> {
     }
 
     // If the url doesn't match anything, as of now it's either vidplay or filemoon, so check their html
-    if (html.includes("Barracuda")) {
+    if (html.includes("a-bean")) {
         return new FilemoonE(url, html).extract()
     }
     
     if (html.includes("/min/all.js") || html.includes("/min/embed.js")) {
         return new MyCloudE(url, html).extract()
-    }    
+    }
 
     console.warn(`No extractor found for url ${url}. 
     However, due to the fact vidplay really enjoy changing their domain often, the vidplay extractor is going to be used.
