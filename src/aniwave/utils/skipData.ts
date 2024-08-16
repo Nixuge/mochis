@@ -1,7 +1,6 @@
 import { PlaylistEpisodeServerSkipTime, PlaylistEpisodeServerSkipType } from "@mochiapp/js/dist";
 
 export function parseSkipData(data: string): PlaylistEpisodeServerSkipTime[] {
-    return []; // Temp - broken for now
     if (data) {
         const parsedData = JSON.parse(data);        
         return [

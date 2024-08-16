@@ -1,14 +1,20 @@
 import { rc4Cypher } from "../../shared/utils/aniwave/rc4";
 import { substituteString } from "../../shared/utils/aniwave/substituteString";
-import { b64encode } from "../../shared/utils/b64";
+import { b64decode, b64encode } from "../../shared/utils/b64";
 
 function serializeText(t: string) {
     return "".concat(b64encode(t)).replace(/\//g, "_").replace(/\+/g, "-");
 }
 
-export function getVrf(input: string) {
-    const reverse = (str: string) => str.split("").reverse().join("");
+function deserializeText(t: string) {
+    return b64decode(t.replace(/_/g, '/').replace(/-/g, '+'));
+}
 
+function reverse(t: string) {
+    return t.split("").reverse().join("");
+}
+
+export function getVrf(input: string) {
     // required - transform to string
     input = '' + input;
 
@@ -32,38 +38,24 @@ export function getVrf(input: string) {
 }
 
 
-function b64decode(t: string) {
-    if ((t = (t = (t = "".concat(t)).replace(/[\t\n\f\r]/g, "")).length % 4 == 0 ? t.replace(/==?$/, "") : t).length % 4 == 1 || /[^+/0-9A-Za-z]/.test(t)) {
-        return null!;
-    }
-    var r;
-    var s = "";
-    var o = 0;
-    var u = 0;
-    for (var h = 0; h < t.length; h++) {
-        r = t[h];
-        // @ts-ignore
-        o = (o <<= 6) | ((r = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/".indexOf(r)) < 0 ? undefined : r);
-        if (24 === (u += 6)) {
-            s = (s = (s += String.fromCharCode((16711680 & o) >> 16)) + String.fromCharCode((65280 & o) >> 8)) + String.fromCharCode(255 & o);
-            o = u = 0;
-        }
-    }
-    if (12 === u) {
-        o >>= 4;
-        s += String.fromCharCode(o);
-    } else if (18 === u) {
-        o >>= 2;
-        s = (s += String.fromCharCode((65280 & o) >> 8)) + String.fromCharCode(255 & o);
-    }
-    return s;
-};
+export function decodeVideoSkipData(input: string) {
+    input = '' + input;
 
+    input = deserializeText(input);
 
-export function decodeVideoSkipData(encoded_url: string) {
-    encoded_url = b64decode("".concat(encoded_url).replace(/_/g, "/").replace(/-/g, "+"));
-    const decoded_url = decodeURIComponent(rc4Cypher("ctpAbOz5u7S6OMkx", encoded_url));
-    return (decoded_url);
+    input = rc4Cypher("736y1uTJpBLUX", deserializeText(input));
+    input = reverse(input);
+    input = substituteString(input, "0jHA9CPYu3v", "CPYvHj09Au3");
+
+    input = substituteString(input, "da1l2jSmP5QM", "1majSlPQd2M5");
+    input = deserializeText(input);
+    input = rc4Cypher("fOyt97QWFB3", input)
+    input = reverse(input);
+
+    input = reverse(input)
+    input = deserializeText(input);
+    input = rc4Cypher("ItFKjuWokn4ZpB", input)
+    input = substituteString(input, "UAz8Gwl10P6ReH", "AP6GeR8H0lwUz1");
+
+    return input;
 }
-// clearer name
-// export function getVrf(input: string) { return encodeURIComponent(idToVrf(input)) };
