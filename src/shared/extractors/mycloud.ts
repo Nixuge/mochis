@@ -111,7 +111,10 @@ async function doAllForKeySource(url: string, keySource: (string | Promise<Parse
 
 // This is really quite dirty, but will do the job
 // until Aniwave stabilizes to a specific key format.
-async function temporaryMyCloudHandling(input: string): Promise<ISource> {  
+async function temporaryMyCloudHandling(url: string): Promise<ISource> {  
+  let urlSplit = url.split("?")[0].split("/");
+  let input = urlSplit[urlSplit.length-1];
+
   let key = input;
   key = rc4Cypher("V4pBzCPyMSwqx", key);
   key = serializeText(key);
@@ -131,9 +134,11 @@ async function temporaryMyCloudHandling(input: string): Promise<ISource> {
   key = serializeText(key);  
 
   const hParam = serializeText(rc4Cypher("BvxAphQAmWO9BIJ8", input));
+
+  urlSplit = urlSplit = url.split("?t=");
+  let tParam = urlSplit[urlSplit.length-1].split("&")[0];  
   
-  // ?t=4xjSCv0iAVcLzg%3D%3D&autostart=true is window.location.search
-  let a = await request.get(`https://vid2a41.site/mediainfo/${key}?t=4xjSCv0iAVAJzw==&autostart=true&h=${hParam}`)
+  let a = await request.get(`https://vid2a41.site/mediainfo/${key}?t=${tParam}&autostart=true&h=${hParam}`)
   let jsonBody: any = a.json();
   
   let res: string = jsonBody.result;
@@ -174,10 +179,9 @@ export class MyCloudE extends VideoExtractor {
   protected override serverName = 'mycloud';
 
   override extract = async (): Promise<ISource> => {
-    const url = this.referer;
+    const url = this.referer;    
     
-    let urlSplit = url.split("?")[0].split("/");
-    return temporaryMyCloudHandling(urlSplit[urlSplit.length-1])
+    return temporaryMyCloudHandling(url);
 
     // Note:
     // There are 4.5 major iterations of this extractor:
