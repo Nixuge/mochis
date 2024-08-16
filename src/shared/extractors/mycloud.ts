@@ -113,6 +113,9 @@ async function doAllForKeySource(url: string, keySource: (string | Promise<Parse
 // until Aniwave stabilizes to a specific key format.
 async function temporaryMyCloudHandling(url: string): Promise<ISource> {  
   let urlSplit = url.split("?")[0].split("/");
+
+  let domain = urlSplit[2];
+
   let input = urlSplit[urlSplit.length-1];
 
   let key = input;
@@ -138,7 +141,7 @@ async function temporaryMyCloudHandling(url: string): Promise<ISource> {
   urlSplit = urlSplit = url.split("?t=");
   let tParam = urlSplit[urlSplit.length-1].split("&")[0];  
   
-  let a = await request.get(`https://vid2a41.site/mediainfo/${key}?t=${tParam}&autostart=true&h=${hParam}`)
+  let a = await request.get(`https://${domain}/mediainfo/${key}?t=${tParam}&autostart=true&h=${hParam}`)
   let jsonBody: any = a.json();
   
   let res: string = jsonBody.result;
