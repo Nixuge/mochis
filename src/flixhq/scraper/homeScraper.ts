@@ -1,4 +1,4 @@
-import { DiscoverListingOrientationType, DiscoverListingType, DiscoverListingsRequest, MochiResponse, PlaylistStatus, PlaylistType } from "@mochiapp/js/dist"
+import { DiscoverListingOrientationType, DiscoverListingType, PlaylistStatus, PlaylistType } from "@mochiapp/js/dist"
 import { Paging } from "@mochiapp/js/src/common/types"
 import { DiscoverListing, Playlist } from "@mochiapp/js/src/interfaces/source/types"
 import { Cheerio, CheerioAPI, load } from "cheerio"
