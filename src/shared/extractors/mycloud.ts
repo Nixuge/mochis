@@ -116,54 +116,28 @@ async function temporaryMyCloudHandling(url: string): Promise<ISource> {
 
   let domain = urlSplit[2];
 
-  let input = urlSplit[urlSplit.length-1];
+  let key = urlSplit[urlSplit.length-1];
 
-  let key = input;
-  key = rc4Cypher("V4pBzCPyMSwqx", key);
-  key = serializeText(key);
-  key = substituteString(key, "4pjVI6otnvxW", "Ip64xWVntvoj");
-
-  key = reverse(key);
-  key = substituteString(key, "kHWPSL5RKG9Ei8Q", "REG859WSLiQkKHP");
-  key = rc4Cypher("eLWogkrHstP", key)
-  key = serializeText(key);
-
-  key = reverse(key)
-  key = rc4Cypher("bpPVcKMFJXq", key)
-  key = serializeText(key)
-
-  key = substituteString(key, "VtravPeTH34OUog", "OeaTrt4H3oVgvPU");
-  key = reverse(key);
-  key = serializeText(key);  
-
-  const hParam = serializeText(rc4Cypher("BvxAphQAmWO9BIJ8", input));
+  key = ('' + btoa(rc4Cypher("dawQCziL2v", key = (key = substituteString(key = '' + (key = key), "E1KyOcIMf9v7XHg", "gMvO97yE1cfKIXH")).split('').reverse().join('')))).replace(/\//g, '_').replace(/\+/g, '-');
+  key = ('' + btoa(rc4Cypher("thDz4uPKGSYW", key = substituteString(key = key.split('').reverse().join(''), "ZSsbx4NtMpOoCh", "ZCo4MthpsNxSOb")))).replace(/\//g, '_').replace(/\+/g, '-');
+  key = ('' + btoa(rc4Cypher("QIP5jcuvYEKdG", key))).replace(/\//g, '_').replace(/\+/g, '-');
+  key = ('' + btoa(key = substituteString(key = key.split('').reverse().join(''), "fH0n3GZDeKCE6", "0GCn6e3ZfDKEH"))).replace(/\//g, '_').replace(/\+/g, '-')
 
   urlSplit = urlSplit = url.split("?t=");
   let tParam = urlSplit[urlSplit.length-1].split("&")[0];  
   
-  let a = await request.get(`https://${domain}/mediainfo/${key}?t=${tParam}&autostart=true&h=${hParam}`)
+  let a = await request.get(`https://${domain}/mediainfo/${key}?t=${tParam}&autostart=true`)
   let jsonBody: any = a.json();
   
   let res: string = jsonBody.result;
 
-  res = deserializeText(res);
-
-  res = reverse(res);
-  res = substituteString(res, "OeaTrt4H3oVgvPU", "VtravPeTH34OUog");
-  res = deserializeText(res)
-  res = rc4Cypher("bpPVcKMFJXq", res);
-
-  res = reverse(res);
-  res = deserializeText(res);
-  res = rc4Cypher("eLWogkrHstP", res)
-  res = substituteString(res, "REG859WSLiQkKHP", "kHWPSL5RKG9Ei8Q");
-
-  res = res.split('').reverse().join('')
-  res = substituteString(res, "Ip64xWVntvoj", "4pjVI6otnvxW")
-  res = deserializeText(res)
-  res = rc4Cypher("V4pBzCPyMSwqx", res);
-
-  const jsonResult = JSON.parse(res)
+  console.log("GOT RES !");
+  console.log(jsonBody);
+  
+  res = atob(('' + (res = '' + (res = res))).replace(/_/g, '/').replace(/-/g, '+'));
+  res = rc4Cypher("QIP5jcuvYEKdG", atob(('' + (res = (res = substituteString(res, "0GCn6e3ZfDKEH", "fH0n3GZDeKCE6")).split('').reverse().join(''))).replace(/_/g, '/').replace(/-/g, '+')));
+  res = (res = substituteString(res = rc4Cypher("thDz4uPKGSYW", atob(('' + res).replace(/_/g, '/').replace(/-/g, '+'))), "ZCo4MthpsNxSOb", "ZSsbx4NtMpOoCh")).split('').reverse().join('');
+  const jsonResult = JSON.parse(res = substituteString(res = (res = rc4Cypher("dawQCziL2v", atob(('' + res).replace(/_/g, '/').replace(/-/g, '+')))).split('').reverse().join(''), "gMvO97yE1cfKIXH", "E1KyOcIMf9v7XHg"));
 
   console.log(jsonResult);
   const videos = await getM3u8Qualities(jsonResult.sources[0]["file"]);

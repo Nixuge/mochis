@@ -42,7 +42,7 @@ const source = runner(Source)
 
 // timeout 15s as the deobfuscation can take some time when the js changes.
 test("gets an episode server", async() => {
-  log(JSON.stringify(await source.playlistEpisodeServer({playlistId: "/watch/how-not-to-summon-a-demon-lord-w.3vog", episodeId: "HTmfCcgl,HTSZA8sl,HTqXDM4m", sourceId:"servers", serverId:"GDyXC84gkg=="})))
+  log(JSON.stringify(await source.playlistEpisodeServer({playlistId: "/watch/how-not-to-summon-a-demon-lord-w.3vog", episodeId: "HTmfCcgl,HTSZA8sl,HTqXDM4m", sourceId:"servers", serverId:"HzuaDckilg=="})))
 }, {timeout: 20000})
 // test("gets an episode server", async() => {
 //   log(JSON.stringify(await source.playlistEpisodeServer({playlistId: "/watch/how-not-to-summon-a-demon-lord-w.3vog", episodeId: "HTmfCckh,HTSZAsIh,HTqXDM8i | sub", sourceId:"servers", serverId:"HzuaDckjlg=="})))
