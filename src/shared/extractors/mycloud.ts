@@ -117,11 +117,22 @@ async function temporaryMyCloudHandling(url: string): Promise<ISource> {
   let domain = urlSplit[2];
 
   let key = urlSplit[urlSplit.length-1];
+  key = substituteString(key, "E1KyOcIMf9v7XHg", "gMvO97yE1cfKIXH")
+  key = reverse(key)
+  key = rc4Cypher("dawQCziL2v", key)
+  key = serializeText(key)
+  
+  key = reverse(key)
+  key = substituteString(key, "ZSsbx4NtMpOoCh", "ZCo4MthpsNxSOb");
+  key = rc4Cypher("thDz4uPKGSYW", key)
+  key = serializeText(key)
 
-  key = ('' + b64encode(rc4Cypher("dawQCziL2v", key = (key = substituteString(key = '' + (key = key), "E1KyOcIMf9v7XHg", "gMvO97yE1cfKIXH")).split('').reverse().join('')))).replace(/\//g, '_').replace(/\+/g, '-');
-  key = ('' + b64encode(rc4Cypher("thDz4uPKGSYW", key = substituteString(key = key.split('').reverse().join(''), "ZSsbx4NtMpOoCh", "ZCo4MthpsNxSOb")))).replace(/\//g, '_').replace(/\+/g, '-');
-  key = ('' + b64encode(rc4Cypher("QIP5jcuvYEKdG", key))).replace(/\//g, '_').replace(/\+/g, '-');
-  key = ('' + b64encode(key = substituteString(key = key.split('').reverse().join(''), "fH0n3GZDeKCE6", "0GCn6e3ZfDKEH"))).replace(/\//g, '_').replace(/\+/g, '-')
+  key = rc4Cypher("QIP5jcuvYEKdG", key)
+  key = serializeText(key)
+
+  key = reverse(key)
+  key = substituteString(key, "fH0n3GZDeKCE6", "0GCn6e3ZfDKEH")
+  key = serializeText(key)
 
   urlSplit = urlSplit = url.split("?t=");
   let tParam = urlSplit[urlSplit.length-1].split("&")[0];  
@@ -134,10 +145,23 @@ async function temporaryMyCloudHandling(url: string): Promise<ISource> {
   console.log("GOT RES !");
   console.log(jsonBody);
   
-  res = b64decode(('' + (res = '' + (res = res))).replace(/_/g, '/').replace(/-/g, '+'));
-  res = rc4Cypher("QIP5jcuvYEKdG", b64decode(('' + (res = (res = substituteString(res, "0GCn6e3ZfDKEH", "fH0n3GZDeKCE6")).split('').reverse().join(''))).replace(/_/g, '/').replace(/-/g, '+')));
-  res = (res = substituteString(res = rc4Cypher("thDz4uPKGSYW", b64decode(('' + res).replace(/_/g, '/').replace(/-/g, '+'))), "ZCo4MthpsNxSOb", "ZSsbx4NtMpOoCh")).split('').reverse().join('');
-  const jsonResult = JSON.parse(res = substituteString(res = (res = rc4Cypher("dawQCziL2v", b64decode(('' + res).replace(/_/g, '/').replace(/-/g, '+')))).split('').reverse().join(''), "gMvO97yE1cfKIXH", "E1KyOcIMf9v7XHg"));
+  res = deserializeText(res)
+  res = substituteString(res, "0GCn6e3ZfDKEH", "fH0n3GZDeKCE6")
+  res = reverse(res)
+  res = deserializeText(res)
+  res = rc4Cypher("QIP5jcuvYEKdG", res);
+
+  res = deserializeText(res)
+  res = rc4Cypher("thDz4uPKGSYW", res)
+  res = substituteString(res, "ZCo4MthpsNxSOb", "ZSsbx4NtMpOoCh")
+  res = reverse(res)
+
+  res = deserializeText(res)
+  res = rc4Cypher("dawQCziL2v", res)
+  res = reverse(res)
+  res = substituteString(res, "gMvO97yE1cfKIXH", "E1KyOcIMf9v7XHg")
+  
+  const jsonResult = JSON.parse(res);
 
   console.log(jsonResult);
   const videos = await getM3u8Qualities(jsonResult.sources[0]["file"]);
