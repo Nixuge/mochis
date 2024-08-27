@@ -15,8 +15,12 @@ import type {
   PlaylistEpisodeServer,
 } from '@mochiapp/js/dist';
 import {
+  DiscoverListingOrientationType,
+  DiscoverListingType,
   PlaylistEpisodeServerFormatType,
   PlaylistEpisodeServerQualityType,
+  PlaylistStatus,
+  PlaylistType,
   SourceModule,
   VideoContent
 } from '@mochiapp/js/dist';
@@ -32,21 +36,58 @@ import { sleep } from '../shared/utils/sleep';
 import { scrapeEpisodes, scrapeSeasonsDiv } from './scraper/episodesScraper';
 import { parseSubpage } from './scraper/subpage';
 
+const dead = true;
+
+const deadPlaylistObj = {
+  id: "oos",
+  title: "Aniwave Down",
+  posterImage: "https://paperback13.nixuge.me/cdn/hxh.jpg",
+  bannerImage: "https://paperback13.nixuge.me/cdn/hxh.jpg",
+  url: "oos",
+  status: PlaylistStatus.cancelled,
+  type: PlaylistType.video
+} satisfies Playlist
 
 export default class Source extends SourceModule implements VideoContent {
   metadata = {
     id: 'aniwave',
     name: 'Aniwave',
-    version: '0.7.9',
-    icon: "https://aniwave.to/assets/s/e8c93166fd4dcf9ab41d5178518295fc1b5fcb27fd90df1c268eb0.png"
+    version: '1.0.0',
+    icon: "https://paperback13.nixuge.me/cdn/Aniwave.png"
   }
 
   async discoverListings(listingRequest?: DiscoverListingsRequest | undefined): Promise<DiscoverListing[]> {
+    if (dead) {
+      return [{
+        id: "oos",
+        title: "Out of service",
+        type: DiscoverListingType.featured,
+        orientation: DiscoverListingOrientationType.landscape,
+        paging: {
+          id: "oos",
+          items: [deadPlaylistObj]
+        }
+      }]
+    }
+
     scrapeFilters()
     return await new HomeScraper(listingRequest).scrape()
   }
 
   async playlistDetails(id: string): Promise<PlaylistDetails> {
+    if (dead) {
+      return {
+        synopsis: "Aniwave has been shut down as of the 27/08/2024",
+        altTitles: [],
+        altPosters: [],
+        altBanners: [],
+        genres: ["Tragedy"],
+        yearReleased: 2024,
+        ratings: 10,
+        previews: []
+      } satisfies PlaylistDetails;
+    }
+
     const fullUrl = `${BASENAME}${id}`;
     const html = await request.get(fullUrl);
 
@@ -92,6 +133,31 @@ export default class Source extends SourceModule implements VideoContent {
   }
 
   async playlistEpisodes(playlistId: string, options?: PlaylistItemsOptions | undefined): Promise<PlaylistItemsResponse> {
+    if (dead) {
+      return [{
+        id: "oos",
+        number: 1,
+        altTitle: "Last season",
+        variants: [{
+          id: "1",
+          title: "1-1",
+          pagings: [{
+            id: "1",
+            items: [{
+              id: "last",
+              title: "Last episode",
+              description: "Aniwave has been shut down as of the 27/08/2024",
+              // thumbnail: string,
+              number: 0,
+              timestamp: "2024" as unknown as Date,
+              tags: []
+            }]
+          }]
+        }],
+        default: true
+      }]
+    }
+    
     // If grabbing another season, just grab that one
     if (options != null) {
       const currentSeasonEpisodes = (await scrapeEpisodes(options.groupId))!;
@@ -121,6 +187,19 @@ export default class Source extends SourceModule implements VideoContent {
   }
 
   async playlistEpisodeSources(req: PlaylistEpisodeSourcesRequest): Promise<PlaylistEpisodeSource[]> {
+    if (dead) {
+      return [{
+        id: "nix",
+        displayName: "Nixuge's CDN",
+        description: "Nixuge's CDN",
+        servers: [{
+          id: "Fast",
+          displayName: "Fast",
+          description: "Nixuge's fast CDN"
+        }]
+      }]
+    }    
+
     const [episodeId, variantType] = req.episodeId.split(" | ");
     
     
@@ -156,6 +235,31 @@ export default class Source extends SourceModule implements VideoContent {
   }
 
   async playlistEpisodeServer(req: PlaylistEpisodeServerRequest): Promise<PlaylistEpisodeServerResponse> {
+    if (dead) {
+      return {
+        links: [
+          {
+            url: "https://paperback13.nixuge.me/cdn/aniwave_1080p.mp4",
+            quality: PlaylistEpisodeServerQualityType.q1080p,
+            format: PlaylistEpisodeServerFormatType.dash
+          },
+          {
+            url: "https://paperback13.nixuge.me/cdn/aniwave_720p.mp4",
+            quality: PlaylistEpisodeServerQualityType.q720p,
+            format: PlaylistEpisodeServerFormatType.dash
+          },
+          {
+            url: "https://paperback13.nixuge.me/cdn/aniwave_480p.mp4",
+            quality: PlaylistEpisodeServerQualityType.q480p,
+            format: PlaylistEpisodeServerFormatType.dash
+          },
+      ],
+        subtitles: [],
+        skipTimes: [],
+        headers: {}
+      }
+    }
+    
     // @ts-ignore
     const result: string = (await request.get(`${AJAX_BASENAME}/server/${req.serverId}?vrf=${getVrf(req.serverId)}`)).json()["result"];
     const url = decodeVideoSkipData(result["url"])
@@ -178,13 +282,25 @@ export default class Source extends SourceModule implements VideoContent {
   }
 
   async searchFilters(): Promise<SearchFilter[]> {
+    if (dead) {
+      return []
+    }
+
     while (isTesting() && filters.length == 0) {
       await sleep(10);
     }
     return filters;
   }
 
-  async search(searchQuery: SearchQuery): Promise<Paging<Playlist>> {    
+  async search(searchQuery: SearchQuery): Promise<Paging<Playlist>> {
+    if (dead) {
+      return {
+        id: "down",
+        title: "Down",
+        items: [deadPlaylistObj]
+      }
+    }
+    
     const currentPageInt = (searchQuery.page == undefined) ? 1 : parseInt(searchQuery.page)
     let filterString = "";
     for (const filter of searchQuery.filters) {
