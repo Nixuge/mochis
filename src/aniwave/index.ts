@@ -53,7 +53,7 @@ export default class Source extends SourceModule implements VideoContent {
     id: 'aniwave',
     name: 'Aniwave',
     version: '1.0.0',
-    icon: "https://paperback13.nixuge.me/cdn/Aniwave.png"
+    icon: "https://paperback13.nixuge.me/cdn/aniwave.png"
   }
 
   async discoverListings(listingRequest?: DiscoverListingsRequest | undefined): Promise<DiscoverListing[]> {
