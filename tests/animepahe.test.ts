@@ -34,5 +34,17 @@ let episodeId: string = ""
 // })
 
 test("gets an episode server", async() => {
-  log(JSON.stringify(await source.playlistEpisodeServer({playlistId: "a", episodeId: "b", sourceId:"c", serverId:"https://kwik.cx/e/WjyZUGlA38xp/"})))
+  log(JSON.stringify(await source.playlistEpisodeServer({playlistId: "a", episodeId: "b", sourceId:"c", serverId:'[{"id":"https://kwik.si/e/jC3tkihxKzZG","quality":"360p"},{"id":"https://kwik.si/e/U8jG62THYN9y","quality":"720p"},{"id":"https://kwik.si/e/cwZF4BCrhaQs","quality":"1080p"}]'})))
 })
+
+
+// test("get main page", async() => {
+//   try {
+//     log((await source.playlistEpisodeSources({
+//       playlistId: "1d6b96ff-45c4-c842-1a91-45af89eb8474",
+//       episodeId: "b06a55779d98a5d91908fa5ddd5ba24d49c9a145277d6dc18db178432c657e34"
+//     }))[0])
+//   } catch(e) {
+//     log(e)
+//   }
+// })

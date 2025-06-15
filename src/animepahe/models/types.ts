@@ -37,3 +37,8 @@ export type PaheEpisode = {
     filler: number,
     created_at: string
 }
+
+export type ServerQuality = {
+    id: string;
+    quality: string;
+}

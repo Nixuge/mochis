@@ -13,6 +13,7 @@ import type {
   SearchFilter,
   SearchQuery,
   PlaylistEpisodeServer,
+  PlaylistEpisodeServerLink,
 } from '@mochiapp/js/dist';
 import {
   DiscoverListingOrientationType,
@@ -25,7 +26,7 @@ import {
   StatusError,
   VideoContent
 } from '@mochiapp/js/dist';
-import { PaheAiringRequest, PaheRelease } from './models/types';
+import { PaheAiringRequest, PaheRelease, ServerQuality } from './models/types';
 import { baseUrl } from './utils/constants';
 import { fetchScrapeEpisodes, paheToPlaylistItem } from './scraper/episodeScraper';
 import { KwikE } from '../shared/extractors/kwik';
@@ -194,16 +195,53 @@ export default class Source extends SourceModule implements VideoContent {
 
       const $ = load(html);
 
-      const servers = $('div#resolutionMenu > button').map((i, el) => ({
+      const serversRaw = $('div#resolutionMenu > button').map((i, el) => ({
         id: $(el).attr('data-src')!,
         displayName: $(el).text(),
         // audio: $(el).attr('data-audio'),
       } satisfies PlaylistEpisodeServer)).get();
 
+
+      // Note: this is technically slower (more like wasteful thanks async)
+      // as we need to request a bunch of shit before getting the video urls,
+      // but so much more convenient.
+      const serversMap: Record<string, ServerQuality[]> = {};
+      serversRaw.forEach((server) => {
+        let nameSplit = server.displayName.trim().split(" · ");
+        if (nameSplit.length == 1) {
+          console.warn("Only one element in split !?")
+        } else if (nameSplit.length > 2) {
+          console.warn("More than 2 elements in split?")
+        } else {
+          let displayName = nameSplit[0];
+          let quality = nameSplit[1]
+          let qSplit = quality.split(" ")
+          if (qSplit.length > 1) {
+            if (qSplit.length != 2) {
+              console.warn("There seems to be more than 2 elements in the quality, processing with the first two.")
+            }
+            displayName += ` [${qSplit[1]}]`; //could be () instead of [] ?
+            quality = qSplit[0];
+          }
+          if (!serversMap[displayName])
+            serversMap[displayName] = [];
+
+          serversMap[displayName].push({
+            id: server.id,
+            quality
+          });
+        }
+      })
+
+      const formattedServersMap: PlaylistEpisodeServer[] = Object.entries(serversMap).map(([name, data]) => ({
+        displayName: name,
+        id: JSON.stringify(data)
+      }));
+
       return [{
         id: "animepahe",
         displayName: "AnimePahe",
-        servers
+        servers: formattedServersMap
       }];
     } catch (err) {
       throw new Error((err as Error).message);
@@ -211,14 +249,19 @@ export default class Source extends SourceModule implements VideoContent {
   };
 
   async playlistEpisodeServer(req: PlaylistEpisodeServerRequest): Promise<PlaylistEpisodeServerResponse> {
-    const video = (await new KwikE(req.serverId).extract())[0];
+    
+    const asyncLinks = JSON.parse(req.serverId).map(async (server: ServerQuality) => {
+      return {
+        url: (await new KwikE(server.id).extract())[0].url,
+        quality: PlaylistEpisodeServerQualityType[`q${server.quality}`] ?? PlaylistEpisodeServerQualityType.auto,
+        format: PlaylistEpisodeServerFormatType.hsl
+      } satisfies PlaylistEpisodeServerLink
+    })
+
+    const links = await Promise.all(asyncLinks)
 
     return {
-      links: [{
-        url: video.url,
-        quality: PlaylistEpisodeServerQualityType.auto,
-        format: PlaylistEpisodeServerFormatType.hsl
-      }],
+      links: links,
       skipTimes: [],
       headers: {},
       subtitles: [],
