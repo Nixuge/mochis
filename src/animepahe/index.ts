@@ -40,7 +40,7 @@ export default class Source extends SourceModule implements VideoContent {
   metadata = {
     id: 'animepahe',
     name: 'AnimePahe',
-    version: '0.2.0',
+    version: '0.2.1',
     icon: "https://pbs.twimg.com/profile_images/1587822716312489985/RDbLTyya_400x400.png"
   }
 
@@ -258,7 +258,10 @@ export default class Source extends SourceModule implements VideoContent {
       } satisfies PlaylistEpisodeServerLink
     })
 
-    const links = await Promise.all(asyncLinks)
+    const links = (await Promise.all(asyncLinks))
+    links.reverse(); 
+    // Quick n ez - usually qualities are in acending, not descending.
+    // Ideally should sort but meh for now.
 
     return {
       links: links,
