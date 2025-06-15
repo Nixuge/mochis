@@ -5,18 +5,18 @@
   "devDependencies": {
     "@mochiapp/cli": "^0.0.8",
     "@mochiapp/runner": "^0.0.2",
-    "axios": "^1.7.4",
+    "axios": "^1.10.0",
     "bun-types": "latest"
   },
   "peerDependencies": {
-    "typescript": "^5.3.3"
+    "typescript": "^5.5.4"
   },
   "dependencies": {
     "@mochiapp/js": "github:danielbady/js#main",
     "@types/crypto-js": "^4.2.2",
-    "cheerio": "^1.0.0",
+    "cheerio": "^1.1.0",
     "crypto-js": "^4.2.0",
-    "vitest": "^1.6.0"
+    "vitest": "^1.6.1"
   },
   "scripts": {
     "check": "mochi-cli check",

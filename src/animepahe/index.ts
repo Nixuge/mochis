@@ -40,7 +40,7 @@ export default class Source extends SourceModule implements VideoContent {
   metadata = {
     id: 'animepahe',
     name: 'AnimePahe',
-    version: '0.1.21',
+    version: '0.2.0',
     icon: "https://pbs.twimg.com/profile_images/1587822716312489985/RDbLTyya_400x400.png"
   }
 
