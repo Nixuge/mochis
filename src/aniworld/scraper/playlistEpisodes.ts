@@ -12,7 +12,7 @@ export function scrapeGroups($: CheerioAPI) {
         .attr("href")!
         .split("/")
         .filter((x) => x !== "")
-        .at(-1)!;
+        .slice(-1)[0]
 
       const title = $(a).attr("title") || $(a).text();
 

@@ -198,7 +198,7 @@ export default class AniWorld extends SourceModule implements VideoContent {
       .toArray()
       .filter((li) => $(li).attr("data-lang-key") == langKey) // filter by language
       .map((li) => {
-        const id = $(li).attr("data-link-target")!.split("/").at(-1)!;
+        const id = $(li).attr("data-link-target")!.split("/").slice(-1)[0]!;
         const displayName = $(li).find("h4").text();
         return { id: `${displayName.toLowerCase()}/${id}`, displayName };
       })
