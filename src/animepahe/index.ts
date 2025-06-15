@@ -40,7 +40,7 @@ export default class Source extends SourceModule implements VideoContent {
   metadata = {
     id: 'animepahe',
     name: 'AnimePahe',
-    version: '0.2.1',
+    version: '0.2.2',
     icon: "https://pbs.twimg.com/profile_images/1587822716312489985/RDbLTyya_400x400.png"
   }
 
@@ -259,9 +259,7 @@ export default class Source extends SourceModule implements VideoContent {
     })
 
     const links = (await Promise.all(asyncLinks))
-    links.reverse(); 
-    // Quick n ez - usually qualities are in acending, not descending.
-    // Ideally should sort but meh for now.
+    links.sort((a, b) => b.quality - a.quality);
 
     return {
       links: links,
