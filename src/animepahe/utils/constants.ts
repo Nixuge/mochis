@@ -1,1 +1,1 @@
-export const baseUrl = 'https://animepahe.ru';
+export const baseUrl = 'https://animepahe.si';
